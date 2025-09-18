@@ -16,69 +16,40 @@ https://marilu1707.github.io/marilu_portfolio/
 
 ## Deploy Web (Vercel)
 
-- Ya NO usamos Netlify ni GitHub Pages en este repo.
-- Asegurate de tener `vercel.json` en la raíz con el fallback de SPA (incluido en este repo):
+- Ya NO usamos Netlify ni GitHub Pages en este repo. Se sirve como sitio estático desde `build/web`.
+- `vercel.json` en la raíz define rewrites para SPA:
 
 ```json
 { "rewrites": [ { "source": "/(.*)", "destination": "/index.html" } ] }
 ```
 
-### Opción A — CLI (rápida y recomendada)
+### Build local (recomendado)
 
-1) Build local
+Opción rápida para generar `build/web` y publicar sin build en el host.
 
 ```bash
 flutter clean
 flutter pub get
-flutter build web --release --web-renderer canvaskit --base-href "/"
+flutter build web --release --base-href "/"
+# Recomendado: quitar el service worker para evitar caché vieja en el primer deploy
+rm -f build/web/flutter_service_worker.js  # (Windows: del build\web\flutter_service_worker.js)
 ```
 
-2) Instalar Vercel CLI (una vez)
+Atajo con script:
 
-```bash
-npm i -g vercel
-```
-
-3) Deploy directo de la carpeta compilada
-
-```bash
-# macOS/Linux
-bash scripts/deploy_vercel.sh
-
-# Windows (PowerShell)
-powershell -ExecutionPolicy Bypass -File scripts/deploy_vercel.ps1
-
-# Alternativa manual
-vercel build/web      # preview
-vercel --prod build/web
-```
+- macOS/Linux: `scripts/build_web.sh`
+- Windows (PowerShell): `powershell -ExecutionPolicy Bypass -File scripts/build_web.ps1`
 
 Notas:
-- Si preguntan “Output directory”, ya pasás `build/web`.
-- Con `vercel.json` (rewrites a `/index.html`) no habrá 404 al refrescar rutas internas (SPA).
-- `--web-renderer canvaskit` ofrece mejor fidelidad visual; `--web-renderer html` puede ser útil en dispositivos de bajos recursos o si priorizás tamaño de descarga.
+- Framework Preset en Vercel: “Other”.
+- Build Command: vacío (sirve archivos estáticos).
+- Output Directory: `build/web`.
+- Si ves pantalla en blanco: hard refresh (Ctrl/Cmd + Shift + R). Asegurate de no publicar `flutter_service_worker.js` o eliminá cache desde DevTools.
+- Windows: Flutter necesita “Developer Mode” habilitado para crear symlinks usados por plugins. Abrí Configuración con `start ms-settings:developers` y activalo.
 
-#### Scripts de deploy (un comando)
+### CI/CD con GitHub + Actions (opcional)
 
-- macOS/Linux: `scripts/deploy_vercel.sh [renderer]`
-  - Ejemplos: `scripts/deploy_vercel.sh` (canvaskit) o `scripts/deploy_vercel.sh html`
-- Windows (PowerShell): `scripts/deploy_vercel.ps1 [-Preview] [-Renderer canvaskit|html]`
-  - Ejemplos: `powershell -ExecutionPolicy Bypass -File scripts/deploy_vercel.ps1`
-             `powershell -ExecutionPolicy Bypass -File scripts/deploy_vercel.ps1 -Renderer html`
-  - Si PowerShell bloquea la ejecución: `Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass`
-
-### Opción B — Conectar GitHub a Vercel (CI/CD)
-
-1) Ir a https://vercel.com/new e importar el repo.
-2) Framework Preset: “Other”.
-3) Output Directory: `build/web`.
-4) Build Command (si querés construir en Vercel):
-
-```
-flutter build web --release --web-renderer canvaskit --base-href "/"
-```
-
-Importante: Vercel no incluye Flutter por defecto. Para construir ahí, suele requerir un script que instale el SDK en tiempo de build. Si no querés complicarte, preferí la Opción A (CLI).
+Este repo incluye workflows que pueden compilar Web y subir artefactos o commitear `build/web`. Si usás Vercel con contenido estático, podés desactivar los builds en Vercel y sólo servir `build/web`.
 
 ---
 

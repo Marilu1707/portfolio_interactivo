@@ -30,8 +30,12 @@ jobs:
       - name: Dependencies
         run: flutter pub get
 
-      - name: Build Flutter Web (canvaskit + base-href "/")
-        run: flutter build web --release --web-renderer canvaskit --base-href "/"
+      - name: Build Flutter Web (base-href "/")
+        run: flutter build web --release --base-href "/"
+
+      - name: Remove service worker to avoid stale cache
+        run: |
+          rm -f build/web/flutter_service_worker.js || true
 
       # Asegura SPA fallback para rutas internas (404 -> index.html)
       - name: Ensure vercel.json (SPA rewrites)
@@ -55,10 +59,9 @@ jobs:
       - name: Commit build/web to repo
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          commit_message: "build web listo para Vercel (SPA rewrites) [skip ci]"
+          commit_message: "build web listo para Vercel (SPA rewrites, sin SW) [skip ci]"
           file_pattern: |
             build/web/**
             vercel.json
             .gitignore
           branch: main
-
