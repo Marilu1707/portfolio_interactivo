@@ -80,8 +80,9 @@ class _Level3InventoryScreenState extends State<Level3InventoryScreen> {
                           child: SingleChildScrollView(
                             scrollDirection: Axis.horizontal,
                             child: DataTable(
-                              dataRowMinHeight: 48,
                               headingRowHeight: 44,
+                              dataRowMinHeight: 56,
+                              dataRowMaxHeight: 64,
                               headingTextStyle: const TextStyle(fontWeight: FontWeight.w800, color: Colors.black87),
                               columns: const [
                                 DataColumn(label: Text('Nombre')),
@@ -91,14 +92,35 @@ class _Level3InventoryScreenState extends State<Level3InventoryScreen> {
                                 DataColumn(label: Text('Acciones')),
                               ],
                               rows: rows.map((r) => DataRow(cells: [
-                                DataCell(SizedBox(width: 200, child: Text(r.name, softWrap: true, style: const TextStyle(fontWeight: FontWeight.w700)))),
-                                DataCell(FittedBox(fit: BoxFit.scaleDown, child: Text(nf.format(r.stock)))),
+                                DataCell(SizedBox(width: 220, child: Text(r.name, softWrap: true, style: const TextStyle(fontWeight: FontWeight.w700)))),
+                                DataCell(Text(nf.format(r.stock))),
                                 DataCell(Text(df.format(r.expiry))),
                                 DataCell(SizedBox(width: 32, child: Align(alignment: Alignment.centerLeft, child: StockStatusDot(stock: r.stock)))) ,
-                                DataCell(Wrap(spacing: 8, children: [
-                                  OutlinedButton(onPressed: () => _addOne(app, r, 1), child: const Text('Agregar')),
-                                  OutlinedButton(onPressed: () => _addOne(app, r, 5), child: const Text('+5')),
-                                ])),
+                                DataCell(SizedBox(
+                                  width: 220, // mantiene una sola línea para acciones
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.end,
+                                    children: [
+                                      OutlinedButton(
+                                        onPressed: () => _addOne(app, r, 1),
+                                        style: OutlinedButton.styleFrom(
+                                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                                          minimumSize: const Size(0, 40),
+                                        ),
+                                        child: const Text('Agregar'),
+                                      ),
+                                      const SizedBox(width: 8),
+                                      OutlinedButton(
+                                        onPressed: () => _addOne(app, r, 5),
+                                        style: OutlinedButton.styleFrom(
+                                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                          minimumSize: const Size(0, 40),
+                                        ),
+                                        child: const Text('+5'),
+                                      ),
+                                    ],
+                                  ),
+                                )),
                               ])).toList(),
                             ),
                           ),
