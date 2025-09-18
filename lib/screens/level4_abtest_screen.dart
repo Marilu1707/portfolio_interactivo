@@ -4,6 +4,15 @@ import 'package:provider/provider.dart';
 
 import '../state/app_state.dart';
 
+/// (Opcional) Estructura para precargar el formulario con datos del juego.
+class AbPrefill {
+  final int nA;
+  final int convA;
+  final int nB;
+  final int convB;
+  const AbPrefill({required this.nA, required this.convA, required this.nB, required this.convB});
+}
+
 // Nivel 4 — A/B Test
 // Calculadora de prueba Z para dos proporciones (control vs treatment).
 // - Lee N y conversiones de cada grupo
@@ -39,6 +48,19 @@ class _Level4AbTestScreenState extends State<Level4AbTestScreen> {
     _xC = TextEditingController(text: (app?.aConv ?? 0).toString());
     _nT = TextEditingController(text: (app?.bN ?? 1).toString());
     _xT = TextEditingController(text: (app?.bConv ?? 0).toString());
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Permite precargar desde arguments si se navega con AbPrefill
+    final args = ModalRoute.of(context)?.settings.arguments;
+    if (args is AbPrefill) {
+      _nC.text = args.nA.toString();
+      _xC.text = args.convA.toString();
+      _nT.text = args.nB.toString();
+      _xT.text = args.convB.toString();
+    }
   }
 
   @override
@@ -457,4 +479,3 @@ class AbResult {
   final bool isSignificant, treatmentWins;
   const AbResult(this.pC, this.pT, this.z, this.pValue, this.isSignificant, this.treatmentWins);
 }
-
