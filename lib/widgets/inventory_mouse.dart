@@ -80,7 +80,7 @@ class _InventoryMouseState extends State<InventoryMouse>
           decoration: BoxDecoration(
             color: const Color(0xFFFFF3CC),
             borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: const Color(0xFFB78F6A).withOpacity(0.35), width: 1.2),
+            border: Border.all(color: const Color(0xFFB78F6A).withValues(alpha: 0.35), width: 1.2),
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
@@ -112,4 +112,3 @@ class _InventoryMouseState extends State<InventoryMouse>
     super.dispose();
   }
 }
-
