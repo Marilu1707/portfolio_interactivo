@@ -9,7 +9,7 @@ Future<void> descargarCV(BuildContext context) async {
   try {
     final bytes = await rootBundle.load(path);
     final dir = await getTemporaryDirectory();
-    final file = File('${dir.path}/CV_Marilu_Massironi.pdf');
+    final file = File('${dir.path}/CV_MARIA_LUJAN_MASSIRONI.pdf');
     await file.writeAsBytes(
       bytes.buffer.asUint8List(bytes.offsetInBytes, bytes.lengthInBytes),
       flush: true,
@@ -21,4 +21,3 @@ Future<void> descargarCV(BuildContext context) async {
     );
   }
 }
-
