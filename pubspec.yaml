@@ -1,0 +1,34 @@
+name: flutter_portfolio
+description: Portfolio-app kawaii pastel de Marilu
+publish_to: "none"
+version: 1.0.0+1
+
+environment:
+  sdk: ">=3.3.0 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  intl: ^0.20.2
+  cupertino_icons: ^1.0.8
+  url_launcher: ^6.3.0
+  fl_chart: ^0.68.0
+  csv: ^6.0.0
+  google_fonts: ^6.2.1
+  provider: ^6.1.2
+  path_provider: ^2.1.5
+  open_filex: ^4.5.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/data/
+    - assets/img/
+    - assets/images/

@@ -1,0 +1,30 @@
+const Map<String, String> kCheeseCountryEs = {
+  'Mozzarella': 'Italia',
+  'Parmesan': 'Italia',
+  'Parmigiano': 'Italia',
+  'Gouda': 'Países Bajos',
+  'Edam': 'Países Bajos',
+  'Brie': 'Francia',
+  'Camembert': 'Francia',
+  'Roquefort': 'Francia',
+  'Gruyere': 'Suiza',
+  'Gruyère': 'Suiza',
+  'Emmental': 'Suiza',
+  'Cheddar': 'Reino Unido',
+  'Blue': 'Reino Unido',
+  'Manchego': 'España',
+  'Feta': 'Grecia',
+  'Provolone': 'Italia',
+  'Ricotta': 'Italia',
+  'Caciocavallo': 'Italia',
+};
+
+const List<String> kCountriesEs = <String>[
+  'Italia',
+  'Francia',
+  'España',
+  'Suiza',
+  'Países Bajos',
+  'Reino Unido',
+  'Grecia',
+];

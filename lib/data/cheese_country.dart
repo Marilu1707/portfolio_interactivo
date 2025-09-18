@@ -1,0 +1,21 @@
+const Map<String, String> cheeseCountry = {
+  'Mozzarella': 'Italia',
+  'Parmesan': 'Italia',
+  'Parmigiano': 'Italia',
+  'Gouda': 'Países Bajos',
+  'Brie': 'Francia',
+  'Camembert': 'Francia',
+  'Roquefort': 'Francia',
+  'Gruyere': 'Suiza',
+  'Gruyère': 'Suiza',
+  'Cheddar': 'Reino Unido',
+  'Manchego': 'España',
+  'Feta': 'Grecia',
+  'Provolone': 'Italia',
+  'Edam': 'Países Bajos',
+  'Emmental': 'Suiza',
+  'Gorgonzola': 'Italia',
+  'Ricotta': 'Italia',
+  'Caciocavallo': 'Italia',
+};
+
