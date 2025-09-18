@@ -201,6 +201,7 @@ class _Level3InventoryScreenState extends State<Level3InventoryScreen> {
                                     OutlinedButton(onPressed: () => _addOne(app, r, 5), child: const Text('+5')),
                                   ]),
                                 ],
+                              ),
                             ),
                           );
                         },

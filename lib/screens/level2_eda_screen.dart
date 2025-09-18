@@ -1,313 +1,318 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:provider/provider.dart';
-import '../services/data_service.dart';
-import '../models/cheese_rating.dart';
-import '../theme/kawaii_theme.dart';
 import '../state/app_state.dart';
-import '../data/country_es.dart';
-import '../utils/number_es.dart';
-import '../data/cheese_catalog.dart';
 
-// Nivel 2 (EDA): tabla de rankings y gráfico por países
-
-class Level2EdaScreen extends StatefulWidget {
+/// Nivel 2 — Exploración de datos (mobile‑first)
+/// Lee datos reales desde AppState y muestra:
+/// 1) Top de quesos (tabla por puntaje base)
+/// 2) Quesos con mayor cantidad de pedidos (barras)
+/// 3) Recomendación (globo + ratón ab_mouse.png)
+class Level2EdaScreen extends StatelessWidget {
   const Level2EdaScreen({super.key});
 
-  @override
-  State<Level2EdaScreen> createState() => _Level2EdaScreenState();
-}
+  /// Orden fijo de quesos en UI (barras y chips)
+  static const List<String> ordenQuesos = [
+    'Mozzarella', 'Cheddar', 'Parmesano', 'Gouda', 'Brie', 'Azul'
+  ];
 
-class _Level2EdaScreenState extends State<Level2EdaScreen> {
-  static const bg = KawaiiTheme.bg;
-  static const card = KawaiiTheme.card;
-
-  bool loading = true;
-  List<CheeseRating> ratings = [];
-
-  @override
-  void initState() {
-    super.initState();
-    _init();
+  /// Genera la lista ordenada por puntaje base (descendente) para la tabla.
+  List<MapEntry<String, double>> topPorPuntaje(AppState s) {
+    final list = s.puntajeBase.entries.toList()
+      ..sort((a, b) => b.value.compareTo(a.value));
+    return list;
   }
 
-  // Tabla fija con los 6 quesos oficiales del juego
-  Widget _buildTopOficial() {
-    final Map<String, double> scoreByName = {
-      for (final r in ratings) _cheeseEs(r.name): r.score,
-    };
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const _H3('Top de quesos'),
-        const SizedBox(height: 8),
-        Expanded(
-          child: Material(
-            color: Colors.white,
-            child: SingleChildScrollView(
-              child: DataTable(
-                headingTextStyle: const TextStyle(fontWeight: FontWeight.w800, color: Colors.black87),
-                columns: const [
-                  DataColumn(label: Text('Nombre')),
-                  DataColumn(label: Text('País')),
-                  DataColumn(label: Text('Puntaje')),
-                ],
-                rows: [
-                  for (final c in kCheeses)
-                    DataRow(cells: [
-                      DataCell(Text(c.nombre)),
-                      DataCell(Text(c.pais)),
-                      DataCell(Text((scoreByName[c.nombre] ?? 0.0).toStringAsFixed(1))),
-                    ]),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
+  /// Devuelve la serie de pedidos en el orden fijo.
+  List<int> seriesPedidos(AppState s) =>
+      ordenQuesos.map((q) => s.servedByCheese[q] ?? 0).toList();
 
-  Future<void> _init() async {
-    // Cargamos ratings de ejemplo desde assets para completar la tabla
-    final data = await DataService.loadCheeseRatings();
-    data.sort((a, b) => b.score.compareTo(a.score));
-    setState(() {
-      ratings = data;
-      loading = false;
-    });
+  /// Construye el texto de recomendación según el top de pedidos.
+  String buildRecomendacion(AppState s) {
+    final counts = seriesPedidos(s);
+    final maxVal = counts.reduce((a, b) => a > b ? a : b);
+    if (maxVal == 0) {
+      return 'Todavía no hay suficientes pedidos. Juguemos un poco más 😉';
+    }
+    final indicesTop = <int>[];
+    for (var i = 0; i < counts.length; i++) {
+      if (counts[i] == maxVal) indicesTop.add(i);
+    }
+    if (indicesTop.length == 1) {
+      final q = ordenQuesos[indicesTop.first];
+      return 'Recomendación: destacá $q en el menú base.';
+    }
+    final q1 = ordenQuesos[indicesTop[0]];
+    final q2 = ordenQuesos[indicesTop[1]];
+    return 'Recomendación: mantené variedad; $q1 y $q2 compiten parejo.';
   }
 
   @override
   Widget build(BuildContext context) {
-    final app = context.watch<AppState>();
-    const labels = ['Mozzarella','Parmesano','Gouda','Brie','Azul','Cheddar'];
-    final counts = [for (final l in labels) (app.servedByCheese[l] ?? 0)];
-    final maxY = (counts.isEmpty ? 1 : counts.reduce((a,b)=> a>b?a:b)).toDouble().clamp(1, 9999);
-    final isMobile = KawaiiTheme.isMobile(context);
+    final s = context.watch<AppState>();
+    final isMobile = MediaQuery.of(context).size.width < 700;
+
+    // Secciones (tarjetas) en mobile se apilan; en desktop se distribuyen.
+    final topCard = _TopQuesosCard(top: topPorPuntaje(s));
+    final chartCard = _PedidosChartCard(series: seriesPedidos(s));
+    final recoCard = _RecomendacionCard(texto: buildRecomendacion(s));
 
     return Scaffold(
-      backgroundColor: bg,
       appBar: AppBar(
-        backgroundColor: bg,
-        elevation: 0,
         title: const Text('Nivel 2 — Exploración de datos'),
         centerTitle: true,
       ),
-      body: loading
-          ? const Center(child: CircularProgressIndicator())
-          : Center(
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 1100),
-                child: Padding(
-                  padding: const EdgeInsets.all(20),
-                  child: Column(
-                    children: [
-                      Expanded(
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Expanded(child: _Card(child: _buildTopOficial())),
-                            const SizedBox(width: 16),
-                            Expanded(
-                              child: _Card(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    const _H3('Países con mayor puntaje (por pedidos)'),
-                                    const SizedBox(height: 8),
-                                    Expanded(
-                                      child: AspectRatio(
-                                        aspectRatio: isMobile ? 4 / 3 : 16 / 9,
-                                        child: BarChart(
-                                        BarChartData(
-                                          minY: 0,
-                                          alignment: BarChartAlignment.spaceAround,
-                                          borderData: FlBorderData(show: false),
-                                          gridData: FlGridData(show: true, horizontalInterval: (maxY / 4).clamp(1, 999)),
-                                          titlesData: FlTitlesData(
-                                            topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                                            rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                                            leftTitles: AxisTitles(
-                                              sideTitles: SideTitles(
-                                                showTitles: true,
-                                                reservedSize: isMobile ? 28 : 32,
-                                                getTitlesWidget: (v, _) => Text(fmtInt(v.toInt()), style: const TextStyle(fontSize: 10)),
-                                              ),
-                                            ),
-                                            bottomTitles: AxisTitles(
-                                              sideTitles: SideTitles(
-                                                showTitles: true,
-                                                reservedSize: isMobile ? 28 : 36,
-                                                getTitlesWidget: (x, _) {
-                                                  final i = x.toInt();
-                                                  if (i < 0 || i >= labels.length) return const SizedBox();
-                                                  return Padding(
-                                                    padding: const EdgeInsets.only(top: 6),
-                                                    child: Text(labels[i], style: TextStyle(fontSize: isMobile ? 10 : 11), overflow: TextOverflow.ellipsis),
-                                                  );
-                                                },
-                                              ),
-                                            ),
-                                          ),
-                                          barGroups: [
-                                            for (int i = 0; i < labels.length; i++)
-                                              BarChartGroupData(x: i, barRods: [
-                                                BarChartRodData(
-                                                  toY: counts[i].toDouble(),
-                                                  width: 22,
-                                                  color: const Color(0xFFFFC44D),
-                                                  borderRadius: BorderRadius.circular(6),
-                                                ),
-                                              ]),
-                                          ],
-                                        ),
-                                      ),
-                                      ),
-                                    ),
-                                    const SizedBox(height: 8),
-                                    Wrap(
-                                      spacing: 8,
-                                      runSpacing: 8,
-                                      children: [for (int i=0;i<labels.length;i++) Chip(label: Text('${labels[i]}: ${fmtInt(counts[i])}'))],
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 16),
-                            Expanded(child: _Card(child: _buildConclusionCheeses(labels, counts))),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: ElevatedButton.icon(
-                              onPressed: () => Navigator.pushNamed(context, '/level3'),
-                              icon: const Icon(Icons.arrow_forward_rounded),
-                              label: const Text('Siguiente nivel'),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(16),
+          child: isMobile
+              ? Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    topCard,
+                    const SizedBox(height: 12),
+                    chartCard,
+                    const SizedBox(height: 12),
+                    recoCard,
+                  ],
+                )
+              : Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(child: topCard),
+                    const SizedBox(width: 16),
+                    Expanded(child: chartCard),
+                    const SizedBox(width: 16),
+                    Expanded(child: recoCard),
+                  ],
                 ),
-              ),
-            ),
+        ),
+      ),
     );
   }
+}
 
-  Widget _buildTop10() {
-    final top = [...ratings]..sort((a, b) => b.score.compareTo(a.score));
-    final top10 = top.take(6).toList();
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const _H3('Top de quesos'),
-        const SizedBox(height: 8),
-        Expanded(
-          child: Material(
-            color: Colors.white,
-            child: SingleChildScrollView(
-              child: DataTable(
-                headingTextStyle: const TextStyle(fontWeight: FontWeight.w800, color: Colors.black87),
-                columns: const [
-                  DataColumn(label: Text('Nombre')),
-                  DataColumn(label: Text('País')),
-                  DataColumn(label: Text('Puntaje')),
+/// Construye la tarjeta de "Top de quesos" mostrando nombre y puntaje.
+/// Ordena por puntaje descendente para resaltar los mejores primero.
+class _TopQuesosCard extends StatelessWidget {
+  final List<MapEntry<String, double>> top;
+  const _TopQuesosCard({required this.top});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Container(
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surface,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('Top de quesos',
+              style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800)),
+          const SizedBox(height: 8),
+          const Divider(height: 1),
+          const SizedBox(height: 8),
+          // Tabla compacta de 2 columnas (Nombre | Puntaje)
+          for (final e in top)
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 6.0),
+              child: Row(
+                children: [
+                  Expanded(child: Text(e.key, softWrap: true)),
+                  Text(e.value.toStringAsFixed(1)),
                 ],
-                rows: top10
-                    .map((c) => DataRow(cells: [
-                          DataCell(Text(_cheeseEs(c.name))),
-                          DataCell(Text(toCountryEs(c.country))),
-                          DataCell(Text(c.score.toStringAsFixed(1))),
-                        ]))
-                    .toList(),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Tarjeta con barras "Quesos con mayor cantidad de pedidos" y chips debajo.
+class _PedidosChartCard extends StatelessWidget {
+  const _PedidosChartCard({required this.series});
+  final List<int> series; // en orden fijo: Mozzarella..Azul
+
+  static const labels = Level2EdaScreen.ordenQuesos;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    // maxValue no se usa en fl_chart directamente; lo omitimos
+
+    return Container(
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surface,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('Quesos con mayor cantidad de pedidos',
+              style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800)),
+          const SizedBox(height: 12),
+          SizedBox(
+            height: 220,
+            child: BarChart(
+              BarChartData(
+                alignment: BarChartAlignment.spaceAround,
+                minY: 0,
+                barTouchData: BarTouchData(enabled: true),
+                gridData: FlGridData(show: true, drawVerticalLine: false,
+                  getDrawingHorizontalLine: (v) => FlLine(
+                    color: theme.dividerColor.withValues(alpha: 0.15),
+                    strokeWidth: 1,
+                  ),
+                ),
+                borderData: FlBorderData(show: false),
+                titlesData: FlTitlesData(
+                  topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                  rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                  leftTitles: const AxisTitles(
+                    sideTitles: SideTitles(showTitles: true, reservedSize: 28),
+                  ),
+                  bottomTitles: AxisTitles(
+                    sideTitles: SideTitles(
+                      showTitles: true,
+                      reservedSize: 42,
+                      getTitlesWidget: (value, meta) {
+                        final i = value.toInt();
+                        if (i < 0 || i >= labels.length) return const SizedBox.shrink();
+                        return Padding(
+                          padding: const EdgeInsets.only(top: 6.0),
+                          child: Text(labels[i],
+                              textAlign: TextAlign.center,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: theme.textTheme.labelSmall),
+                        );
+                      },
+                    ),
+                  ),
+                ),
+                barGroups: [
+                  for (int i = 0; i < labels.length; i++)
+                    BarChartGroupData(
+                      x: i,
+                      barRods: [
+                        BarChartRodData(
+                          toY: series[i].toDouble(),
+                          width: 18,
+                          borderRadius: BorderRadius.circular(6),
+                          color: theme.colorScheme.primary,
+                        ),
+                      ],
+                    ),
+                ],
               ),
             ),
           ),
-        ),
-      ],
-    );
-  }
-
-  // Localiza nombres de queso puntuales para visualización
-  String _cheeseEs(String name) {
-    if (name.toLowerCase() == 'parmesan') return 'Parmesano';
-    return name;
-  }
-
-  Widget _buildConclusion(List<MapEntry<String, int>> top) {
-    String text;
-    if (top.length < 2) {
-      text = 'Todavía no hay suficientes pedidos. Jugá un poco más en el nivel 1.';
-    } else {
-      text = '${top[0].key} y ${top[1].key} lideran el puntaje por pedidos reales.\n'
-          'Recomendación: destacá estilos de esos países en el menú base.';
-    }
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: const Color(0xFFFFE79A).withValues(alpha: 0.4),
-        borderRadius: BorderRadius.circular(12),
+          const SizedBox(height: 10),
+          // Chips como OutlinedButton para legibilidad en móvil
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              for (int i = 0; i < labels.length; i++)
+                OutlinedButton.icon(
+                  onPressed: () {},
+                  icon: const Text('🧀'),
+                  label: Text('${labels[i]}: ${series[i]}'),
+                  style: OutlinedButton.styleFrom(
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(50)),
+                    visualDensity: VisualDensity.compact,
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  ),
+                ),
+            ],
+          ),
+        ],
       ),
-      child: Text(text, style: const TextStyle(color: KawaiiTheme.onAccent)),
-    );
-  }
-  Widget _buildConclusionCheeses(List<String> labels, List<int> counts) {
-    String text;
-    if (counts.every((c) => c == 0)) {
-      text = 'Todavía no hay suficientes pedidos. Jugá un poco más en el nivel 1.';
-    } else {
-      final max = counts.reduce((a,b)=> a>b?a:b);
-      final idxs = [for (int i=0;i<counts.length;i++) if (counts[i]==max) i];
-      final leaders = idxs.map((i)=>labels[i]).toList();
-      text = '${leaders.join(' y ')} lidera/n por pedidos.\nRecomendación: destacá ese queso en el menú.';
-    }
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: const Color(0xFFFFE79A).withValues(alpha: 0.4),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Text(text, style: const TextStyle(color: KawaiiTheme.onAccent)),
     );
   }
 }
 
-class _Card extends StatelessWidget {
-  final Widget child;
-  const _Card({required this.child});
+/// Tarjeta de recomendación con fondo amarillo + imagen del ratón.
+class _RecomendacionCard extends StatelessWidget {
+  final String texto;
+  const _RecomendacionCard({required this.texto});
+
   @override
   Widget build(BuildContext context) {
+    final isMobile = MediaQuery.of(context).size.width < 700;
+    final content = isMobile
+        ? Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text('Recomendación',
+                  style: Theme.of(context)
+                      .textTheme
+                      .titleMedium
+                      ?.copyWith(fontWeight: FontWeight.w800)),
+              const SizedBox(height: 8),
+              Text(texto, softWrap: true),
+              const SizedBox(height: 12),
+              Align(
+                alignment: Alignment.center,
+                child: Image.asset('assets/img/ab_mouse.png', height: 84, fit: BoxFit.contain),
+              ),
+            ],
+          )
+        : Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Image.asset('assets/img/ab_mouse.png', height: 84, fit: BoxFit.contain),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Recomendación',
+                        style: Theme.of(context)
+                            .textTheme
+                            .titleMedium
+                            ?.copyWith(fontWeight: FontWeight.w800)),
+                    const SizedBox(height: 6),
+                    Text(texto, softWrap: true),
+                  ],
+                ),
+              ),
+            ],
+          );
+
     return Container(
       decoration: BoxDecoration(
-        color: _Level2EdaScreenState.card,
-        borderRadius: BorderRadius.circular(18),
+        color: const Color(0xFFFCE9A8),
+        borderRadius: BorderRadius.circular(16),
         boxShadow: [
-          BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 10, offset: const Offset(0, 4)),
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
         ],
       ),
       padding: const EdgeInsets.all(16),
-      child: child,
-    );
-  }
-}
-
-class _H3 extends StatelessWidget {
-  final String text;
-  const _H3(this.text);
-  @override
-  Widget build(BuildContext context) {
-    return Text(
-      text,
-      maxLines: 2,
-      softWrap: true,
-      overflow: TextOverflow.ellipsis,
-      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
+      child: content,
     );
   }
 }

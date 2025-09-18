@@ -1,4 +1,4 @@
-import 'dart:math' as math;
+﻿import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -13,19 +13,19 @@ class AbPrefill {
   const AbPrefill({required this.nA, required this.convA, required this.nB, required this.convB});
 }
 
-// Nivel 4 — A/B Test
+// Nivel 4 â€” A/B Test
 // Calculadora de prueba Z para dos proporciones (control vs treatment).
 // - Lee N y conversiones de cada grupo
 // - Calcula tasas, Z-score y p-valor (bilateral)
 // - Muestra si el resultado es significativo (p < 0.05)
-class Level4AbTestScreen extends StatefulWidget {
-  const Level4AbTestScreen({super.key});
+class Level5AbTestScreen extends StatefulWidget {
+  const Level5AbTestScreen({super.key});
 
   @override
-  State<Level4AbTestScreen> createState() => _Level4AbTestScreenState();
+  State<Level5AbTestScreen> createState() => _Level4AbTestScreenState();
 }
 
-class _Level4AbTestScreenState extends State<Level4AbTestScreen> {
+class _Level4AbTestScreenState extends State<Level5AbTestScreen> {
   static const Color bg = Color(0xFFFFF9E8);
   static const Color accent = Color(0xFFFFE79A);
   static const Color onAccent = Color(0xFF5B4E2F);
@@ -103,10 +103,10 @@ class _Level4AbTestScreenState extends State<Level4AbTestScreen> {
     return AbResult(pC, pT, z, p, isSig, pT > pC);
   }
 
-  // CDF de la normal estándar (Phi) usando erf: precisa y estable
+  // CDF de la normal estÃ¡ndar (Phi) usando erf: precisa y estable
   double _phiStd(double z) => 0.5 * (1 + _erf(z / _sqrt2));
 
-  // Aproximación clásica de erf (Abramowitz & Stegun 7.1.26)
+  // AproximaciÃ³n clÃ¡sica de erf (Abramowitz & Stegun 7.1.26)
   double _erf(double x) {
     const p = 0.3275911;
     const a1 = 0.254829592, a2 = -0.284496736, a3 = 1.421413741,
@@ -120,7 +120,7 @@ class _Level4AbTestScreenState extends State<Level4AbTestScreen> {
 
   static const double _sqrt2 = 1.41421356237;
 
-  // Handler del botón Calcular: valida inputs, computa y actualiza estado
+  // Handler del botÃ³n Calcular: valida inputs, computa y actualiza estado
   void _onCalc() {
     try {
       final app = context.read<AppState>();
@@ -169,7 +169,7 @@ class _Level4AbTestScreenState extends State<Level4AbTestScreen> {
         backgroundColor: bg,
         elevation: 0,
         centerTitle: true,
-        title: const Text('Nivel 4 - A/B Test 🧪'),
+        title: const Text('Nivel 5 — A/B Test ðŸ§ª'),
       ),
       body: Center(
         child: ConstrainedBox(
@@ -202,7 +202,7 @@ class _Level4AbTestScreenState extends State<Level4AbTestScreen> {
                             ),
                             const SizedBox(width: 8),
                             IconButton(
-                              tooltip: '¿Cómo funciona?',
+                              tooltip: 'Â¿CÃ³mo funciona?',
                               onPressed: _showAbHelp,
                               icon: const Icon(Icons.info_outline, color: Colors.brown),
                             ),
@@ -210,7 +210,7 @@ class _Level4AbTestScreenState extends State<Level4AbTestScreen> {
                         ),
                         const SizedBox(height: 6),
                         const Text(
-                          'Comparamos la tasa de conversión entre Control (A) y Treatment (B) usando prueba Z para dos proporciones (bilateral).',
+                          'Comparamos la tasa de conversiÃ³n entre Control (A) y Treatment (B) usando prueba Z para dos proporciones (bilateral).',
                           textAlign: TextAlign.center,
                           style: TextStyle(color: Colors.brown, fontWeight: FontWeight.w600),
                         ),
@@ -314,7 +314,7 @@ class _Level4AbTestScreenState extends State<Level4AbTestScreen> {
                                   spacing: 16,
                                   runSpacing: 6,
                                   children: [
-                                    _kv('Tasa de conversión',
+                                    _kv('Tasa de conversiÃ³n',
                                         'Control ${(_result!.pC * 100).toStringAsFixed(1)}% - '
                                         'Treatment ${(_result!.pT * 100).toStringAsFixed(1)}%'),
                                     _kv('Z', _result!.z.toStringAsFixed(2)),
@@ -325,9 +325,9 @@ class _Level4AbTestScreenState extends State<Level4AbTestScreen> {
                                 Text(
                                   _result!.isSignificant
                                       ? (_result!.treatmentWins
-                                          ? '✅ Significativo, Treatment gana'
-                                          : '✅ Significativo, Control gana')
-                                      : '❌ No significativo',
+                                          ? 'âœ… Significativo, Treatment gana'
+                                          : 'âœ… Significativo, Control gana')
+                                      : 'âŒ No significativo',
                                   style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: Colors.brown),
                                 ),
                               ],
@@ -373,7 +373,7 @@ class _Level4AbTestScreenState extends State<Level4AbTestScreen> {
     );
   }
 
-  // Renderiza un par clave-valor en una sola línea
+  // Renderiza un par clave-valor en una sola lÃ­nea
   Widget _kv(String k, String v) {
     return Row(
       mainAxisSize: MainAxisSize.min,
@@ -384,7 +384,7 @@ class _Level4AbTestScreenState extends State<Level4AbTestScreen> {
     );
   }
 
-  // Diálogo de ayuda con la fórmula del test Z de dos proporciones
+  // DiÃ¡logo de ayuda con la fÃ³rmula del test Z de dos proporciones
   void _showAbHelp() {
     showDialog(
       context: context,
@@ -396,12 +396,12 @@ class _Level4AbTestScreenState extends State<Level4AbTestScreen> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('• p_C = x_C / n_C, p_T = x_T / n_T'),
-              Text('• p^ = (x_C + x_T) / (n_C + n_T) (pooling)'),
-              Text('• SE = sqrt(p^(1 - p^) * (1/n_C + 1/n_T))'),
-              Text('• Z = (p_T - p_C) / SE'),
+              Text('â€¢ p_C = x_C / n_C, p_T = x_T / n_T'),
+              Text('â€¢ p^ = (x_C + x_T) / (n_C + n_T) (pooling)'),
+              Text('â€¢ SE = sqrt(p^(1 - p^) * (1/n_C + 1/n_T))'),
+              Text('â€¢ Z = (p_T - p_C) / SE'),
               SizedBox(height: 8),
-              Text('Prueba bilateral: p = 2 · (1 - Φ(|Z|)). Si p < 0.05, es significativo.'),
+              Text('Prueba bilateral: p = 2 Â· (1 - Î¦(|Z|)). Si p < 0.05, es significativo.'),
               SizedBox(height: 6),
               Text('Supuestos: muestras independientes y n grandes (aprox. normal).'),
             ],
@@ -442,7 +442,7 @@ class _L4ColumnCard extends StatelessWidget {
   }
 }
 
-// TextField estilizado (solo números) con soporte de solo-lectura
+// TextField estilizado (solo nÃºmeros) con soporte de solo-lectura
 class _L4Field extends StatelessWidget {
   final TextEditingController controller;
   final String label;
@@ -479,3 +479,4 @@ class AbResult {
   final bool isSignificant, treatmentWins;
   const AbResult(this.pC, this.pT, this.z, this.pValue, this.isSignificant, this.treatmentWins);
 }
+

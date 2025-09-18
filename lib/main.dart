@@ -8,8 +8,9 @@ import 'home_screen.dart';
 import 'screens/level1_game_screen.dart';
 import 'screens/level2_eda_screen.dart';
 import 'screens/level3_inventory_screen.dart';
-import 'screens/level4_abtest_screen.dart';
-import 'screens/level5_dashboard_screen.dart';
+import 'screens/level4_mlprediction_screen.dart';
+import 'screens/level5_abtest_screen.dart';
+import 'screens/dashboard_screen.dart';
 
 // Theme & state
 import 'theme/kawaii_theme.dart';
@@ -61,7 +62,8 @@ class MariluApp extends StatelessWidget {
         '/level1': (_) => const Level1GameScreen(),
         '/level2': (_) => const Level2EdaScreen(),
         '/level3': (_) => const Level3InventoryScreen(),
-        '/level4': (_) => const Level4AbTestScreen(),
+        '/level4': (_) => const Level4MlPredictionScreen(),
+        '/level5': (_) => const Level5AbTestScreen(),
         '/dashboard': (_) => const Level5DashboardScreen(),
       },
       onUnknownRoute: (settings) => MaterialPageRoute(
@@ -81,6 +83,9 @@ class _NoGlowScrollBehavior extends ScrollBehavior {
     ScrollableDetails details,
   ) => child;
 }
+
+
+
 
 
 

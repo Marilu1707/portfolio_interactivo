@@ -15,9 +15,27 @@ class AppState extends ChangeNotifier {
   int correct = 0;
   int wrong = 0;
 
+  // Puntajes base por queso para EDA (Nivel 2)
+  // Nota: si tenés una fuente CSV, podés popular esto en el init.
+  final Map<String, double> puntajeBase = const {
+    'Parmesano': 4.6,
+    'Brie': 3.9,
+    'Gouda': 3.3,
+    'Mozzarella': 3.8,
+    'Cheddar': 3.5,
+    'Azul': 3.2,
+  };
+
   // A/B buckets (contadores de muestra y conversiones)
   int aN = 0, aConv = 0;
   int bN = 0, bConv = 0;
+
+  // Variante activa del juego para A/B ("A" = control, "B" = tratamiento)
+  String variante = 'A';
+
+  // Tiempos por variante (ms) para métricas adicionales
+  final List<int> tiemposA = [];
+  final List<int> tiemposB = [];
 
   // Inventario en memoria (clave = nombre)
   final Map<String, InventoryItem> inventory = {};
@@ -68,6 +86,46 @@ class AppState extends ChangeNotifier {
     notifyListeners();
   }
 
+  // ----- API alternativa para A/B solicitada en el brief -----
+  // Equivalencias con contadores existentes (para no duplicar estado)
+  int get usuariosA => aN;
+  int get conversionesA => aConv;
+  int get usuariosB => bN;
+  int get conversionesB => bConv;
+
+  void registrarUsuario() {
+    if (variante == 'A') {
+      aN += 1;
+    } else {
+      bN += 1;
+    }
+    notifyListeners();
+  }
+
+  void registrarConversion() {
+    if (variante == 'A') {
+      aConv += 1;
+    } else {
+      bConv += 1;
+    }
+    notifyListeners();
+  }
+
+  void registrarTiempoPedido(Duration t) {
+    final ms = t.inMilliseconds;
+    if (variante == 'A') {
+      tiemposA.add(ms);
+    } else {
+      tiemposB.add(ms);
+    }
+    notifyListeners();
+  }
+
+  double tasaA() => usuariosA == 0 ? 0 : conversionesA / usuariosA;
+  double tasaB() => usuariosB == 0 ? 0 : conversionesB / usuariosB;
+  double promedioMsA() => tiemposA.isEmpty ? 0 : tiemposA.reduce((a,b)=>a+b) / tiemposA.length;
+  double promedioMsB() => tiemposB.isEmpty ? 0 : tiemposB.reduce((a,b)=>a+b) / tiemposB.length;
+
   // Repone stock de un queso (si existe)
   void restock(String cheese, int qty) {
     if (qty == 0) return;
@@ -85,6 +143,9 @@ class AppState extends ChangeNotifier {
 
   // Tasa de acierto global
   double get accuracy => totalServed == 0 ? 0 : correct / totalServed;
+
+  // Alias para compatibilidad con pantallas que esperan 'pedidosPorQueso'
+  Map<String, int> get pedidosPorQueso => servedByCheese;
 
   // Top K quesos por cantidad servida
   List<CheeseCount> topCheeses(int k) {
@@ -117,3 +178,4 @@ class CheeseCount {
   final int count;
   CheeseCount(this.name, this.count);
 }
+
