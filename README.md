@@ -8,7 +8,17 @@ Cada nivel es una metáfora de cómo aplico el ciclo completo de análisis de da
 ---
 
 ## 🌟 Demo
-👉 (acá podés poner el link cuando lo deployes en GitHub Pages, Vercel o Netlify)
+👉 https://marilu1707.github.io/marilu_portfolio/
+
+---
+
+## 🚀 Deploy Web (Netlify)
+
+- Con repo conectado en Netlify, usá esta config:
+  - Build command: `flutter build web --release --web-renderer canvaskit --base-href /`
+  - Publish directory: `build/web`
+- Este repo incluye `netlify.toml` y `netlify_build.sh` para instalar Flutter y compilar en el build de Netlify.
+- SPA redirect: `web/_redirects` incluye `/* /index.html 200` para evitar 404 en rutas internas.
 
 ---
 
