@@ -7,7 +7,7 @@
 
 param(
   [switch]$Preview,
-  [string]$Renderer = "canvaskit"  # o "html"
+  [string]$Renderer = "html"  # o "canvaskit"
 )
 
 function Stop-OnError($msg) {

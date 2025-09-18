@@ -7,7 +7,7 @@
 
 param(
   [ValidateSet("canvaskit","html")]
-  [string]$Renderer = "canvaskit",
+  [string]$Renderer = "html",
   [string]$BaseHref = "/",
   [string]$Branch = "main",
   [string]$RepoUrl,
@@ -91,4 +91,3 @@ if (-not $NoPush) {
 }
 
 Write-Host "Ready. In Vercel set Output Directory: build/web and leave Build Command empty." -ForegroundColor Green
-
