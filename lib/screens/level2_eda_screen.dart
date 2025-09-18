@@ -7,6 +7,7 @@ import '../theme/kawaii_theme.dart';
 import '../state/app_state.dart';
 import '../data/country_es.dart';
 import '../utils/number_es.dart';
+import '../data/cheese_catalog.dart';
 
 // Nivel 2 (EDA): tabla de rankings y gráfico por países
 
@@ -28,6 +29,43 @@ class _Level2EdaScreenState extends State<Level2EdaScreen> {
   void initState() {
     super.initState();
     _init();
+  }
+
+  // Tabla fija con los 6 quesos oficiales del juego
+  Widget _buildTopOficial() {
+    final Map<String, double> scoreByName = {
+      for (final r in ratings) _cheeseEs(r.name): r.score,
+    };
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const _H3('Top de quesos'),
+        const SizedBox(height: 8),
+        Expanded(
+          child: Material(
+            color: Colors.white,
+            child: SingleChildScrollView(
+              child: DataTable(
+                headingTextStyle: const TextStyle(fontWeight: FontWeight.w800, color: Colors.black87),
+                columns: const [
+                  DataColumn(label: Text('Nombre')),
+                  DataColumn(label: Text('País')),
+                  DataColumn(label: Text('Puntaje')),
+                ],
+                rows: [
+                  for (final c in kCheeses)
+                    DataRow(cells: [
+                      DataCell(Text(c.nombre)),
+                      DataCell(Text(c.pais)),
+                      DataCell(Text((scoreByName[c.nombre] ?? 0.0).toStringAsFixed(1))),
+                    ]),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
   }
 
   Future<void> _init() async {
@@ -68,7 +106,7 @@ class _Level2EdaScreenState extends State<Level2EdaScreen> {
                         child: Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Expanded(child: _Card(child: _buildTop10())),
+                            Expanded(child: _Card(child: _buildTopOficial())),
                             const SizedBox(width: 16),
                             Expanded(
                               child: _Card(
