@@ -1,4 +1,4 @@
-import 'dart:math' as math;
+﻿import 'dart:math' as math;
 import 'package:flutter/material.dart';
 
 class Level5AbTestScreen extends StatefulWidget {
@@ -14,7 +14,7 @@ class _Level5AbTestScreenState extends State<Level5AbTestScreen> {
   final _tNController = TextEditingController(text: '100');
   final _tXController = TextEditingController(text: '30');
 
-  String _summary = 'Ingresá los valores y tocá “Calcular”.';
+  String _summary = 'IngresÃ¡ los valores y tocÃ¡ â€œCalcularâ€.';
 
   @override
   void dispose() {
@@ -35,7 +35,7 @@ class _Level5AbTestScreenState extends State<Level5AbTestScreen> {
           children: [
             const Icon(Icons.science_outlined),
             const SizedBox(width: 8),
-            Text('Nivel 5 — A/B Test', style: theme.textTheme.titleLarge),
+            Text('Nivel 5 â€” A/B Test', style: theme.textTheme.titleLarge),
           ],
         ),
         actions: [
@@ -56,7 +56,7 @@ class _Level5AbTestScreenState extends State<Level5AbTestScreen> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Text(
-                  'Compará la tasa de conversión de Control (A) vs Tratamiento (B) con Z para dos proporciones (prueba bilateral).',
+                  'ComparÃ¡ la tasa de conversiÃ³n de Control (A) vs Tratamiento (B) con Z para dos proporciones (prueba bilateral).',
                   style: theme.textTheme.bodyMedium,
                 ),
                 const SizedBox(height: 16),
@@ -150,7 +150,7 @@ class _Level5AbTestScreenState extends State<Level5AbTestScreen> {
     final xT = int.tryParse(_tXController.text) ?? 0;
 
     if (nC <= 0 || nT <= 0 || xC < 0 || xT < 0 || xC > nC || xT > nT) {
-      setState(() { _summary = 'Revisá los datos: N>0 y 0 ≤ conversiones ≤ N.'; });
+      setState(() { _summary = 'RevisÃ¡ los datos: N>0 y 0 â‰¤ conversiones â‰¤ N.'; });
       return;
     }
     final pC = xC / nC;
@@ -160,11 +160,11 @@ class _Level5AbTestScreenState extends State<Level5AbTestScreen> {
     final z = (pT - pC) / se;
     final p = 2 * (1 - _phi(z.abs()));
     final sig = p < 0.05;
-    final gana = sig ? (pT > pC ? '¡Gana Tratamiento (B)! 🎉' : '¡Gana Control (A)! 🎉') : 'No significativo (p ≥ 0,05).';
+    final gana = sig ? (pT > pC ? 'Â¡Gana Tratamiento (B)! ðŸŽ‰' : 'Â¡Gana Control (A)! ðŸŽ‰') : 'No significativo (p â‰¥ 0,05).';
     setState(() {
-      _summary = 'Tasa Control: ${(pC * 100).toStringAsFixed(1)}% — '
+      _summary = 'Tasa Control: ${(pC * 100).toStringAsFixed(1)}% â€” '
                  'Tasa Tratamiento: ${(pT * 100).toStringAsFixed(1)}%\n'
-                 'Z = ${z.toStringAsFixed(2)} — p-valor = ${p.toStringAsFixed(3)}\n'
+                 'Z = ${z.toStringAsFixed(2)} â€” p-valor = ${p.toStringAsFixed(3)}\n'
                  '$gana';
     });
   }
@@ -208,14 +208,14 @@ class _Level5AbTestScreenState extends State<Level5AbTestScreen> {
                 const SizedBox(height: 12),
                 _MiniBars(pC: pC, pT: pT),
                 const SizedBox(height: 12),
-                const Text('• p_C = x_C / n_C,  p_T = x_T / n_T'),
-                const Text('• p̂ (pooling) = (x_C + x_T) / (n_C + n_T)'),
-                const Text('• SE = sqrt( p̂ * (1 - p̂) * (1/n_C + 1/n_T) )'),
-                const Text('• Z = (p_T - p_C) / SE'),
+                const Text('â€¢ p_C = x_C / n_C,  p_T = x_T / n_T'),
+                const Text('â€¢ pÌ‚ (pooling) = (x_C + x_T) / (n_C + n_T)'),
+                const Text('â€¢ SE = sqrt( pÌ‚ * (1 - pÌ‚) * (1/n_C + 1/n_T) )'),
+                const Text('â€¢ Z = (p_T - p_C) / SE'),
                 const SizedBox(height: 8),
-                const Text('Prueba bilateral: p = 2 · (1 − Φ(|Z|)). Si p < 0,05 es significativo.'),
+                const Text('Prueba bilateral: p = 2 Â· (1 âˆ’ Î¦(|Z|)). Si p < 0,05 es significativo.'),
                 const SizedBox(height: 8),
-                const Text('Supuestos: muestras independientes y tamaños grandes (aprox. normal).'),
+                const Text('Supuestos: muestras independientes y tamaÃ±os grandes (aprox. normal).'),
                 const SizedBox(height: 16),
                 const Text(
                   'Ejemplo: si Control tiene 100 usuarios y 25 convierten (p_C = 0.25) y '
@@ -272,4 +272,5 @@ class _MiniBars extends StatelessWidget {
     );
   }
 }
+
 

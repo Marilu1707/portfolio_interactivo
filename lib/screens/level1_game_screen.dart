@@ -1,4 +1,4 @@
-import 'dart:math';
+﻿import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/cheese_stat.dart';
@@ -58,7 +58,7 @@ class _Level1GameScreenState extends State<Level1GameScreen> {
     return stats.isNotEmpty ? stats.last.name : 'Mozzarella';
   }
 
-  // Selecciona el próximo pedido (ponderado por share) y bucket A/B
+  // Selecciona el prÃ³ximo pedido (ponderado por share) y bucket A/B
   void _nextOrder() {
     if (stats.isEmpty) return;
     setState(() {
@@ -192,7 +192,7 @@ class _Level1GameScreenState extends State<Level1GameScreen> {
                                     'assets/img/mouse_kawaii.png',
                                     width: 120,
                                     fit: BoxFit.contain,
-                                    errorBuilder: (context, error, stack) => const Text('🐭', style: TextStyle(fontSize: 84)),
+                                    errorBuilder: (context, error, stack) => const Icon(Icons.pets, size: 84, color: Colors.brown),
                                   ),
                                 ),
                                 const SizedBox(height: 12),
@@ -269,3 +269,5 @@ class _Level1GameScreenState extends State<Level1GameScreen> {
     );
   }
 }
+
+
