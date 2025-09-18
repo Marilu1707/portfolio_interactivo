@@ -259,11 +259,12 @@ class _Level1GameScreenState extends State<Level1GameScreen> {
       icon: const Icon(Icons.local_pizza),
       label: Text(label),
       style: OutlinedButton.styleFrom(
-        side: BorderSide(color: Colors.brown.shade200.withValues(alpha: 0.6), width: 2),
+        side: BorderSide(color: Colors.brown.shade200.withValues(alpha: 0.6), width: 1.6),
         foregroundColor: Colors.brown,
-        shape: const StadiumBorder(),
-        minimumSize: const Size.fromHeight(44),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        backgroundColor: const Color(0xFFFFF8E7),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
+        minimumSize: const Size(0, 44),
+        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
       ),
     );
   }
