@@ -14,11 +14,17 @@ Cada nivel es una metáfora de cómo aplico el ciclo completo de análisis de da
 
 ## 🚀 Deploy Web (Netlify)
 
-- Con repo conectado en Netlify, usá esta config:
+- Opción CI (recomendada con repo conectado):
   - Build command: `flutter build web --release --web-renderer canvaskit --base-href /`
   - Publish directory: `build/web`
-- Este repo incluye `netlify.toml` y `netlify_build.sh` para instalar Flutter y compilar en el build de Netlify.
-- SPA redirect: `web/_redirects` incluye `/* /index.html 200` para evitar 404 en rutas internas.
+  - Incluido: `netlify.toml` + `netlify_build.sh` para instalar Flutter durante el build.
+  - SPA redirect: `web/_redirects` con `/* /index.html 200` para evitar 404.
+
+- Opción CLI (un comando desde tu PC):
+  - Requisitos: `npm i -g netlify-cli`
+  - Windows: `powershell -ExecutionPolicy Bypass -File scripts/deploy_netlify.ps1`
+  - macOS/Linux: `bash scripts/deploy_netlify.sh`
+  - (Primera vez): `netlify init` o `netlify link` para vincular el sitio.
 
 ---
 
