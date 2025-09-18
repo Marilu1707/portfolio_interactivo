@@ -1,8 +1,0 @@
-[build]
-  command = "bash ./netlify_build.sh"
-  publish = "build/web"
-
-[build.environment]
-  # Se descarga Flutter en el build (no hace falta preinstalarlo)
-  FLUTTER_CHANNEL = "stable"
-
