@@ -1,11 +1,11 @@
 {
-    "name": "flutter_portfolio",
-    "short_name": "flutter_portfolio",
+    "name": "Nido Mozzarella — Portfolio Interactivo de Data Science",
+    "short_name": "Nido Mozzarella",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "description": "Portfolio Flutter de Maria Luján Massironi: juego kawaii para aprender sobre EDA, inventario, A/B testing y dashboard.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [
