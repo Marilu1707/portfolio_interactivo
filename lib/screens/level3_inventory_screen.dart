@@ -19,6 +19,8 @@ class _Level3InventoryScreenState extends State<Level3InventoryScreen> {
   static const card = KawaiiTheme.card;
   final nf = NumberFormat.decimalPattern('es_AR');
   final df = DateFormat('dd/MM/yyyy', 'es_AR');
+  final ScrollController _mobileCtrl = ScrollController();
+  final Map<String, GlobalKey> _rowKeys = {};
 
   // Suma unidades al stock del queso seleccionado y muestra SnackBar.
   void _addOne(AppState app, InventoryItem row, int qty) {
@@ -26,6 +28,21 @@ class _Level3InventoryScreenState extends State<Level3InventoryScreen> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text('Se agregó $qty unidad${qty > 1 ? 'es' : ''} de ${row.name} (stock: ${row.stock})')),
     );
+  }
+
+  void _scrollToFirstLow(List<InventoryItem> rows) {
+    final low = rows.where((e) => e.stock <= 5).toList();
+    if (low.isEmpty) return;
+    final key = _rowKeys[low.first.name];
+    final ctx = key?.currentContext;
+    if (ctx != null) {
+      Scrollable.ensureVisible(
+        ctx,
+        duration: const Duration(milliseconds: 450),
+        curve: Curves.easeOut,
+        alignment: 0.1,
+      );
+    }
   }
 
     @override
@@ -57,7 +74,11 @@ class _Level3InventoryScreenState extends State<Level3InventoryScreen> {
                   return Center(
                     child: Padding(
                       padding: const EdgeInsets.only(bottom: 12),
-                      child: InventoryMouse(items: mouseItems, lowThreshold: 3),
+                      child: InventoryMouse(
+                        items: mouseItems,
+                        lowThreshold: 3,
+                        onTap: () => _scrollToFirstLow(rows),
+                      ),
                     ),
                   );
                 }),
@@ -142,40 +163,44 @@ class _Level3InventoryScreenState extends State<Level3InventoryScreen> {
 
                       // Mobile: list of row-cards
                       return ListView.builder(
+                        controller: _mobileCtrl,
                         itemCount: rows.length,
                         padding: const EdgeInsets.only(bottom: 12),
                         itemBuilder: (context, i) {
                           final r = rows[i];
-                          return Container(
-                            margin: const EdgeInsets.symmetric(vertical: 6),
-                            decoration: BoxDecoration(
-                              color: card,
-                              borderRadius: BorderRadius.circular(16),
-                              boxShadow: [
-                                BoxShadow(color: Colors.black.withValues(alpha: 0.06), blurRadius: 10, offset: const Offset(0, 4)),
-                              ],
-                            ),
-                            padding: const EdgeInsets.all(12),
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                Expanded(child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(r.name, style: const TextStyle(fontWeight: FontWeight.w700)),
-                                    const SizedBox(height: 4),
-                                    Text('Caduca: ' + df.format(r.expiry), style: const TextStyle(fontSize: 12)),
-                                  ],
-                                )),
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(horizontal: 8),
-                                  child: StockStatusDot(stock: r.stock),
-                                ),
-                                Wrap(spacing: 8, children: [
-                                  OutlinedButton(onPressed: () => _addOne(app, r, 1), child: const Text('Agregar')),
-                                  OutlinedButton(onPressed: () => _addOne(app, r, 5), child: const Text('+5')),
-                                ]),
-                              ],
+                          _rowKeys.putIfAbsent(r.name, () => GlobalKey());
+                          return KeyedSubtree(
+                            key: _rowKeys[r.name],
+                            child: Container(
+                              margin: const EdgeInsets.symmetric(vertical: 6),
+                              decoration: BoxDecoration(
+                                color: card,
+                                borderRadius: BorderRadius.circular(16),
+                                boxShadow: [
+                                  BoxShadow(color: Colors.black.withValues(alpha: 0.06), blurRadius: 10, offset: const Offset(0, 4)),
+                                ],
+                              ),
+                              padding: const EdgeInsets.all(12),
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Expanded(child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(r.name, style: const TextStyle(fontWeight: FontWeight.w700)),
+                                      const SizedBox(height: 4),
+                                      Text('Caduca: ' + df.format(r.expiry), style: const TextStyle(fontSize: 12)),
+                                    ],
+                                  )),
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                                    child: StockStatusDot(stock: r.stock),
+                                  ),
+                                  Wrap(spacing: 8, children: [
+                                    OutlinedButton(onPressed: () => _addOne(app, r, 1), child: const Text('Agregar')),
+                                    OutlinedButton(onPressed: () => _addOne(app, r, 5), child: const Text('+5')),
+                                  ]),
+                                ],
                             ),
                           );
                         },
