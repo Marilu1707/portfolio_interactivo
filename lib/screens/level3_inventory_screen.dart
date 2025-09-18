@@ -49,6 +49,17 @@ class _Level3InventoryScreenState extends State<Level3InventoryScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                Center(
+                  child: Padding(
+                    padding: const EdgeInsets.only(bottom: 12),
+                    child: Image.asset(
+                      'assets/img/inventario_mouse.png',
+                      height: 100,
+                      fit: BoxFit.contain,
+                      semanticLabel: 'Ratón de inventario',
+                    ),
+                  ),
+                ),
                 const Text('Top ventas', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800)),
                 const SizedBox(height: 10),
                 Wrap(
