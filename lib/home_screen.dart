@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:flutter/foundation.dart';
 import 'utils/download_cv.dart';
 import 'utils/email_launcher.dart';
+import 'utils/app_diagnostics.dart';
 
 // Pantalla Home: presentación, niveles, skills y contacto.
 class HomeDesktop extends StatelessWidget {
@@ -282,6 +284,15 @@ class HomeDesktop extends StatelessWidget {
           );
         },
       ),
+      floatingActionButton: kDebugMode
+          ? FloatingActionButton.extended(
+              icon: const Icon(Icons.health_and_safety_rounded),
+              label: const Text('Diagnóstico'),
+              onPressed: () {
+                AppDiagnostics.showDialogResults(context);
+              },
+            )
+          : null,
     );
   }
 
