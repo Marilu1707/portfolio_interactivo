@@ -105,7 +105,8 @@ class _Level1GameScreenState extends State<Level1GameScreen> {
         title: const Text('Nivel 1 — Nido Mozzarella'),
         centerTitle: true,
       ),
-      body: loading
+      body: SafeArea(
+        child: loading
           ? const Center(child: CircularProgressIndicator())
           : Center(
               child: ConstrainedBox(
@@ -221,6 +222,7 @@ class _Level1GameScreenState extends State<Level1GameScreen> {
                 ),
               ),
             ),
+        ),
     );
   }
 
@@ -262,6 +264,7 @@ class _Level1GameScreenState extends State<Level1GameScreen> {
         side: BorderSide(color: Colors.brown.shade200.withValues(alpha: 0.6), width: 2),
         foregroundColor: Colors.brown,
         shape: const StadiumBorder(),
+        minimumSize: const Size.fromHeight(44),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       ),
     );

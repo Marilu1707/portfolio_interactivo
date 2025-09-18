@@ -64,50 +64,89 @@ class _Level3InventoryScreenState extends State<Level3InventoryScreen> {
                 ),
                 const SizedBox(height: 18),
                 Expanded(
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: card,
-                      borderRadius: BorderRadius.circular(18),
-                      boxShadow: [
-                        BoxShadow(color: Colors.black.withValues(alpha: 0.06), blurRadius: 10, offset: const Offset(0, 4)),
-                      ],
-                    ),
-                    padding: const EdgeInsets.fromLTRB(12, 6, 12, 12),
-                    child: SingleChildScrollView(
-                          child: SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        child: DataTable(
-                          dataRowMinHeight: 48,
-                          headingRowHeight: 44,
-                          headingTextStyle: const TextStyle(fontWeight: FontWeight.w800, color: Colors.black87),
-                          columns: const [
-                            DataColumn(label: Text('Nombre')),
-                            DataColumn(label: Text('Stock')),
-                            DataColumn(label: Text('Caducidad')),
-                            DataColumn(label: Text('Estado')),
-                            DataColumn(label: Text('Acciones')),
+                  child: LayoutBuilder(
+                    builder: (context, c) {
+                      final isMobile = MediaQuery.of(context).size.width <= 600;
+                      final table = Container(
+                        decoration: BoxDecoration(
+                          color: card,
+                          borderRadius: BorderRadius.circular(18),
+                          boxShadow: [
+                            BoxShadow(color: Colors.black.withValues(alpha: 0.06), blurRadius: 10, offset: const Offset(0, 4)),
                           ],
-                          rows: rows
-                              .map(
-                                (r) {                                  return DataRow(cells: [
-                                    DataCell(SizedBox(width: 200, child: Text(r.name, softWrap: true, style: const TextStyle(fontWeight: FontWeight.w700)))),
-                                    DataCell(FittedBox(fit: BoxFit.scaleDown, child: Text(nf.format(r.stock)))),
-                                    DataCell(Text(df.format(r.expiry))),
-                                    DataCell(StockStatusDot(stock: r.stock)),
-                                    DataCell(Row(
-                                      children: [
-                                        OutlinedButton(onPressed: () => _addOne(app, r, 1), child: const Text('Agregar')),
-                                        const SizedBox(width: 8),
-                                        OutlinedButton(onPressed: () => _addOne(app, r, 5), child: const Text('+5')),
-                                      ],
-                                    )),
-                                  ]);
-                                },
-                              )
-                              .toList(),
                         ),
-                      ),
-                    ),
+                        padding: const EdgeInsets.fromLTRB(12, 6, 12, 12),
+                        child: SingleChildScrollView(
+                          child: SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            child: DataTable(
+                              dataRowMinHeight: 48,
+                              headingRowHeight: 44,
+                              headingTextStyle: const TextStyle(fontWeight: FontWeight.w800, color: Colors.black87),
+                              columns: const [
+                                DataColumn(label: Text('Nombre')),
+                                DataColumn(label: Text('Stock')),
+                                DataColumn(label: Text('Caducidad')),
+                                DataColumn(label: Text('Estado')),
+                                DataColumn(label: Text('Acciones')),
+                              ],
+                              rows: rows.map((r) => DataRow(cells: [
+                                DataCell(SizedBox(width: 200, child: Text(r.name, softWrap: true, style: const TextStyle(fontWeight: FontWeight.w700)))),
+                                DataCell(FittedBox(fit: BoxFit.scaleDown, child: Text(nf.format(r.stock)))),
+                                DataCell(Text(df.format(r.expiry))),
+                                DataCell(SizedBox(width: 32, child: Align(alignment: Alignment.centerLeft, child: StockStatusDot(stock: r.stock)))) ,
+                                DataCell(Wrap(spacing: 8, children: [
+                                  OutlinedButton(onPressed: () => _addOne(app, r, 1), child: const Text('Agregar')),
+                                  OutlinedButton(onPressed: () => _addOne(app, r, 5), child: const Text('+5')),
+                                ])),
+                              ])).toList(),
+                            ),
+                          ),
+                        ),
+                      );
+                      if (!isMobile) return table;
+
+                      // Mobile: list of row-cards
+                      return ListView.builder(
+                        itemCount: rows.length,
+                        padding: const EdgeInsets.only(bottom: 12),
+                        itemBuilder: (context, i) {
+                          final r = rows[i];
+                          return Container(
+                            margin: const EdgeInsets.symmetric(vertical: 6),
+                            decoration: BoxDecoration(
+                              color: card,
+                              borderRadius: BorderRadius.circular(16),
+                              boxShadow: [
+                                BoxShadow(color: Colors.black.withValues(alpha: 0.06), blurRadius: 10, offset: const Offset(0, 4)),
+                              ],
+                            ),
+                            padding: const EdgeInsets.all(12),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Expanded(child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(r.name, style: const TextStyle(fontWeight: FontWeight.w700)),
+                                    const SizedBox(height: 4),
+                                    Text('Caduca: ' + df.format(r.expiry), style: const TextStyle(fontSize: 12)),
+                                  ],
+                                )),
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                                  child: StockStatusDot(stock: r.stock),
+                                ),
+                                Wrap(spacing: 8, children: [
+                                  OutlinedButton(onPressed: () => _addOne(app, r, 1), child: const Text('Agregar')),
+                                  OutlinedButton(onPressed: () => _addOne(app, r, 5), child: const Text('+5')),
+                                ]),
+                              ],
+                            ),
+                          );
+                        },
+                      );
+                    },
                   ),
                 ),
                 const SizedBox(height: 12),

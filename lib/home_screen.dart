@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'utils/download_cv.dart';
+import 'theme/kawaii_theme.dart';
 
 // Pantalla Home: presentación, niveles, skills y contacto.
 class HomeDesktop extends StatelessWidget {
@@ -55,21 +56,22 @@ class HomeDesktop extends StatelessWidget {
         elevation: 0,
         title: const Text('Marilú — Data Science'),
       ),
-      body: LayoutBuilder(
+      body: SafeArea(
+        child: LayoutBuilder(
         builder: (context, c) {
-          final isMobile = c.maxWidth < 720;
+          final isMobile = KawaiiTheme.isMobile(context);
           return Center(
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 1100),
               child: SingleChildScrollView(
-                padding: const EdgeInsets.all(20),
+                padding: KawaiiTheme.kPadSM(context).add(const EdgeInsets.symmetric(vertical: 8)),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // Hero
                     Container(
-                      decoration: BoxDecoration(color: accent, borderRadius: BorderRadius.circular(20)),
-                      padding: const EdgeInsets.all(22),
+                      decoration: BoxDecoration(color: accent, borderRadius: BorderRadius.circular(KawaiiTheme.kRadius(context))),
+                      padding: EdgeInsets.all(isMobile ? 16 : 22),
                       child: Builder(builder: (context) {
                         final left = Expanded(
                           child: Column(

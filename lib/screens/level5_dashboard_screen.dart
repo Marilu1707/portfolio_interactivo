@@ -73,92 +73,111 @@ class _Level5DashboardScreenState extends State<Level5DashboardScreen> {
                         ),
                       ),
                       const SizedBox(height: 8),
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Expanded(
-                            child: _Card(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  const _H3('Tasa de acierto'),
-                                  const SizedBox(height: 8),
-                                  Text(
-                                    '${(app.accuracy * 100).toStringAsFixed(1)}%',
-                                    style: const TextStyle(fontSize: 40, fontWeight: FontWeight.w900, color: textDark),
+                      LayoutBuilder(
+                        builder: (context, cons) {
+                          final w = cons.maxWidth;
+                          final cols = w > 1024 ? 3 : (w > 600 ? 2 : 1);
+                          final gap = 16.0;
+                          final itemW = (w - gap * (cols - 1)) / cols;
+                          return Wrap(
+                            spacing: gap,
+                            runSpacing: gap,
+                            children: [
+                              SizedBox(
+                                width: itemW,
+                                child: _Card(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      const _H3('Tasa de acierto'),
+                                      const SizedBox(height: 8),
+                                      Text(
+                                        '${(app.accuracy * 100).toStringAsFixed(1)}%',
+                                        style: const TextStyle(fontSize: 40, fontWeight: FontWeight.w900, color: textDark),
+                                      ),
+                                    ],
                                   ),
-                                ],
+                                ),
                               ),
-                            ),
-                          ),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            child: _Card(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  const _H3('Quesos servidos'),
-                                  const SizedBox(height: 8),
-                                  Text(
-                                    _formatK(app.totalServed),
-                                    style: const TextStyle(fontSize: 40, fontWeight: FontWeight.w900, color: textDark),
+                              SizedBox(
+                                width: itemW,
+                                child: _Card(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                    children: [
+                                      const _H3('Quesos servidos'),
+                                      const SizedBox(height: 8),
+                                      Text(
+                                        _formatK(app.totalServed),
+                                        style: const TextStyle(fontSize: 40, fontWeight: FontWeight.w900, color: textDark),
+                                      ),
+                                    ],
                                   ),
-                                ],
+                                ),
                               ),
-                            ),
-                          ),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            child: _Card(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  const _H3('Top quesos'),
-                                  const SizedBox(height: 8),
-                                  ..._topCheeses(app).map((name) => Padding(
-                                        padding: const EdgeInsets.symmetric(vertical: 6),
-                                        child: Row(children: [const Text('🧀  '), Expanded(child: Text(name, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: textDark)))]),
-                                      )),
-                                ],
+                              SizedBox(
+                                width: itemW,
+                                child: _Card(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      const _H3('Top quesos'),
+                                      const SizedBox(height: 8),
+                                      ..._topCheeses(app).map((name) => Padding(
+                                            padding: const EdgeInsets.symmetric(vertical: 6),
+                                            child: Row(children: [const Text('🧀  '), Expanded(child: Text(name, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: textDark)))]),
+                                          )),
+                                    ],
+                                  ),
+                                ),
                               ),
-                            ),
-                          ),
-                        ],
+                            ],
+                          );
+                        },
                       ),
                       const SizedBox(height: 16),
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Expanded(
-                            child: _Card(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  const _H3('Resumen'),
-                                  const SizedBox(height: 10),
-                                  _metricRow('Tasa de acierto', '${(app.accuracy * 100).toStringAsFixed(1)}%'),
-                                  const SizedBox(height: 8),
-                                  if (app.hasAb)
-                                    _metricRow('A/B', app.pValue! < 0.05 ? 'Treatment gana' : 'No significativo'),
-                                ],
+                      LayoutBuilder(
+                        builder: (context, cons) {
+                          final w = cons.maxWidth;
+                          final cols = w > 1024 ? 3 : (w > 600 ? 2 : 1);
+                          final gap = 16.0;
+                          final itemW = (w - gap * (cols - 1)) / cols;
+                          return Wrap(
+                            spacing: gap,
+                            runSpacing: gap,
+                            children: [
+                              SizedBox(
+                                width: cols == 1 ? w : itemW,
+                                child: _Card(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      const _H3('Resumen'),
+                                      const SizedBox(height: 10),
+                                      _metricRow('Tasa de acierto', '${(app.accuracy * 100).toStringAsFixed(1)}%'),
+                                      const SizedBox(height: 8),
+                                      if (app.hasAb)
+                                        _metricRow('A/B', app.pValue! < 0.05 ? 'Treatment gana' : 'No significativo'),
+                                    ],
+                                  ),
+                                ),
                               ),
-                            ),
-                          ),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            flex: 2,
-                            child: _Card(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  const _H3('Distribución de quesos'),
-                                  const SizedBox(height: 10),
-                                  ..._distributionBars(app),
-                                ],
+                              SizedBox(
+                                width: cols == 1 ? w : (cols == 2 ? itemW : itemW * 2 + gap),
+                                child: _Card(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      const _H3('Distribución de quesos'),
+                                      const SizedBox(height: 10),
+                                      ..._distributionBars(app),
+                                    ],
+                                  ),
+                                ),
                               ),
-                            ),
-                          ),
-                        ],
+                            ],
+                          );
+                        },
                       ),
                       const SizedBox(height: 16),
                       Row(

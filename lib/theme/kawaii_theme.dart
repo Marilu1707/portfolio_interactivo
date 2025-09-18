@@ -118,4 +118,42 @@ class KawaiiTheme {
       iconTheme: const IconThemeData(color: onAccent),
     );
   }
+
+  // ================= Responsive helpers =================
+  // Breakpoints
+  static const double bpMobile = 600;
+  static const double bpTablet = 1024;
+
+  static bool isMobile(BuildContext c) => MediaQuery.of(c).size.width <= bpMobile;
+  static bool isTablet(BuildContext c) {
+    final w = MediaQuery.of(c).size.width;
+    return w > bpMobile && w <= bpTablet;
+  }
+  static bool isDesktop(BuildContext c) => MediaQuery.of(c).size.width > bpTablet;
+
+  // Typography scale (relative to iPhone 11 width ~375)
+  static double tScale(BuildContext c) {
+    final w = MediaQuery.of(c).size.width;
+    final s = (w / 375).clamp(0.9, 1.15);
+    return s is num ? s.toDouble() : 1.0;
+  }
+
+  // Spacing tokens (adaptive)
+  static EdgeInsets kPadXS(BuildContext c) => EdgeInsets.all(isMobile(c) ? 8 : 10);
+  static EdgeInsets kPadSM(BuildContext c) => EdgeInsets.all(isMobile(c) ? 12 : 16);
+  static EdgeInsets kPadMD(BuildContext c) => EdgeInsets.all(isDesktop(c) ? 24 : 16);
+  static EdgeInsets kPadLG(BuildContext c) => EdgeInsets.all(isDesktop(c) ? 32 : 20);
+
+  // Radius
+  static double kRadius(BuildContext c) => isMobile(c) ? 14 : (isTablet(c) ? 16 : 18);
+
+  // Chip/button padding and min target size
+  static EdgeInsets chipPadding(BuildContext c) => EdgeInsets.symmetric(
+        horizontal: isMobile(c) ? 12 : 16,
+        vertical: 10,
+      );
+  static Size minTapSize(BuildContext c) => const Size.fromHeight(48);
+
+  // Grid columns helper (1/2/3)
+  static int gridColumns(BuildContext c) => isDesktop(c) ? 3 : (isTablet(c) ? 2 : 1);
 }

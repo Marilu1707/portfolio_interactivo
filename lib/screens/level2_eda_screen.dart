@@ -45,6 +45,7 @@ class _Level2EdaScreenState extends State<Level2EdaScreen> {
     final app = context.watch<AppState>();
     final topCountries = app.topCountries(5);
     final maxY = topCountries.isEmpty ? 1.0 : topCountries.first.value.toDouble().clamp(1, 9999);
+    final isMobile = KawaiiTheme.isMobile(context);
 
     return Scaffold(
       backgroundColor: bg,
@@ -77,7 +78,9 @@ class _Level2EdaScreenState extends State<Level2EdaScreen> {
                                     const _H3('Países con mayor puntaje (por pedidos)'),
                                     const SizedBox(height: 8),
                                     Expanded(
-                                      child: BarChart(
+                                      child: AspectRatio(
+                                        aspectRatio: isMobile ? 4 / 3 : 16 / 9,
+                                        child: BarChart(
                                         BarChartData(
                                           minY: 0,
                                           alignment: BarChartAlignment.spaceAround,
@@ -89,20 +92,20 @@ class _Level2EdaScreenState extends State<Level2EdaScreen> {
                                             leftTitles: AxisTitles(
                                               sideTitles: SideTitles(
                                                 showTitles: true,
-                                                reservedSize: 32,
+                                                reservedSize: isMobile ? 28 : 32,
                                                 getTitlesWidget: (v, _) => Text(fmtInt(v.toInt()), style: const TextStyle(fontSize: 10)),
                                               ),
                                             ),
                                             bottomTitles: AxisTitles(
                                               sideTitles: SideTitles(
                                                 showTitles: true,
-                                                reservedSize: 36,
+                                                reservedSize: isMobile ? 28 : 36,
                                                 getTitlesWidget: (x, _) {
                                                   final i = x.toInt();
                                                   if (i < 0 || i >= topCountries.length) return const SizedBox();
                                                   return Padding(
                                                     padding: const EdgeInsets.only(top: 6),
-                                                    child: Text(topCountries[i].key, style: const TextStyle(fontSize: 11)),
+                                                    child: Text(topCountries[i].key, style: TextStyle(fontSize: isMobile ? 10 : 11), overflow: TextOverflow.ellipsis),
                                                   );
                                                 },
                                               ),
@@ -120,6 +123,7 @@ class _Level2EdaScreenState extends State<Level2EdaScreen> {
                                               ]),
                                           ],
                                         ),
+                                      ),
                                       ),
                                     ),
                                     const SizedBox(height: 8),
