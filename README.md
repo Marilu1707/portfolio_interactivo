@@ -102,3 +102,4 @@ Tengo capacitaciones en **IT** y me apasiona unir **estrategia, tecnología y cr
 Diseño y desarrollo: **Marilu**
 Estilo kawaii inspirado en Tsuki y la idea de un restaurante de quesos interactivo.
 
+
