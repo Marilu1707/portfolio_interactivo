@@ -81,8 +81,9 @@ class _Level2EdaScreenState extends State<Level2EdaScreen> {
   @override
   Widget build(BuildContext context) {
     final app = context.watch<AppState>();
-    final topCountries = app.topCountries(5);
-    final maxY = topCountries.isEmpty ? 1.0 : topCountries.first.value.toDouble().clamp(1, 9999);
+    const labels = ['Mozzarella','Parmesano','Gouda','Brie','Azul','Cheddar'];
+    final counts = [for (final l in labels) (app.servedByCheese[l] ?? 0)];
+    final maxY = (counts.isEmpty ? 1 : counts.reduce((a,b)=> a>b?a:b)).toDouble().clamp(1, 9999);
     final isMobile = KawaiiTheme.isMobile(context);
 
     return Scaffold(
@@ -140,20 +141,20 @@ class _Level2EdaScreenState extends State<Level2EdaScreen> {
                                                 reservedSize: isMobile ? 28 : 36,
                                                 getTitlesWidget: (x, _) {
                                                   final i = x.toInt();
-                                                  if (i < 0 || i >= topCountries.length) return const SizedBox();
+                                                  if (i < 0 || i >= labels.length) return const SizedBox();
                                                   return Padding(
                                                     padding: const EdgeInsets.only(top: 6),
-                                                    child: Text(topCountries[i].key, style: TextStyle(fontSize: isMobile ? 10 : 11), overflow: TextOverflow.ellipsis),
+                                                    child: Text(labels[i], style: TextStyle(fontSize: isMobile ? 10 : 11), overflow: TextOverflow.ellipsis),
                                                   );
                                                 },
                                               ),
                                             ),
                                           ),
                                           barGroups: [
-                                            for (int i = 0; i < topCountries.length; i++)
+                                            for (int i = 0; i < labels.length; i++)
                                               BarChartGroupData(x: i, barRods: [
                                                 BarChartRodData(
-                                                  toY: topCountries[i].value.toDouble(),
+                                                  toY: counts[i].toDouble(),
                                                   width: 22,
                                                   color: const Color(0xFFFFC44D),
                                                   borderRadius: BorderRadius.circular(6),
@@ -168,16 +169,14 @@ class _Level2EdaScreenState extends State<Level2EdaScreen> {
                                     Wrap(
                                       spacing: 8,
                                       runSpacing: 8,
-                                      children: topCountries
-                                          .map((e) => Chip(label: Text('${e.key}: ${fmtInt(e.value)}')))
-                                          .toList(),
+                                      children: [for (int i=0;i<labels.length;i++) Chip(label: Text('${labels[i]}: ${fmtInt(counts[i])}'))],
                                     ),
                                   ],
                                 ),
                               ),
                             ),
                             const SizedBox(width: 16),
-                            Expanded(child: _Card(child: _buildConclusion(topCountries))),
+                            Expanded(child: _Card(child: _buildConclusionCheeses(labels, counts))),
                           ],
                         ),
                       ),
@@ -248,6 +247,25 @@ class _Level2EdaScreenState extends State<Level2EdaScreen> {
     } else {
       text = '${top[0].key} y ${top[1].key} lideran el puntaje por pedidos reales.\n'
           'Recomendación: destacá estilos de esos países en el menú base.';
+    }
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: const Color(0xFFFFE79A).withValues(alpha: 0.4),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Text(text, style: const TextStyle(color: KawaiiTheme.onAccent)),
+    );
+  }
+  Widget _buildConclusionCheeses(List<String> labels, List<int> counts) {
+    String text;
+    if (counts.every((c) => c == 0)) {
+      text = 'Todavía no hay suficientes pedidos. Jugá un poco más en el nivel 1.';
+    } else {
+      final max = counts.reduce((a,b)=> a>b?a:b);
+      final idxs = [for (int i=0;i<counts.length;i++) if (counts[i]==max) i];
+      final leaders = idxs.map((i)=>labels[i]).toList();
+      text = '${leaders.join(' y ')} lidera/n por pedidos.\nRecomendación: destacá ese queso en el menú.';
     }
     return Container(
       padding: const EdgeInsets.all(12),
