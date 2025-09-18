@@ -2,7 +2,7 @@
 import 'package:url_launcher/url_launcher.dart';
 import 'utils/download_cv.dart';
 
-// Pantalla Home: presentaciÃ³n, niveles, skills y contacto.
+// Pantalla Home: presentación, niveles, skills y contacto.
 class HomeDesktop extends StatelessWidget {
   const HomeDesktop({super.key});
 
@@ -30,7 +30,7 @@ class HomeDesktop extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: bg,
         elevation: 0,
-        title: const Text('MarilÃº â€” Data Science'),
+        title: const Text('Marilú — Data Science'),
       ),
       body: LayoutBuilder(
         builder: (context, c) {
@@ -52,13 +52,13 @@ class HomeDesktop extends StatelessWidget {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: const [
-                              Text('Hola, soy Marilu ðŸ‘‹',
+                              Text('Hola, soy Marilú',
                                   style: TextStyle(fontSize: 40, fontWeight: FontWeight.w900, color: onAccent)),
                               SizedBox(height: 8),
-                              Text('Data Science + Full stack â€” convierto datos en decisiones.',
+                              Text('Data Science + Full stack — convierto datos en decisiones.',
                                   style: TextStyle(fontSize: 18, color: onAccent)),
                               SizedBox(height: 8),
-                              Text('DescubrÃ­ mis habilidades jugando por niveles.', style: TextStyle(color: onAccent)),
+                              Text('Descubrí mis habilidades jugando por niveles.', style: TextStyle(color: onAccent)),
                             ],
                           ),
                         );
@@ -75,7 +75,7 @@ class HomeDesktop extends StatelessWidget {
                           ),
                           alignment: Alignment.center,
                           child: Image.asset(
-                            'assets/images/raton_menu.png',
+                            'assets/img/raton_menu.png',
                             width: 110,
                             fit: BoxFit.contain,
                             errorBuilder: (context, error, stack) => Image.asset(
@@ -216,9 +216,11 @@ class HomeDesktop extends StatelessWidget {
                     Flex(
                       direction: isMobile ? Axis.vertical : Axis.horizontal,
                       children: [
-                        Expanded(child: _LevelTile(emoji: 'ðŸ§ª', title: 'Nivel 4', subtitle: 'A/B Test', onTap: () => Navigator.pushNamed(context, '/level4'))),
+                        Expanded(child: _LevelTile(emoji: '🤖', title: 'Nivel 4', subtitle: 'Predicción ML', onTap: () => Navigator.pushNamed(context, '/level4'))),
                         SizedBox(width: isMobile ? 0 : 16, height: isMobile ? 16 : 0),
-                        Expanded(child: _LevelTile(emoji: 'ðŸ“ˆ', title: 'Final', subtitle: 'Panel', onTap: () => Navigator.pushNamed(context, '/dashboard'))),
+                        Expanded(child: _LevelTile(emoji: '🧪', title: 'Nivel 5', subtitle: 'A/B Test', onTap: () => Navigator.pushNamed(context, '/level5'))),
+                        SizedBox(width: isMobile ? 0 : 16, height: isMobile ? 16 : 0),
+                        Expanded(child: _LevelTile(emoji: '📊', title: 'Panel', subtitle: 'Dashboard', onTap: () => Navigator.pushNamed(context, '/dashboard'))),
                       ],
                     ),
 
@@ -240,7 +242,7 @@ class HomeDesktop extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(vertical: 12),
                       decoration: BoxDecoration(color: const Color(0xFFFFE7A6), borderRadius: BorderRadius.circular(10)),
                       alignment: Alignment.center,
-                      child: const Text('Â© 2025 Marilu â€” Data Science & Storytelling', style: TextStyle(color: onAccent)),
+                      child: const Text('© 2025 Marilú — Data Science & Fullstack', style: TextStyle(color: onAccent)),
                     ),
                   ],
                 ),
@@ -280,7 +282,7 @@ class _HomeCard extends StatelessWidget {
         color: HomeDesktop.card,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
-          BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 8, offset: const Offset(0, 4)),
+          BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 8, offset: const Offset(0, 4)),
         ],
       ),
       padding: const EdgeInsets.all(16),
