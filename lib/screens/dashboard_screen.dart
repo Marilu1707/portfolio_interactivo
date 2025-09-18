@@ -59,7 +59,8 @@ class _Level5DashboardScreenState extends State<Level5DashboardScreen> {
                 constraints: const BoxConstraints(maxWidth: 1200),
                 child: Padding(
                   padding: const EdgeInsets.all(18),
-                  child: Column(
+                  child: SingleChildScrollView(
+                    child: Column(
                     children: [
                       // Ratón analista (avatar)
                       SizedBox(
@@ -199,6 +200,7 @@ class _Level5DashboardScreenState extends State<Level5DashboardScreen> {
                       ),
                     ],
                   ),
+                ),
                 ),
               ),
             ),
