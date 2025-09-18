@@ -70,7 +70,7 @@ class HomeDesktop extends StatelessWidget {
                             color: const Color(0xFFFFF2CC), // amarillo pastel pedido
                             shape: BoxShape.circle,
                             boxShadow: [
-                              BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 8, offset: const Offset(0, 4)),
+                              BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 8, offset: const Offset(0, 4)),
                             ],
                           ),
                           alignment: Alignment.center,
@@ -202,25 +202,16 @@ class HomeDesktop extends StatelessWidget {
                     // Niveles
                     const _H3('Niveles'),
                     const SizedBox(height: 10),
-                    Flex(
-                      direction: isMobile ? Axis.vertical : Axis.horizontal,
+                    Wrap(
+                      spacing: 14,
+                      runSpacing: 14,
                       children: [
-                        Expanded(child: _LevelTile(emoji: 'ðŸ­', title: 'Nivel 1', subtitle: 'Juego', onTap: () => Navigator.pushNamed(context, '/level1'))),
-                        SizedBox(width: isMobile ? 0 : 16, height: isMobile ? 16 : 0),
-                        Expanded(child: _LevelTile(emoji: 'ðŸ“Š', title: 'Nivel 2', subtitle: 'EDA', onTap: () => Navigator.pushNamed(context, '/level2'))),
-                        SizedBox(width: isMobile ? 0 : 16, height: isMobile ? 16 : 0),
-                        Expanded(child: _LevelTile(emoji: 'ðŸ“¦', title: 'Nivel 3', subtitle: 'Inventario', onTap: () => Navigator.pushNamed(context, '/level3'))),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-                    Flex(
-                      direction: isMobile ? Axis.vertical : Axis.horizontal,
-                      children: [
-                        Expanded(child: _LevelTile(emoji: '🤖', title: 'Nivel 4', subtitle: 'Predicción ML', onTap: () => Navigator.pushNamed(context, '/level4'))),
-                        SizedBox(width: isMobile ? 0 : 16, height: isMobile ? 16 : 0),
-                        Expanded(child: _LevelTile(emoji: '🧪', title: 'Nivel 5', subtitle: 'A/B Test', onTap: () => Navigator.pushNamed(context, '/level5'))),
-                        SizedBox(width: isMobile ? 0 : 16, height: isMobile ? 16 : 0),
-                        Expanded(child: _LevelTile(emoji: '📊', title: 'Panel', subtitle: 'Dashboard', onTap: () => Navigator.pushNamed(context, '/dashboard'))),
+                        _LevelCard(title: 'Nivel 1', subtitle: 'Restaurante', icon: Icons.pets, onTap: () => Navigator.pushNamed(context, '/level1')),
+                        _LevelCard(title: 'Nivel 2', subtitle: 'EDA', icon: Icons.bar_chart_rounded, onTap: () => Navigator.pushNamed(context, '/level2')),
+                        _LevelCard(title: 'Nivel 3', subtitle: 'Inventario', icon: Icons.inventory_2_rounded, onTap: () => Navigator.pushNamed(context, '/level3')),
+                        _LevelCard(title: 'Nivel 4', subtitle: 'Predicción ML', icon: Icons.auto_graph, onTap: () => Navigator.pushNamed(context, '/level4')),
+                        _LevelCard(title: 'Nivel 5', subtitle: 'A/B Test', icon: Icons.science, onTap: () => Navigator.pushNamed(context, '/level5')),
+                        _LevelCard(title: 'Panel', subtitle: 'Dashboard', icon: Icons.space_dashboard_rounded, onTap: () => Navigator.pushNamed(context, '/dashboard')),
                       ],
                     ),
 
@@ -321,7 +312,7 @@ class _Chips extends StatelessWidget {
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(999),
-                        border: Border.all(color: Colors.brown.shade200.withOpacity(0.5)),
+                        border: Border.all(color: Colors.brown.shade200.withValues(alpha: 0.5)),
                       ),
                       child: Text(
                         t,
@@ -347,7 +338,7 @@ class _Dot extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('â€¢  '),
+          const Text('•  '),
           Expanded(child: Text(text)),
         ],
       ),
@@ -371,7 +362,7 @@ class _LevelTile extends StatelessWidget {
         leading: Text(emoji, style: const TextStyle(fontSize: 28)),
         title: Text(title, style: const TextStyle(fontWeight: FontWeight.w900, color: HomeDesktop.onAccent)),
         subtitle: Text(subtitle),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16), side: BorderSide(color: Colors.brown.shade200.withOpacity(0.4))),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16), side: BorderSide(color: Colors.brown.shade200.withValues(alpha: 0.4))),
       ),
     );
   }
@@ -390,7 +381,7 @@ class EduPill extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(24),
-          border: Border.all(color: Colors.brown.shade200.withOpacity(0.5)),
+          border: Border.all(color: Colors.brown.shade200.withValues(alpha: 0.5)),
         ),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -407,6 +398,45 @@ class EduPill extends StatelessWidget {
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+
+
+class _LevelCard extends StatelessWidget {
+  final String title;
+  final String subtitle;
+  final IconData icon;
+  final VoidCallback onTap;
+  const _LevelCard({required this.title, required this.subtitle, required this.icon, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return ConstrainedBox(
+      constraints: const BoxConstraints(minWidth: 220, maxWidth: 260),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(16),
+        child: Ink(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(16),
+            color: Theme.of(context).colorScheme.surface,
+            border: Border.all(color: Theme.of(context).dividerColor.withValues(alpha: 0.4)),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Icon(icon, size: 26, color: HomeDesktop.onAccent),
+              const SizedBox(height: 8),
+              Text(title, style: const TextStyle(fontWeight: FontWeight.w900, color: HomeDesktop.onAccent)),
+              Text(subtitle),
+            ],
+          ),
         ),
       ),
     );
