@@ -25,6 +25,7 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^4.0.0
+  flutter_native_splash: ^2.4.0
 
 flutter:
   # Habilita los iconos y estilos base de Material
@@ -34,3 +35,15 @@ flutter:
     - assets/data/
     - assets/img/
     - assets/images/
+
+# Splash screen kawaii para Android/iOS
+flutter_native_splash:
+  color: "#FFF9E8"
+  image: assets/img/raton_menu.png
+  android: true
+  ios: true
+  color_dark: "#1f1b16"
+  image_dark: assets/img/raton_menu.png
+  android_12:
+    color: "#FFF9E8"
+    image: assets/img/raton_menu.png

@@ -15,12 +15,34 @@ class HomeDesktop extends StatelessWidget {
   // Links reales
   static const githubUrl = 'https://github.com/Marilu1707';
   static const linkedinUrl = 'https://www.linkedin.com/in/maria-lujan-massironi/';
-  static const emailUrl = 'mailto:mlujanmassironi@gmail.com';
+  static const email = 'mlujanmassironi@gmail.com';
 
   static Future<void> _open(String url) async {
     final uri = Uri.parse(url);
     if (await canLaunchUrl(uri)) {
       await launchUrl(uri);
+    }
+  }
+
+  static Future<void> _openEmail({
+    required String to,
+    String subject = '',
+    String body = '',
+  }) async {
+    final uri = Uri(
+      scheme: 'mailto',
+      path: to,
+      queryParameters: {
+        if (subject.isNotEmpty) 'subject': subject,
+        if (body.isNotEmpty) 'body': body,
+      },
+    );
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(
+        uri,
+        mode: LaunchMode.platformDefault,
+        webOnlyWindowName: '_self',
+      );
     }
   }
 
@@ -230,7 +252,15 @@ class HomeDesktop extends StatelessWidget {
                       spacing: 12,
                       runSpacing: 12,
                       children: [
-                        _contactBtn(Icons.email_rounded, 'Email', () => _open(emailUrl)),
+                        _contactBtn(
+                          Icons.email_rounded,
+                          'Email',
+                          () => _openEmail(
+                            to: email,
+                            subject: 'Consulta desde portfolio',
+                            body: '¡Hola Marilú! Te escribo por...',
+                          ),
+                        ),
                         _contactBtn(Icons.business_rounded, 'LinkedIn', () => _open(linkedinUrl)),
                         _contactBtn(Icons.code_rounded, 'GitHub', () => _open(githubUrl)),
                         _contactBtn(Icons.picture_as_pdf_rounded, 'Descargar CV', () => descargarCV(context)),
