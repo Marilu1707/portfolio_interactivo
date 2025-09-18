@@ -1,6 +1,7 @@
 ﻿import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
+import '../widgets/inventory_mouse.dart';
 import '../models/inventory_item.dart';
 import '../theme/kawaii_theme.dart';
 import '../state/app_state.dart';
@@ -49,17 +50,17 @@ class _Level3InventoryScreenState extends State<Level3InventoryScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Center(
-                  child: Padding(
-                    padding: const EdgeInsets.only(bottom: 12),
-                    child: Image.asset(
-                      'assets/img/inventario_mouse.png',
-                      height: 100,
-                      fit: BoxFit.contain,
-                      semanticLabel: 'Ratón de inventario',
+                Builder(builder: (context) {
+                  final mouseItems = rows
+                      .map((r) => InventoryMouseItem(name: r.name, stock: r.stock))
+                      .toList();
+                  return Center(
+                    child: Padding(
+                      padding: const EdgeInsets.only(bottom: 12),
+                      child: InventoryMouse(items: mouseItems, lowThreshold: 3),
                     ),
-                  ),
-                ),
+                  );
+                }),
                 const Text('Top ventas', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800)),
                 const SizedBox(height: 10),
                 Wrap(
