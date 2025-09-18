@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'utils/download_cv.dart';
+import 'utils/email_launcher.dart';
 
 // Pantalla Home: presentación, niveles, skills y contacto.
 class HomeDesktop extends StatelessWidget {
@@ -255,10 +256,10 @@ class HomeDesktop extends StatelessWidget {
                         _contactBtn(
                           Icons.email_rounded,
                           'Email',
-                          () => _openEmail(
+                          () => composeEmail(
                             to: email,
-                            subject: 'Consulta desde portfolio',
-                            body: '¡Hola Marilú! Te escribo por...',
+                            subject: 'Contacto desde el portfolio',
+                            body: 'Hola Marilú 👋\n\nTe escribo porque...',
                           ),
                         ),
                         _contactBtn(Icons.business_rounded, 'LinkedIn', () => _open(linkedinUrl)),
