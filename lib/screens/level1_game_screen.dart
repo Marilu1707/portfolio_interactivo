@@ -111,8 +111,8 @@ class _Level1GameScreenState extends State<Level1GameScreen> {
           : Center(
               child: ConstrainedBox(
                 constraints: const BoxConstraints(maxWidth: 900),
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.all(24),
                   child: Column(
                     children: [
                       Align(
@@ -141,13 +141,12 @@ class _Level1GameScreenState extends State<Level1GameScreen> {
                         ],
                       ),
                       const SizedBox(height: 16),
-                      Expanded(
-                        child: Card(
-                          elevation: 0,
-                          color: card,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(18),
-                          ),
+                      Card(
+                        elevation: 0,
+                        color: card,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(18),
+                        ),
                           child: Padding(
                             padding: const EdgeInsets.all(20),
                             child: Column(
@@ -207,7 +206,6 @@ class _Level1GameScreenState extends State<Level1GameScreen> {
                             ),
                           ),
                         ),
-                      ),
                       const SizedBox(height: 16),
                       Wrap(
                         spacing: 8,
