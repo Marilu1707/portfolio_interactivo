@@ -346,28 +346,6 @@ class _Dot extends StatelessWidget {
   }
 }
 
-class _LevelTile extends StatelessWidget {
-  final String emoji;
-  final String title;
-  final String subtitle;
-  final VoidCallback onTap;
-  const _LevelTile({required this.emoji, required this.title, required this.subtitle, required this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    return _HomeCard(
-      child: ListTile(
-        onTap: onTap,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-        leading: Text(emoji, style: const TextStyle(fontSize: 28)),
-        title: Text(title, style: const TextStyle(fontWeight: FontWeight.w900, color: HomeDesktop.onAccent)),
-        subtitle: Text(subtitle),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16), side: BorderSide(color: Colors.brown.shade200.withValues(alpha: 0.4))),
-      ),
-    );
-  }
-}
-
 class EduPill extends StatelessWidget {
   final String emoji;
   final String text;

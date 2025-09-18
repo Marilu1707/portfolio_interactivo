@@ -1,4 +1,4 @@
-// lib/screens/level4_mlprediction_screen.dart
+﻿// lib/screens/level4_mlprediction_screen.dart
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -6,14 +6,14 @@ import 'package:provider/provider.dart';
 // Si ya tenés tu AppState en otro path, ajustá este import:
 import '../state/app_state.dart';
 
-/// Nivel 4 — Predicción ML (Regresión logística simple)
+/// Nivel 4 — Predicción ML (Regresión logÃ­stica simple)
 /// ---------------------------------------------------
 /// Objetivo: estimar la probabilidad de “acierto/conversión”
 /// del próximo pedido en base a features simples del juego
 /// (racha de aciertos, tiempo promedio, queso elegido, hora, stock).
 ///
 /// - UI mobile-first con controles (sliders/dropdown).
-/// - Botón “Predecir” -> calcula prob. con una regresión logística
+/// - Botón “Predecir” -> calcula prob. con una Regresión logÃ­stica
 ///   con coeficientes de ejemplo (podés calibrarlos más adelante).
 /// - Muestra probabilidad (%) y una sugerencia de queso
 ///   basada en los pedidos reales (AppState.pedidosPorQueso).
@@ -49,7 +49,7 @@ class _Level4MlPredictionScreenState extends State<Level4MlPredictionScreen> {
 
   // ---------- Coeficientes del modelo (de ejemplo) ----------
   // p = sigmoid(b0 + b1*racha + b2*tiempo + b3(queso) + b4*horaNorm + b5*stock)
-  // Ajustá estos coeficientes a medida que tengas datos reales.
+  // ajustá estos coeficientes a medida que tengas datos reales.
   final double b0 = -1.2;
   final double bRacha = 0.25;
   final double bTiempo = -0.00015; // penaliza tiempos altos
@@ -57,7 +57,7 @@ class _Level4MlPredictionScreenState extends State<Level4MlPredictionScreen> {
   final double bHora = 0.30;      // efecto de “hora” tras normalizar
   final double bStock = 0.04;     // más stock, más chances
 
-  // Sigmoide para la regresión logística
+  // Sigmoide para la Regresión logÃ­stica
   double _sigmoid(double z) => 1 / (1 + math.exp(-z));
 
   // Normalización simple de hora a [-1, 1] (centrada en 12)
@@ -240,7 +240,7 @@ class _InputsCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Parámetros del modelo', style: labelStyle),
+            Text('parámetros del modelo', style: labelStyle),
             const SizedBox(height: 12),
 
             // Racha
@@ -341,7 +341,7 @@ class _ResultadoCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Resultado de la predicción',
+                      'Resultado de la Predicción',
                       style: Theme.of(context)
                           .textTheme
                           .labelLarge
@@ -367,8 +367,8 @@ class _ResultadoCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 6),
                     const Text(
-                      'Usamos una regresión logística simple con tus parámetros '
-                      '(racha, tiempo, queso, hora, stock). Podés calibrar los coeficientes '
+                      'Usamos una Regresión logÃ­stica simple con tus parámetros '
+                      '(racha, tiempo, queso, hora, stock). podés calibrar los coeficientes '
                       'según resultados reales para mejorar la precisión.',
                     ),
                   ],
@@ -385,7 +385,7 @@ class _ResultadoCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 8),
                     const Text(
-                      'Ajustá los parámetros y tocá “Predecir” para estimar la probabilidad '
+                      'ajustá los parámetros y tocÃ¡ “Predecir” para estimar la probabilidad '
                       'de acierto del próximo pedido.',
                     ),
                   ],
@@ -395,3 +395,4 @@ class _ResultadoCard extends StatelessWidget {
     );
   }
 }
+

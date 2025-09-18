@@ -1,5 +1,6 @@
 ﻿import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:fl_chart/fl_chart.dart';
 import '../services/data_service.dart';
 import '../models/cheese_stat.dart';
 import '../state/app_state.dart';
@@ -176,6 +177,22 @@ class _Level5DashboardScreenState extends State<Level5DashboardScreen> {
                                   ),
                                 ),
                               ),
+                              SizedBox(
+                                width: cols == 1 ? w : itemW,
+                                child: _Card(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      const _H3('Participación (torta)'),
+                                      const SizedBox(height: 10),
+                                      AspectRatio(
+                                        aspectRatio: 1,
+                                        child: _PieCheese(app: app, fallback: fallbackStats),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
                             ],
                           );
                         },
@@ -326,6 +343,74 @@ class _BarRow extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+class _PieCheese extends StatelessWidget {
+  final AppState app;
+  final List<CheeseStat> fallback;
+  const _PieCheese({required this.app, required this.fallback});
+
+  @override
+  Widget build(BuildContext context) {
+    final Map<String, double> data = {};
+    if (app.servedByCheese.isNotEmpty) {
+      final total = app.servedByCheese.values.fold<int>(0, (a, b) => a + b);
+      if (total == 0) return _empty(context);
+      app.servedByCheese.forEach((k, v) {
+        data[k] = v / total;
+      });
+    } else {
+      final totalShare = fallback.fold<double>(0, (a, b) => a + b.share);
+      if (totalShare == 0) return _empty(context);
+      for (final c in fallback) {
+        data[c.name] = c.share / 100.0;
+      }
+    }
+
+    final palette = [
+      Colors.amber.shade400,
+      Colors.orange.shade400,
+      Colors.pink.shade300,
+      Colors.teal.shade400,
+      Colors.indigo.shade400,
+      Colors.lime.shade600,
+    ];
+
+    final sections = <PieChartSectionData>[];
+    int idx = 0;
+    data.forEach((label, frac) {
+      sections.add(
+        PieChartSectionData(
+          value: (frac * 100).clamp(0, 100).toDouble(),
+          color: palette[idx % palette.length],
+          title: '${(frac * 100).toStringAsFixed(1)}%',
+          titleStyle: const TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 12),
+          radius: 60,
+        ),
+      );
+      idx++;
+    });
+
+    return PieChart(
+      PieChartData(
+        centerSpaceRadius: 32,
+        sectionsSpace: 2,
+        sections: sections,
+        borderData: FlBorderData(show: false),
+      ),
+    );
+  }
+
+  Widget _empty(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surface,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      alignment: Alignment.center,
+      child: const Text('Sin datos aún'),
     );
   }
 }

@@ -1,9 +1,9 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:provider/provider.dart';
 import '../state/app_state.dart';
 
-/// Nivel 2 — Exploración de datos (mobile‑first)
+/// Nivel 2 — Exploración de datos (mobile-first)
 /// Lee datos reales desde AppState y muestra:
 /// 1) Top de quesos (tabla por puntaje base)
 /// 2) Quesos con mayor cantidad de pedidos (barras)
@@ -27,7 +27,7 @@ class Level2EdaScreen extends StatelessWidget {
   List<int> seriesPedidos(AppState s) =>
       ordenQuesos.map((q) => s.servedByCheese[q] ?? 0).toList();
 
-  /// Construye el texto de recomendación según el top de pedidos.
+  /// Construye el texto de Recomendación según el top de pedidos.
   String buildRecomendacion(AppState s) {
     final counts = seriesPedidos(s);
     final maxVal = counts.reduce((a, b) => a > b ? a : b);
@@ -149,7 +149,10 @@ class _PedidosChartCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    // maxValue no se usa en fl_chart directamente; lo omitimos
+    // Eje Y entero y máximo dinámico
+    final maxCount = series.isEmpty ? 0 : series.reduce((a, b) => a > b ? a : b);
+    final maxY = (maxCount == 0 ? 1 : maxCount).toDouble();
+    final interval = maxY <= 5 ? 1.0 : (maxY / 5).ceilToDouble();
 
     return Container(
       decoration: BoxDecoration(
@@ -176,6 +179,7 @@ class _PedidosChartCard extends StatelessWidget {
               BarChartData(
                 alignment: BarChartAlignment.spaceAround,
                 minY: 0,
+                maxY: maxY,
                 barTouchData: BarTouchData(enabled: true),
                 gridData: FlGridData(show: true, drawVerticalLine: false,
                   getDrawingHorizontalLine: (v) => FlLine(
@@ -187,8 +191,17 @@ class _PedidosChartCard extends StatelessWidget {
                 titlesData: FlTitlesData(
                   topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
                   rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                  leftTitles: const AxisTitles(
-                    sideTitles: SideTitles(showTitles: true, reservedSize: 28),
+                  leftTitles: AxisTitles(
+                    sideTitles: SideTitles(
+                      showTitles: true,
+                      reservedSize: 32,
+                      interval: interval,
+                      getTitlesWidget: (value, meta) {
+                        final n = value.round();
+                        if (n < 0) return const SizedBox.shrink();
+                        return Text('$n', style: Theme.of(context).textTheme.bodySmall);
+                      },
+                    ),
                   ),
                   bottomTitles: AxisTitles(
                     sideTitles: SideTitles(
@@ -227,21 +240,20 @@ class _PedidosChartCard extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 10),
-          // Chips como OutlinedButton para legibilidad en móvil
+          // Chips con acción: navegar a Inventario
           Wrap(
             spacing: 8,
             runSpacing: 8,
             children: [
               for (int i = 0; i < labels.length; i++)
-                OutlinedButton.icon(
-                  onPressed: () {},
-                  icon: const Text('🧀'),
+                ActionChip(
+                  avatar: const Icon(Icons.local_pizza_outlined, size: 18),
                   label: Text('${labels[i]}: ${series[i]}'),
-                  style: OutlinedButton.styleFrom(
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(50)),
-                    visualDensity: VisualDensity.compact,
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  onPressed: () => Navigator.pushNamed(context, '/level3'),
+                  shape: StadiumBorder(
+                    side: BorderSide(color: Theme.of(context).colorScheme.outlineVariant),
                   ),
+                  backgroundColor: Theme.of(context).colorScheme.surfaceVariant.withValues(alpha: 0.25),
                 ),
             ],
           ),
@@ -251,7 +263,7 @@ class _PedidosChartCard extends StatelessWidget {
   }
 }
 
-/// Tarjeta de recomendación con fondo amarillo + imagen del ratón.
+/// Tarjeta de Recomendación con fondo amarillo + imagen del ratón.
 class _RecomendacionCard extends StatelessWidget {
   final String texto;
   const _RecomendacionCard({required this.texto});
@@ -316,3 +328,4 @@ class _RecomendacionCard extends StatelessWidget {
     );
   }
 }
+
