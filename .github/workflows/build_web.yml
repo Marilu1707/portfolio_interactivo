@@ -1,0 +1,64 @@
+# Build Flutter Web y commitear build/web al repo (para Vercel estático)
+
+name: Build Flutter Web to build/web
+
+on:
+  push:
+    branches: [ main ]
+    # Evita loops cuando el commit sólo cambia build/web/**
+    paths-ignore:
+      - 'build/web/**'
+  workflow_dispatch:
+
+jobs:
+  build-web:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+
+      - name: Enable Web
+        run: flutter config --enable-web
+
+      - name: Dependencies
+        run: flutter pub get
+
+      - name: Build Flutter Web (canvaskit + base-href "/")
+        run: flutter build web --release --web-renderer canvaskit --base-href "/"
+
+      # Asegura SPA fallback para rutas internas (404 -> index.html)
+      - name: Ensure vercel.json (SPA rewrites)
+        run: |
+          if [ ! -f vercel.json ]; then
+            cat > vercel.json <<'JSON'
+          {
+            "rewrites": [
+              { "source": "/(.*)", "destination": "/index.html" }
+            ]
+          }
+          JSON
+          fi
+
+      # Asegura que .gitignore permita versionar build/web
+      - name: Allow tracking build/web in .gitignore
+        run: |
+          grep -qxF "!/build/web/" .gitignore || echo "!/build/web/" >> .gitignore
+          grep -qxF "!/build/web/**" .gitignore || echo "!/build/web/**" >> .gitignore
+
+      - name: Commit build/web to repo
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "build web listo para Vercel (SPA rewrites) [skip ci]"
+          file_pattern: |
+            build/web/**
+            vercel.json
+            .gitignore
+          branch: main
+

@@ -43,3 +43,7 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Permitir publicar el build web en el repo (para Vercel)
+!/build/web/
+!/build/web/**
