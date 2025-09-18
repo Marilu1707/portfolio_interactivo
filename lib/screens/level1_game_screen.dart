@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/cheese_stat.dart';
 import '../services/data_service.dart';
+import '../data/cheese_catalog.dart';
 import '../theme/kawaii_theme.dart';
 import '../state/app_state.dart';
 
@@ -28,15 +29,7 @@ class _Level1GameScreenState extends State<Level1GameScreen> {
   String? _currentBucket; // "A" o "B"
   String? feedback;
   // Mapeo de display es-AR
-  static const Map<String, String> _quesoDisplay = {
-    'mozzarella': 'Mozzarella',
-    'cheddar': 'Cheddar',
-    'parmesan': 'Parmesano',
-    'gouda': 'Gouda',
-    'brie': 'Brie',
-    'blue': 'Azul',
-  };
-  String _esAr(String name) => _quesoDisplay[name.toLowerCase()] ?? name;
+  String _esAr(String name) => name;
 
   @override
   void initState() {
@@ -219,8 +212,8 @@ class _Level1GameScreenState extends State<Level1GameScreen> {
                         spacing: 8,
                         runSpacing: 8,
                         alignment: WrapAlignment.center,
-                        children: stats
-                            .map((c) => _cheeseChip(_esAr(c.name), () => _serve(c.name)))
+                        children: kCheeses
+                            .map((c) => _cheeseChip(c.nombre, () => _serve(c.nombre)))
                             .toList(),
                       ),
                     ],

@@ -161,11 +161,11 @@ class _Level2EdaScreenState extends State<Level2EdaScreen> {
 
   Widget _buildTop10() {
     final top = [...ratings]..sort((a, b) => b.score.compareTo(a.score));
-    final top10 = top.take(10).toList();
+    final top10 = top.take(6).toList();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const _H3('Top 10 de quesos'),
+        const _H3('Top de quesos'),
         const SizedBox(height: 8),
         Expanded(
           child: Material(

@@ -1,5 +1,6 @@
 const Map<String, String> kCheeseCountryEs = {
   'Mozzarella': 'Italia',
+  'Parmesano': 'Italia',
   'Parmesan': 'Italia',
   'Parmigiano': 'Italia',
   'Gouda': 'Países Bajos',
@@ -11,6 +12,7 @@ const Map<String, String> kCheeseCountryEs = {
   'Gruyère': 'Suiza',
   'Emmental': 'Suiza',
   'Cheddar': 'Reino Unido',
+  'Azul': 'Francia',
   'Blue': 'Reino Unido',
   'Manchego': 'España',
   'Feta': 'Grecia',
