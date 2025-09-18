@@ -396,3 +396,4 @@ class _ResultadoCard extends StatelessWidget {
   }
 }
 
+
