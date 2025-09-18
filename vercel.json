@@ -1,5 +1,4 @@
 {
-  "_comment": "SPA fallback: evita 404 al refrescar rutas internas redirigiendo todo a /index.html",
   "rewrites": [
     { "source": "/(.*)", "destination": "/index.html" }
   ]
