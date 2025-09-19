@@ -97,10 +97,7 @@ Tengo capacitaciones en **IT** y me apasiona unir **estrategia, tecnología y cr
 
 ### ✨ Créditos
 
-Diseño y desarrollo: **Marilu**  
+Diseño y desarrollo: **Maria Lujan Massironi**  
 Estilo kawaii inspirado en Tsuki y la idea de un restaurante de quesos interactivo.
 
----
-
-💡 Consejo: cuando lo subas a GitHub, agregá **screenshots de cada nivel** (los PNG que generamos) para que el README quede más atractivo.
 
