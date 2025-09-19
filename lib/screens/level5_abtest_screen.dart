@@ -36,14 +36,19 @@ class _Level5AbTestScreenState extends State<Level5AbTestScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Row(
-          children: [
-            const Icon(Icons.science_outlined),
-            const SizedBox(width: 8),
-            Text('Nivel 5 — A/B Test', style: theme.textTheme.titleLarge),
-          ],
+        backgroundColor: const Color(0xFFFFE082),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => Navigator.pop(context),
         ),
+        title: const Text('Nivel 5 — A/B Test'),
         actions: [
+          TextButton.icon(
+            onPressed: () => Navigator.pushNamed(context, '/dashboard'),
+            icon: const Icon(Icons.analytics),
+            label: const Text('Ir al Dashboard'),
+            style: TextButton.styleFrom(foregroundColor: Colors.brown),
+          ),
           if (_pTwo != null)
             TextButton.icon(
               onPressed: () async {
@@ -126,6 +131,45 @@ class _Level5AbTestScreenState extends State<Level5AbTestScreen> {
                     child: Column(crossAxisAlignment: CrossAxisAlignment.start, children:[Text(_summary, style: theme.textTheme.titleMedium), if(_pTwo!=null) const SizedBox(height:10), if(_pTwo!=null) Text("Detalle: pA=${( (_pA??0)*100).toStringAsFixed(1)}% · pB=${( (_pB??0)*100).toStringAsFixed(1)}% · Δ=${( (_diff??0)*100).toStringAsFixed(1)}% · Lift=${_lift==null?"—":"${((_lift??0)*100).toStringAsFixed(1)}%"} · IC95%=[${( (_ciL??0)*100).toStringAsFixed(1)}%, ${( (_ciH??0)*100).toStringAsFixed(1)}%] · p=${(_pTwo??0).toStringAsFixed(4)}")]),
                   ),
                 ),
+                if (_pTwo != null) ...[
+                  const SizedBox(height: 12),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: ElevatedButton.icon(
+                      onPressed: () async {
+                        final result = {
+                          'nA': _cNController.text,
+                          'cA': _cXController.text,
+                          'pA': _pA?.toStringAsFixed(4),
+                          'nB': _tNController.text,
+                          'cB': _tXController.text,
+                          'pB': _pB?.toStringAsFixed(4),
+                          'diff': _diff?.toStringAsFixed(4),
+                          'lift': _lift == null ? '—' : '${(_lift! * 100).toStringAsFixed(1)}%',
+                          'z': _z?.toStringAsFixed(3),
+                          'p': _pTwo?.toStringAsFixed(4),
+                          'ci': _ciL == null || _ciH == null
+                              ? '—'
+                              : '[${(_ciL! * 100).toStringAsFixed(1)}%, ${(_ciH!*100).toStringAsFixed(1)}%]',
+                          'sig': _sig ? 'Sí' : 'No',
+                          'alpha': '0.05',
+                          'note': 'Resultado guardado desde Nivel A/B',
+                        };
+                        await context.read<ABResultState>().save(result);
+                        if (!mounted) return;
+                        Navigator.pushNamed(context, '/dashboard');
+                      },
+                      icon: const Icon(Icons.arrow_forward),
+                      label: const Text('Ir al Dashboard'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFFFFE082),
+                        foregroundColor: Colors.brown,
+                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      ),
+                    ),
+                  ),
+                ],
               ],
             );
           },
