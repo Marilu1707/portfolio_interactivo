@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:intl/intl.dart';
+import 'package:flutter_web_plugins/flutter_web_plugins.dart';
 
 // Screens
 import 'home_screen.dart';
@@ -22,6 +23,15 @@ import 'state/ab_result_state.dart';
 // Punto de entrada: configura locale es-AR, carga inventario y provee AppState
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  // Use hash URLs to avoid 404s on static hosts without rewrites
+  setUrlStrategy(const HashUrlStrategy());
+
+  // Log uncaught Flutter errors in production to the browser console
+  FlutterError.onError = (details) {
+    FlutterError.presentError(details);
+    // ignore: avoid_print
+    print('FlutterError: ${details.exceptionAsString()}');
+  };
   Intl.defaultLocale = 'es_AR';
   final seed = await DataService.loadInventory();
 
@@ -42,13 +52,24 @@ Future<void> main() async {
 }
 
 // MaterialApp con rutas a 5 pantallas y tema kawaii
-class MariluApp extends StatelessWidget {
-  const MariluApp({super.key});
+  class MariluApp extends StatelessWidget {
+    const MariluApp({super.key});
 
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      locale: const Locale('es', 'AR'),
+    @override
+    Widget build(BuildContext context) {
+      // Friendly error widget in case a subtree fails to build
+      ErrorWidget.builder = (details) => Material(
+            color: const Color(0xFFFFF9E8),
+            child: Center(
+              child: Text(
+                'Ups… ${details.exception}',
+                style: const TextStyle(color: Colors.brown),
+                textAlign: TextAlign.center,
+              ),
+            ),
+          );
+      return MaterialApp(
+        locale: const Locale('es', 'AR'),
       supportedLocales: const [Locale('es', 'AR'), Locale('es'), Locale('en')],
       localizationsDelegates: const [
         GlobalMaterialLocalizations.delegate,

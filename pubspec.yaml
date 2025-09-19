@@ -21,6 +21,8 @@ dependencies:
   path_provider: ^2.1.5
   open_filex: ^4.5.0
   shared_preferences: ^2.3.2
+  flutter_web_plugins:
+    sdk: flutter
 
 dev_dependencies:
   flutter_test:
