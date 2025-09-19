@@ -1,11 +1,12 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:provider/provider.dart';
-import '../state/app_state.dart';
+
+import '../state/orders_state.dart';
 
 /// Nivel 2 — Exploración de datos (mobile-first)
-/// Lee datos reales desde AppState y muestra:
-/// 1) Top de quesos (tabla por puntaje base)
+/// Lee pedidos reales persistidos y muestra:
+/// 1) Top de quesos (puntaje normalizado por pedidos)
 /// 2) Quesos con mayor cantidad de pedidos (barras)
 /// 3) Recomendación (globo + ratón ab_mouse.png)
 class Level2EdaScreen extends StatelessWidget {
@@ -13,49 +14,84 @@ class Level2EdaScreen extends StatelessWidget {
 
   /// Orden fijo de quesos en UI (barras y chips)
   static const List<String> ordenQuesos = [
-    'Mozzarella', 'Cheddar', 'Parmesano', 'Gouda', 'Brie', 'Azul'
+    'Mozzarella',
+    'Cheddar',
+    'Parmesano',
+    'Gouda',
+    'Brie',
+    'Azul',
   ];
 
-  /// Genera la lista ordenada por puntaje base (descendente) para la tabla.
-  List<MapEntry<String, double>> topPorPuntaje(AppState s) {
-    final list = s.puntajeBase.entries.toList()
+  /// Ordena los quesos por cantidad de pedidos (descendente).
+  List<MapEntry<String, int>> ordenarPorPedidos(Map<String, int> counts) {
+    final list = counts.entries.toList()
       ..sort((a, b) => b.value.compareTo(a.value));
     return list;
   }
 
-  /// Devuelve la serie de pedidos en el orden fijo.
-  List<int> seriesPedidos(AppState s) =>
-      ordenQuesos.map((q) => s.servedByCheese[q] ?? 0).toList();
+  /// Serie de pedidos en el orden fijo para el gráfico.
+  List<int> seriesPedidos(Map<String, int> counts) =>
+      ordenQuesos.map((q) => counts[q] ?? 0).toList();
 
-  /// Construye el texto de Recomendación según el top de pedidos.
-  String buildRecomendacion(AppState s) {
-    final counts = seriesPedidos(s);
-    final maxVal = counts.reduce((a, b) => a > b ? a : b);
-    if (maxVal == 0) {
+  /// Recomendación basada en los pedidos reales.
+  String buildRecomendacion(Map<String, int> counts) {
+    if (counts.values.every((value) => value == 0)) {
       return 'Todavía no hay suficientes pedidos. Juguemos un poco más 😉';
     }
-    final indicesTop = <int>[];
-    for (var i = 0; i < counts.length; i++) {
-      if (counts[i] == maxVal) indicesTop.add(i);
+
+    final ordered = ordenarPorPedidos(counts);
+    final top = ordered.first;
+    final second = ordered.length > 1 ? ordered[1] : null;
+
+    if (second != null && second.value == top.value) {
+      return 'Recomendación: mantené variedad; ${top.key} y ${second.key} compiten parejo.';
     }
-    if (indicesTop.length == 1) {
-      final q = ordenQuesos[indicesTop.first];
-      return 'Recomendación: destacá $q en el menú base.';
+
+    if (second == null || second.value == 0) {
+      return 'Recomendación: destacá ${top.key} en el menú base.';
     }
-    final q1 = ordenQuesos[indicesTop[0]];
-    final q2 = ordenQuesos[indicesTop[1]];
-    return 'Recomendación: mantené variedad; $q1 y $q2 compiten parejo.';
+
+    return 'Recomendación: priorizá ${top.key}, seguido por ${second.key}.';
   }
 
   @override
   Widget build(BuildContext context) {
-    final s = context.watch<AppState>();
+    final orders = context.watch<OrdersState>();
+    final counts = orders.counts;
+    final scores = orders.scores();
+    final sorted = ordenarPorPedidos(counts);
     final isMobile = MediaQuery.of(context).size.width < 700;
 
-    // Secciones (tarjetas) en mobile se apilan; en desktop se distribuyen.
-    final topCard = _TopQuesosCard(top: topPorPuntaje(s));
-    final chartCard = _PedidosChartCard(series: seriesPedidos(s));
-    final recoCard = _RecomendacionCard(texto: buildRecomendacion(s));
+    final topCard = _TopQuesosCard(sorted: sorted, scores: scores);
+    final chartCard = _PedidosChartCard(
+      series: seriesPedidos(counts),
+      counts: counts,
+    );
+    final recoCard = _RecomendacionCard(texto: buildRecomendacion(counts));
+
+    final mainContent = isMobile
+        ? Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              topCard,
+              const SizedBox(height: 12),
+              chartCard,
+              const SizedBox(height: 12),
+              recoCard,
+            ],
+          )
+        : Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(child: topCard),
+              const SizedBox(width: 16),
+              Expanded(child: chartCard),
+              const SizedBox(width: 16),
+              Expanded(child: recoCard),
+            ],
+          );
+
+    final buttonAlignment = isMobile ? Alignment.center : Alignment.centerRight;
 
     return Scaffold(
       appBar: AppBar(
@@ -65,42 +101,46 @@ class Level2EdaScreen extends StatelessWidget {
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(16),
-          child: isMobile
-              ? Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    topCard,
-                    const SizedBox(height: 12),
-                    chartCard,
-                    const SizedBox(height: 12),
-                    recoCard,
-                  ],
-                )
-              : Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(child: topCard),
-                    const SizedBox(width: 16),
-                    Expanded(child: chartCard),
-                    const SizedBox(width: 16),
-                    Expanded(child: recoCard),
-                  ],
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              mainContent,
+              const SizedBox(height: 24),
+              Align(
+                alignment: buttonAlignment,
+                child: ElevatedButton.icon(
+                  onPressed: () => Navigator.pushNamed(context, '/level3'),
+                  icon: const Icon(Icons.arrow_forward),
+                  label: const Text('Ir al Nivel 3'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFFFFE082),
+                    foregroundColor: const Color(0xFF5B4E2F),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 22, vertical: 14),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12)),
+                  ),
                 ),
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
 }
 
-/// Construye la tarjeta de "Top de quesos" mostrando nombre y puntaje.
-/// Ordena por puntaje descendente para resaltar los mejores primero.
+/// Tabla con pedidos reales y puntajes normalizados (0-5).
 class _TopQuesosCard extends StatelessWidget {
-  final List<MapEntry<String, double>> top;
-  const _TopQuesosCard({required this.top});
+  const _TopQuesosCard({required this.sorted, required this.scores});
+
+  final List<MapEntry<String, int>> sorted;
+  final Map<String, double> scores;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final hasData = sorted.any((entry) => entry.value > 0);
     return Container(
       decoration: BoxDecoration(
         color: theme.colorScheme.surface,
@@ -117,20 +157,32 @@ class _TopQuesosCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Top de quesos',
-              style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800)),
+          Text(
+            'Top de quesos',
+            style: theme.textTheme.titleMedium
+                ?.copyWith(fontWeight: FontWeight.w800),
+          ),
           const SizedBox(height: 8),
           const Divider(height: 1),
           const SizedBox(height: 8),
-          // Tabla compacta de 2 columnas (Nombre | Puntaje)
-          for (final e in top)
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 6.0),
-              child: Row(
-                children: [
-                  Expanded(child: Text(e.key, softWrap: true)),
-                  Text(e.value.toStringAsFixed(1)),
-                ],
+          if (!hasData)
+            Text(
+              'Todavía no hay pedidos registrados.',
+              style: theme.textTheme.bodyMedium,
+            )
+          else
+            ...sorted.map(
+              (entry) => Padding(
+                padding: const EdgeInsets.symmetric(vertical: 6.0),
+                child: Row(
+                  children: [
+                    Expanded(child: Text(entry.key, softWrap: true)),
+                    Text(
+                      '${entry.value} pedidos · ${(scores[entry.key] ?? 0).toStringAsFixed(1)}⭐',
+                      style: theme.textTheme.labelLarge,
+                    ),
+                  ],
+                ),
               ),
             ),
         ],
@@ -139,18 +191,19 @@ class _TopQuesosCard extends StatelessWidget {
   }
 }
 
-/// Tarjeta con barras "Quesos con mayor cantidad de pedidos" y chips debajo.
 class _PedidosChartCard extends StatelessWidget {
-  const _PedidosChartCard({required this.series});
-  final List<int> series; // en orden fijo: Mozzarella..Azul
+  const _PedidosChartCard({required this.series, required this.counts});
+
+  final List<int> series;
+  final Map<String, int> counts;
 
   static const labels = Level2EdaScreen.ordenQuesos;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    // Eje Y entero y máximo dinámico
-    final maxCount = series.isEmpty ? 0 : series.reduce((a, b) => a > b ? a : b);
+    final maxCount =
+        series.isEmpty ? 0 : series.reduce((a, b) => a > b ? a : b);
     final maxY = (maxCount == 0 ? 1 : maxCount).toDouble();
     final interval = maxY <= 5 ? 1.0 : (maxY / 5).ceilToDouble();
 
@@ -170,8 +223,11 @@ class _PedidosChartCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Quesos con mayor cantidad de pedidos',
-              style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800)),
+          Text(
+            'Quesos con mayor cantidad de pedidos',
+            style: theme.textTheme.titleMedium
+                ?.copyWith(fontWeight: FontWeight.w800),
+          ),
           const SizedBox(height: 12),
           SizedBox(
             height: 220,
@@ -179,29 +235,14 @@ class _PedidosChartCard extends StatelessWidget {
               BarChartData(
                 alignment: BarChartAlignment.spaceAround,
                 minY: 0,
-                maxY: maxY,
-                barTouchData: BarTouchData(enabled: true),
-                gridData: FlGridData(show: true, drawVerticalLine: false,
-                  getDrawingHorizontalLine: (v) => FlLine(
-                    color: theme.dividerColor.withValues(alpha: 0.15),
-                    strokeWidth: 1,
-                  ),
-                ),
-                borderData: FlBorderData(show: false),
+                maxY: maxY + 1,
+                gridData: FlGridData(show: true),
                 titlesData: FlTitlesData(
-                  topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                  rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                  rightTitles: const AxisTitles(),
+                  topTitles: const AxisTitles(),
                   leftTitles: AxisTitles(
                     sideTitles: SideTitles(
-                      showTitles: true,
-                      reservedSize: 32,
-                      interval: interval,
-                      getTitlesWidget: (value, meta) {
-                        final n = value.round();
-                        if (n < 0) return const SizedBox.shrink();
-                        return Text('$n', style: Theme.of(context).textTheme.bodySmall);
-                      },
-                    ),
+                        showTitles: true, interval: interval, reservedSize: 28),
                   ),
                   bottomTitles: AxisTitles(
                     sideTitles: SideTitles(
@@ -209,14 +250,18 @@ class _PedidosChartCard extends StatelessWidget {
                       reservedSize: 42,
                       getTitlesWidget: (value, meta) {
                         final i = value.toInt();
-                        if (i < 0 || i >= labels.length) return const SizedBox.shrink();
+                        if (i < 0 || i >= labels.length) {
+                          return const SizedBox.shrink();
+                        }
                         return Padding(
                           padding: const EdgeInsets.only(top: 6.0),
-                          child: Text(labels[i],
-                              textAlign: TextAlign.center,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: theme.textTheme.labelSmall),
+                          child: Text(
+                            labels[i],
+                            textAlign: TextAlign.center,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: theme.textTheme.labelSmall,
+                          ),
                         );
                       },
                     ),
@@ -240,20 +285,20 @@ class _PedidosChartCard extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 10),
-          // Chips con acción: navegar a Inventario
           Wrap(
             spacing: 8,
             runSpacing: 8,
             children: [
-              for (int i = 0; i < labels.length; i++)
+              for (final label in labels)
                 ActionChip(
                   avatar: const Icon(Icons.local_pizza_outlined, size: 18),
-                  label: Text('${labels[i]}: ${series[i]}'),
+                  label: Text('$label: ${counts[label] ?? 0}'),
                   onPressed: () => Navigator.pushNamed(context, '/level3'),
                   shape: StadiumBorder(
-                    side: BorderSide(color: Theme.of(context).colorScheme.outlineVariant),
+                    side: BorderSide(color: theme.colorScheme.outlineVariant),
                   ),
-                  backgroundColor: Theme.of(context).colorScheme.surfaceVariant.withValues(alpha: 0.25),
+                  backgroundColor:
+                      theme.colorScheme.surfaceVariant.withValues(alpha: 0.25),
                 ),
             ],
           ),
@@ -265,8 +310,9 @@ class _PedidosChartCard extends StatelessWidget {
 
 /// Tarjeta de Recomendación con fondo amarillo + imagen del ratón.
 class _RecomendacionCard extends StatelessWidget {
-  final String texto;
   const _RecomendacionCard({required this.texto});
+
+  final String texto;
 
   @override
   Widget build(BuildContext context) {
@@ -275,34 +321,40 @@ class _RecomendacionCard extends StatelessWidget {
         ? Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Text('Recomendación',
-                  style: Theme.of(context)
-                      .textTheme
-                      .titleMedium
-                      ?.copyWith(fontWeight: FontWeight.w800)),
+              Text(
+                'Recomendación',
+                style: Theme.of(context)
+                    .textTheme
+                    .titleMedium
+                    ?.copyWith(fontWeight: FontWeight.w800),
+              ),
               const SizedBox(height: 8),
               Text(texto, softWrap: true),
               const SizedBox(height: 12),
               Align(
                 alignment: Alignment.center,
-                child: Image.asset('assets/img/ab_mouse.png', height: 84, fit: BoxFit.contain),
+                child: Image.asset('assets/img/ab_mouse.png',
+                    height: 84, fit: BoxFit.contain),
               ),
             ],
           )
         : Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Image.asset('assets/img/ab_mouse.png', height: 84, fit: BoxFit.contain),
+              Image.asset('assets/img/ab_mouse.png',
+                  height: 84, fit: BoxFit.contain),
               const SizedBox(width: 12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Recomendación',
-                        style: Theme.of(context)
-                            .textTheme
-                            .titleMedium
-                            ?.copyWith(fontWeight: FontWeight.w800)),
+                    Text(
+                      'Recomendación',
+                      style: Theme.of(context)
+                          .textTheme
+                          .titleMedium
+                          ?.copyWith(fontWeight: FontWeight.w800),
+                    ),
                     const SizedBox(height: 6),
                     Text(texto, softWrap: true),
                   ],
@@ -328,4 +380,3 @@ class _RecomendacionCard extends StatelessWidget {
     );
   }
 }
-
