@@ -14,7 +14,8 @@ class HomeDesktop extends StatelessWidget {
 
   // Links reales
   static const githubUrl = 'https://github.com/Marilu1707';
-  static const linkedinUrl = 'https://www.linkedin.com/in/maria-lujan-massironi/';
+  static const linkedinUrl =
+      'https://www.linkedin.com/in/maria-lujan-massironi/';
 
   static Future<void> _open(String url) async {
     final uri = Uri.parse(url);
@@ -45,20 +46,29 @@ class HomeDesktop extends StatelessWidget {
                   children: [
                     // Hero
                     Container(
-                      decoration: BoxDecoration(color: accent, borderRadius: BorderRadius.circular(20)),
+                      decoration: BoxDecoration(
+                          color: accent,
+                          borderRadius: BorderRadius.circular(20)),
                       padding: const EdgeInsets.all(22),
                       child: Builder(builder: (context) {
                         final left = Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: const [
-                              Text('Hola, soy Marilú',
-                                  style: TextStyle(fontSize: 40, fontWeight: FontWeight.w900, color: onAccent)),
+                              Text('👋 Hola, soy Marilú',
+                                  style: TextStyle(
+                                      fontSize: 40,
+                                      fontWeight: FontWeight.w900,
+                                      color: onAccent)),
                               SizedBox(height: 8),
-                              Text('Data Science + Full stack — convierto datos en decisiones.',
-                                  style: TextStyle(fontSize: 18, color: onAccent)),
+                              Text(
+                                  'Data Science + Full stack — convierto datos en decisiones.',
+                                  style:
+                                      TextStyle(fontSize: 18, color: onAccent)),
                               SizedBox(height: 8),
-                              Text('Descubrí mis habilidades jugando por niveles.', style: TextStyle(color: onAccent)),
+                              Text(
+                                  'Descubrí mis habilidades jugando por niveles.',
+                                  style: TextStyle(color: onAccent)),
                             ],
                           ),
                         );
@@ -67,10 +77,14 @@ class HomeDesktop extends StatelessWidget {
                           width: 160,
                           height: 160,
                           decoration: BoxDecoration(
-                            color: const Color(0xFFFFF2CC), // amarillo pastel pedido
+                            color: const Color(
+                                0xFFFFF2CC), // amarillo pastel pedido
                             shape: BoxShape.circle,
                             boxShadow: [
-                              BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 8, offset: const Offset(0, 4)),
+                              BoxShadow(
+                                  color: Colors.black.withValues(alpha: 0.05),
+                                  blurRadius: 8,
+                                  offset: const Offset(0, 4)),
                             ],
                           ),
                           alignment: Alignment.center,
@@ -78,7 +92,9 @@ class HomeDesktop extends StatelessWidget {
                             'assets/img/raton_menu.png',
                             width: 110,
                             fit: BoxFit.contain,
-                            errorBuilder: (context, error, stack) => const Text('¿Y?', style: TextStyle(fontSize: 72)),
+                            errorBuilder: (context, error, stack) => const Text(
+                                '¿Y?',
+                                style: TextStyle(fontSize: 72)),
                           ),
                         );
 
@@ -107,23 +123,29 @@ class HomeDesktop extends StatelessWidget {
                       runSpacing: 12,
                       children: [
                         ElevatedButton(
-                          onPressed: () => Navigator.pushNamed(context, '/level1'),
+                          onPressed: () =>
+                              Navigator.pushNamed(context, '/level1'),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: const Color(0xFFFFD76B),
                             foregroundColor: onAccent,
                             elevation: 0,
-                            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 18, vertical: 14),
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(14)),
                           ),
-                          child: const Text('Empezar nivel 1', style: TextStyle(fontWeight: FontWeight.w800)),
+                          child: const Text('Empezar nivel 1',
+                              style: TextStyle(fontWeight: FontWeight.w800)),
                         ),
                         OutlinedButton(
                           onPressed: () => _open(githubUrl),
                           style: OutlinedButton.styleFrom(
                             side: const BorderSide(color: onAccent),
                             foregroundColor: onAccent,
-                            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 18, vertical: 14),
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(14)),
                           ),
                           child: const Text('Ver más proyectos'),
                         ),
@@ -142,7 +164,7 @@ class HomeDesktop extends StatelessWidget {
                             child: const Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                _H3('Sobre mí'),
+                                _H3('✨ Sobre mí'),
                                 SizedBox(height: 8),
                                 Text(
                                   'Estudiante de Negocios Digitales (UADE). Me formé en análisis de datos, marketing y desarrollo web. '
@@ -152,38 +174,53 @@ class HomeDesktop extends StatelessWidget {
                                 SizedBox(height: 12),
                                 _Dot('Análisis de datos (Python, SQL, EDA)'),
                                 _Dot('Desarrollo web (Django, React.js)'),
-                                _Dot('Orientación a resultados + mejora de procesos.'),
+                                _Dot(
+                                    'Orientación a resultados + mejora de procesos.'),
                               ],
                             ),
                           ),
                         ),
-                        SizedBox(width: isMobile ? 0 : 16, height: isMobile ? 16 : 0),
+                        SizedBox(
+                            width: isMobile ? 0 : 16,
+                            height: isMobile ? 16 : 0),
                         Expanded(
                           child: _HomeCard(
                             child: const Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                _H3('Skills + Stack'),
-                                SizedBox(height: 8),
-                                _Chips(['EDA','Python','SQL','scikit-learn','Dashboards','Django','React.js','Flutter (UI)','Git']),
-                              ],
-                            ),
-                          ),
-                        ),
-                        SizedBox(width: isMobile ? 0 : 16, height: isMobile ? 16 : 0),
-                        Expanded(
-                          child: _HomeCard(
-                            child: const Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                _H3('Educación y cursos'),
+                                _H3('🛠️ Skills + Stack'),
                                 SizedBox(height: 8),
                                 _Chips([
-                                  'UADE — Lic. en Negocios Digitales (en curso)',
-                                  'React.js Developer — Educación IT (2024)',
-                                  'Python Avanzado — Educación IT (2024)',
-                                  'Bases de Datos y SQL — Educación IT (2023)',
-                                  'Marketing Digital — CoderHouse (2024)',
+                                  '🐍 Python',
+                                  '🗄️ SQL',
+                                  '📊 EDA',
+                                  '⚛️ React.js',
+                                  '🎨 Django',
+                                  '🤖 scikit-learn',
+                                  '📈 Dashboards',
+                                  '📱 Flutter (UI)',
+                                  '🔗 Git',
+                                ]),
+                              ],
+                            ),
+                          ),
+                        ),
+                        SizedBox(
+                            width: isMobile ? 0 : 16,
+                            height: isMobile ? 16 : 0),
+                        Expanded(
+                          child: _HomeCard(
+                            child: const Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                _H3('🎓 Educación y cursos'),
+                                SizedBox(height: 8),
+                                _Chips([
+                                  '🎓 UADE — Lic. en Negocios Digitales (en curso)',
+                                  '🎓 React.js Developer — Educación IT (2024)',
+                                  '🎓 Python Avanzado — Educación IT (2024)',
+                                  '🎓 Bases de Datos y SQL — Educación IT (2023)',
+                                  '🎓 Marketing Digital — CoderHouse (2024)',
                                 ]),
                               ],
                             ),
@@ -195,40 +232,77 @@ class HomeDesktop extends StatelessWidget {
                     const SizedBox(height: 20),
 
                     // Niveles
-                    const _H3('Niveles'),
+                    const _H3('🎮 Niveles'),
                     const SizedBox(height: 10),
                     Wrap(
                       spacing: 14,
                       runSpacing: 14,
                       children: [
-                        _LevelCard(title: 'Nivel 1', subtitle: 'Restaurante', icon: Icons.pets, onTap: () => Navigator.pushNamed(context, '/level1')),
-                        _LevelCard(title: 'Nivel 2', subtitle: 'EDA', icon: Icons.bar_chart_rounded, onTap: () => Navigator.pushNamed(context, '/level2')),
-                        _LevelCard(title: 'Nivel 3', subtitle: 'Inventario', icon: Icons.inventory_2_rounded, onTap: () => Navigator.pushNamed(context, '/level3')),
-                        _LevelCard(title: 'Nivel 4', subtitle: 'Predicción ML', icon: Icons.auto_graph, onTap: () => Navigator.pushNamed(context, '/level4')),
-                        _LevelCard(title: 'Nivel 5', subtitle: 'A/B Test', icon: Icons.science, onTap: () => Navigator.pushNamed(context, '/level5')),
-                        _LevelCard(title: 'Panel', subtitle: 'Dashboard', icon: Icons.space_dashboard_rounded, onTap: () => Navigator.pushNamed(context, '/dashboard')),
+                        _LevelCard(
+                            title: 'Nivel 1',
+                            subtitle: '🍽️ Restaurante',
+                            icon: Icons.pets,
+                            onTap: () =>
+                                Navigator.pushNamed(context, '/level1')),
+                        _LevelCard(
+                            title: 'Nivel 2',
+                            subtitle: '📊 EDA',
+                            icon: Icons.bar_chart_rounded,
+                            onTap: () =>
+                                Navigator.pushNamed(context, '/level2')),
+                        _LevelCard(
+                            title: 'Nivel 3',
+                            subtitle: '📦 Inventario',
+                            icon: Icons.inventory_2_rounded,
+                            onTap: () =>
+                                Navigator.pushNamed(context, '/level3')),
+                        _LevelCard(
+                            title: 'Nivel 4',
+                            subtitle: '🤖 Predicción ML',
+                            icon: Icons.auto_graph,
+                            onTap: () =>
+                                Navigator.pushNamed(context, '/level4')),
+                        _LevelCard(
+                            title: 'Nivel 5',
+                            subtitle: '🔀 A/B Test',
+                            icon: Icons.science,
+                            onTap: () =>
+                                Navigator.pushNamed(context, '/level5')),
+                        _LevelCard(
+                            title: 'Panel',
+                            subtitle: '📉 Dashboard',
+                            icon: Icons.space_dashboard_rounded,
+                            onTap: () =>
+                                Navigator.pushNamed(context, '/dashboard')),
                       ],
                     ),
 
                     const SizedBox(height: 22),
-                    const _H3('Contacto'),
+                    const _H3('📬 Contacto'),
                     const SizedBox(height: 10),
                     Wrap(
                       spacing: 12,
                       runSpacing: 12,
                       children: [
-                        _contactBtn(Icons.business_rounded, 'LinkedIn', () => _open(linkedinUrl)),
-                        _contactBtn(Icons.code_rounded, 'GitHub', () => _open(githubUrl)),
-                        _contactBtn(Icons.picture_as_pdf_rounded, 'Descargar CV', () => descargarCV(context)),
+                        _contactBtn(Icons.business_rounded, 'LinkedIn',
+                            () => _open(linkedinUrl)),
+                        _contactBtn(Icons.code_rounded, 'GitHub',
+                            () => _open(githubUrl)),
+                        _contactBtn(Icons.picture_as_pdf_rounded,
+                            'Descargar CV', () => descargarCV(context)),
                       ],
                     ),
 
                     const SizedBox(height: 24),
                     Container(
                       padding: const EdgeInsets.symmetric(vertical: 12),
-                      decoration: BoxDecoration(color: const Color(0xFFFFE7A6), borderRadius: BorderRadius.circular(10)),
+                      decoration: BoxDecoration(
+                          color: const Color(0xFFFFE7A6),
+                          borderRadius: BorderRadius.circular(10)),
                       alignment: Alignment.center,
-                      child: const Text('© 2025 Marilú — Data Science & Fullstack', style: TextStyle(color: onAccent)),
+                      child: const Text(
+                          '© 2025 Marilú — Data Science & Fullstack',
+                          style: TextStyle(color: onAccent)),
                     ),
                   ],
                 ),
@@ -268,7 +342,10 @@ class _HomeCard extends StatelessWidget {
         color: HomeDesktop.card,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
-          BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 8, offset: const Offset(0, 4)),
+          BoxShadow(
+              color: Colors.black.withValues(alpha: 0.05),
+              blurRadius: 8,
+              offset: const Offset(0, 4)),
         ],
       ),
       padding: const EdgeInsets.all(16),
@@ -282,7 +359,11 @@ class _H3 extends StatelessWidget {
   const _H3(this.text);
   @override
   Widget build(BuildContext context) {
-    return Text(text, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: HomeDesktop.onAccent));
+    return Text(text,
+        style: const TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.w800,
+            color: HomeDesktop.onAccent));
   }
 }
 
@@ -303,11 +384,14 @@ class _Chips extends StatelessWidget {
               .map((t) => ConstrainedBox(
                     constraints: BoxConstraints(maxWidth: maxPillWidth),
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 8),
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(999),
-                        border: Border.all(color: Colors.brown.shade200.withValues(alpha: 0.5)),
+                        border: Border.all(
+                            color:
+                                Colors.brown.shade200.withValues(alpha: 0.5)),
                       ),
                       child: Text(
                         t,
@@ -354,7 +438,8 @@ class EduPill extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(24),
-          border: Border.all(color: Colors.brown.shade200.withValues(alpha: 0.5)),
+          border:
+              Border.all(color: Colors.brown.shade200.withValues(alpha: 0.5)),
         ),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -382,7 +467,11 @@ class _LevelCard extends StatelessWidget {
   final String subtitle;
   final IconData icon;
   final VoidCallback onTap;
-  const _LevelCard({required this.title, required this.subtitle, required this.icon, required this.onTap});
+  const _LevelCard(
+      {required this.title,
+      required this.subtitle,
+      required this.icon,
+      required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -396,7 +485,8 @@ class _LevelCard extends StatelessWidget {
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(16),
             color: Theme.of(context).colorScheme.surface,
-            border: Border.all(color: Theme.of(context).dividerColor.withValues(alpha: 0.4)),
+            border: Border.all(
+                color: Theme.of(context).dividerColor.withValues(alpha: 0.4)),
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -404,7 +494,10 @@ class _LevelCard extends StatelessWidget {
             children: [
               Icon(icon, size: 26, color: HomeDesktop.onAccent),
               const SizedBox(height: 8),
-              Text(title, style: const TextStyle(fontWeight: FontWeight.w900, color: HomeDesktop.onAccent)),
+              Text(title,
+                  style: const TextStyle(
+                      fontWeight: FontWeight.w900,
+                      color: HomeDesktop.onAccent)),
               Text(subtitle),
             ],
           ),
@@ -413,4 +506,3 @@ class _LevelCard extends StatelessWidget {
     );
   }
 }
-
