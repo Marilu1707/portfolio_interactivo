@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'utils/download_cv.dart';
 
@@ -15,7 +15,7 @@ class HomeDesktop extends StatelessWidget {
   // Links reales
   static const githubUrl = 'https://github.com/Marilu1707';
   static const linkedinUrl = 'https://www.linkedin.com/in/maria-lujan-massironi/';
-  
+
   static Future<void> _open(String url) async {
     final uri = Uri.parse(url);
     if (await canLaunchUrl(uri)) {
@@ -23,7 +23,7 @@ class HomeDesktop extends StatelessWidget {
     }
   }
 
-    @override
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: bg,
@@ -78,12 +78,7 @@ class HomeDesktop extends StatelessWidget {
                             'assets/img/raton_menu.png',
                             width: 110,
                             fit: BoxFit.contain,
-                            errorBuilder: (context, error, stack) => Image.asset(
-                              'assets/img/raton_menu.png',
-                              width: 110,
-                              fit: BoxFit.contain,
-                              errorBuilder: (context, error, stack) => const Text('ðŸ­', style: TextStyle(fontSize: 72)),
-                            ),
+                            errorBuilder: (context, error, stack) => const Text('¿Y?', style: TextStyle(fontSize: 72)),
                           ),
                         );
 
@@ -130,14 +125,14 @@ class HomeDesktop extends StatelessWidget {
                             padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                           ),
-                          child: const Text('Ver mÃ¡s proyectos'),
+                          child: const Text('Ver más proyectos'),
                         ),
                       ],
                     ),
 
                     const SizedBox(height: 20),
 
-                    // Sobre mÃ­ / Skills / EducaciÃ³n
+                    // Sobre mí / Skills / Educación
                     Flex(
                       direction: isMobile ? Axis.vertical : Axis.horizontal,
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -147,17 +142,17 @@ class HomeDesktop extends StatelessWidget {
                             child: const Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                _H3('Sobre mÃ­'),
+                                _H3('Sobre mí'),
                                 SizedBox(height: 8),
                                 Text(
-                                  'Estudiante de Negocios Digitales (UADE). Me formÃ© en anÃ¡lisis de datos, marketing y desarrollo web. '
-                                  'Capacitaciones en Python, Django, React.js y SQL. Me interesa combinar tecnologÃ­a, eficiencia operativa y enfoque '
-                                  'estratÃ©gico para crear soluciones simples y efectivas.',
+                                  'Estudiante de Negocios Digitales (UADE). Me formé en análisis de datos, marketing y desarrollo web. '
+                                  'Capacitaciones en Python, Django, React.js y SQL. Me interesa combinar tecnología, eficiencia operativa y enfoque '
+                                  'estratégico para crear soluciones simples y efectivas.',
                                 ),
                                 SizedBox(height: 12),
-                                _Dot('ðŸ“Š AnÃ¡lisis de datos (Python, SQL, EDA)'),
-                                _Dot('ðŸ’» Desarrollo web (Django, React.js)'),
-                                _Dot('ðŸš€ OrientaciÃ³n a resultados + mejora de procesos.'),
+                                _Dot('Análisis de datos (Python, SQL, EDA)'),
+                                _Dot('Desarrollo web (Django, React.js)'),
+                                _Dot('Orientación a resultados + mejora de procesos.'),
                               ],
                             ),
                           ),
@@ -181,14 +176,14 @@ class HomeDesktop extends StatelessWidget {
                             child: const Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                _H3('EducaciÃ³n y cursos'),
+                                _H3('Educación y cursos'),
                                 SizedBox(height: 8),
                                 _Chips([
-                                  'ðŸŽ“ UADE â€” Lic. en Negocios Digitales (en curso)',
-                                  'ðŸ§© React.js Developer â€” EducaciÃ³n IT (2024)',
-                                  'ðŸ Python Avanzado â€” EducaciÃ³n IT (2024)',
-                                  'ðŸ—„ï¸ Bases de Datos y SQL â€” EducaciÃ³n IT (2023)',
-                                  'ðŸŒ Marketing Digital â€” CoderHouse (2024)',
+                                  'UADE — Lic. en Negocios Digitales (en curso)',
+                                  'React.js Developer — Educación IT (2024)',
+                                  'Python Avanzado — Educación IT (2024)',
+                                  'Bases de Datos y SQL — Educación IT (2023)',
+                                  'Marketing Digital — CoderHouse (2024)',
                                 ]),
                               ],
                             ),
@@ -245,7 +240,7 @@ class HomeDesktop extends StatelessWidget {
     );
   }
 
-  // BotÃ³n de contacto reutilizable
+  // Botón de contacto reutilizable
   static Widget _contactBtn(IconData i, String label, VoidCallback onTap) {
     return OutlinedButton.icon(
       onPressed: onTap,
@@ -291,7 +286,7 @@ class _H3 extends StatelessWidget {
   }
 }
 
-// PÃ­ldoras multilÃ­nea: reemplazo de Chip para no truncar
+// Píldoras multilínea: reemplazo de Chip para no truncar
 class _Chips extends StatelessWidget {
   final List<String> items;
   const _Chips(this.items);
@@ -381,8 +376,6 @@ class EduPill extends StatelessWidget {
     );
   }
 }
-
-
 
 class _LevelCard extends StatelessWidget {
   final String title;
