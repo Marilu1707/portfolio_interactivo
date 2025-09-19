@@ -1,5 +1,7 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../state/ab_result_state.dart';
 
 class Level5AbTestScreen extends StatefulWidget {
   const Level5AbTestScreen({super.key});
@@ -14,7 +16,10 @@ class _Level5AbTestScreenState extends State<Level5AbTestScreen> {
   final _tNController = TextEditingController(text: '100');
   final _tXController = TextEditingController(text: '30');
 
-  String _summary = 'Ingresá los valores y tocá “Calcular”.';
+  double? _z, _pTwo, _pA, _pB, _diff, _ciL, _ciH, _lift;
+  bool _sig = false;
+
+  String _summary = 'IngresÃ¡ los valores y tocÃ¡ â€œCalcularâ€.';
 
   @override
   void dispose() {
@@ -39,6 +44,35 @@ class _Level5AbTestScreenState extends State<Level5AbTestScreen> {
           ],
         ),
         actions: [
+          if (_pTwo != null)
+            TextButton.icon(
+              onPressed: () async {
+                final result = {
+                  'nA': _cNController.text,
+                  'cA': _cXController.text,
+                  'pA': _pA?.toStringAsFixed(4),
+                  'nB': _tNController.text,
+                  'cB': _tXController.text,
+                  'pB': _pB?.toStringAsFixed(4),
+                  'diff': _diff?.toStringAsFixed(4),
+                  'lift': _lift == null ? '—' : '${(_lift! * 100).toStringAsFixed(1)}%',
+                  'z': _z?.toStringAsFixed(3),
+                  'p': _pTwo?.toStringAsFixed(4),
+                  'ci': _ciL == null || _ciH == null
+                      ? '—'
+                      : '[${(_ciL! * 100).toStringAsFixed(1)}%, ${(_ciH!*100).toStringAsFixed(1)}%]',
+                  'sig': _sig ? 'Sí' : 'No',
+                  'alpha': '0.05',
+                  'note': 'Resultado guardado desde Nivel A/B',
+                };
+                await context.read<ABResultState>().save(result);
+                if (context.mounted) {
+                  Navigator.pushNamed(context, '/dashboard');
+                }
+              },
+              icon: const Icon(Icons.send),
+              label: const Text('Enviar al Dashboard'),
+            ),
           IconButton(
             tooltip: 'Ayuda',
             icon: const Icon(Icons.help_outline),
@@ -56,7 +90,7 @@ class _Level5AbTestScreenState extends State<Level5AbTestScreen> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Text(
-                  'Compará la tasa de conversión de Control (A) vs Tratamiento (B) con Z para dos proporciones (prueba bilateral).',
+                  'ComparÃ¡ la tasa de conversiÃ³n de Control (A) vs Tratamiento (B) con Z para dos proporciones (prueba bilateral).',
                   style: theme.textTheme.bodyMedium,
                 ),
                 const SizedBox(height: 16),
@@ -89,7 +123,7 @@ class _Level5AbTestScreenState extends State<Level5AbTestScreen> {
                   color: theme.colorScheme.surfaceVariant.withOpacity(.5),
                   child: Padding(
                     padding: const EdgeInsets.all(16),
-                    child: Text(_summary, style: theme.textTheme.titleMedium),
+                    child: Column(crossAxisAlignment: CrossAxisAlignment.start, children:[Text(_summary, style: theme.textTheme.titleMedium), if(_pTwo!=null) const SizedBox(height:10), if(_pTwo!=null) Text("Detalle: pA=${( (_pA??0)*100).toStringAsFixed(1)}% · pB=${( (_pB??0)*100).toStringAsFixed(1)}% · Δ=${( (_diff??0)*100).toStringAsFixed(1)}% · Lift=${_lift==null?"—":"${((_lift??0)*100).toStringAsFixed(1)}%"} · IC95%=[${( (_ciL??0)*100).toStringAsFixed(1)}%, ${( (_ciH??0)*100).toStringAsFixed(1)}%] · p=${(_pTwo??0).toStringAsFixed(4)}")]),
                   ),
                 ),
               ],
@@ -143,7 +177,7 @@ class _Level5AbTestScreenState extends State<Level5AbTestScreen> {
     return [control, treatment];
   }
 
-  void _onCalculate() {
+    void _onCalculate() {
     final nC = int.tryParse(_cNController.text) ?? 0;
     final xC = int.tryParse(_cXController.text) ?? 0;
     final nT = int.tryParse(_tNController.text) ?? 0;
@@ -152,6 +186,7 @@ class _Level5AbTestScreenState extends State<Level5AbTestScreen> {
     if (nC <= 0 || nT <= 0 || xC < 0 || xT < 0 || xC > nC || xT > nT) {
       setState(() {
         _summary = 'Revisá los datos: N > 0 y 0 ≤ conversiones ≤ N.';
+        _pTwo = null;
       });
       return;
     }
@@ -159,24 +194,36 @@ class _Level5AbTestScreenState extends State<Level5AbTestScreen> {
     final pT = xT / nT;
     final pHat = (xC + xT) / (nC + nT);
     final se = math.sqrt(pHat * (1 - pHat) * (1 / nC + 1 / nT));
-    final z = (pT - pC) / se;
+    final z = (pT - pC) / (se == 0 ? 1e-9 : se);
     final p = 2 * (1 - _phi(z.abs()));
     final sig = p < 0.05;
+    const z95 = 1.96;
+    final diff = pT - pC;
+    final ciL = diff - z95 * se;
+    final ciH = diff + z95 * se;
+    final lift = pC == 0 ? null : diff / pC;
 
     final gana = sig
         ? (pT > pC ? '¡Gana Tratamiento (B)! 🎉' : '¡Gana Control (A)! 🎉')
         : 'No significativo (p ≥ 0,05).';
 
     setState(() {
+      _z = z;
+      _pTwo = p;
+      _pA = pC;
+      _pB = pT;
+      _diff = diff;
+      _ciL = ciL;
+      _ciH = ciH;
+      _lift = lift;
+      _sig = sig;
       _summary =
-          'Tasa Control: ${(pC * 100).toStringAsFixed(1)}% — '
-          'Tasa Tratamiento: ${(pT * 100).toStringAsFixed(1)}%\n'
-          'Z = ${z.toStringAsFixed(2)} — p-valor = ${p.toStringAsFixed(3)}\n'
+          'Tasa A: ${(pC * 100).toStringAsFixed(1)}% · '
+          'Tasa B: ${(pT * 100).toStringAsFixed(1)}%\n'
+          'Z = ${z.toStringAsFixed(2)} · p-valor = ${p.toStringAsFixed(3)}\n'
           '$gana';
     });
-  }
-
-  // CDF aproximada Normal(0,1)
+  }// CDF aproximada Normal(0,1)
   double _phi(double z) {
     const p = 0.2316419;
     const b1 = 0.319381530;
@@ -218,7 +265,7 @@ class _Level5AbTestScreenState extends State<Level5AbTestScreen> {
                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
                 ),
                 SizedBox(height: 12),
-                // El mini gráfico se agrega abajo (fuera de const)
+                // El mini grÃ¡fico se agrega abajo (fuera de const)
               ],
             ),
           ),
@@ -228,7 +275,16 @@ class _Level5AbTestScreenState extends State<Level5AbTestScreen> {
   }
 }
 
-// Para que el mini gráfico se muestre con los valores actuales,
+// Para que el mini grÃ¡fico se muestre con los valores actuales,
 // puedes llamar a _MiniBars dentro del bottom sheet (sin const):
 void showHelpContent(BuildContext context, double pC, double pT) {}
+
+
+
+
+
+
+
+
+
 

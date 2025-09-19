@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:intl/intl.dart';
@@ -16,15 +16,26 @@ import 'screens/dashboard_screen.dart';
 import 'theme/kawaii_theme.dart';
 import 'services/data_service.dart';
 import 'state/app_state.dart';
+import 'state/orders_state.dart';
+import 'state/ab_result_state.dart';
 
 // Punto de entrada: configura locale es-AR, carga inventario y provee AppState
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   Intl.defaultLocale = 'es_AR';
   final seed = await DataService.loadInventory();
+
+  final appState = AppState()..initInventory(seed);
+  final ordersState = OrdersState();
+  await ordersState.load();
+
   runApp(
-    ChangeNotifierProvider(
-      create: (_) => AppState()..initInventory(seed),
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider.value(value: appState),
+        ChangeNotifierProvider.value(value: ordersState),
+        ChangeNotifierProvider(create: (_) => ABResultState()..load()),
+      ],
       child: const MariluApp(),
     ),
   );
@@ -38,7 +49,7 @@ class MariluApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       locale: const Locale('es', 'AR'),
-      supportedLocales: const [Locale('es', 'AR'), Locale('es'), Locale('en')] ,
+      supportedLocales: const [Locale('es', 'AR'), Locale('es'), Locale('en')],
       localizationsDelegates: const [
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
@@ -48,7 +59,9 @@ class MariluApp extends StatelessWidget {
       builder: (context, child) {
         final media = MediaQuery.of(context);
         return MediaQuery(
-          data: media.copyWith(textScaler: media.textScaler.clamp(minScaleFactor: 0.9, maxScaleFactor: 1.15)),
+          data: media.copyWith(
+              textScaler: media.textScaler
+                  .clamp(minScaleFactor: 0.9, maxScaleFactor: 1.15)),
           child: child!,
         );
       },
@@ -81,12 +94,6 @@ class _NoGlowScrollBehavior extends ScrollBehavior {
     BuildContext context,
     Widget child,
     ScrollableDetails details,
-  ) => child;
+  ) =>
+      child;
 }
-
-
-
-
-
-
-

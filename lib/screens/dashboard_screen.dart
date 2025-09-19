@@ -4,6 +4,7 @@ import 'package:fl_chart/fl_chart.dart';
 import '../services/data_service.dart';
 import '../models/cheese_stat.dart';
 import '../state/app_state.dart';
+import '../state/ab_result_state.dart';
 
 // Pantalla Nivel 5 (Dashboard): resume métricas del juego y del A/B.
 class Level5DashboardScreen extends StatefulWidget {
@@ -62,7 +63,19 @@ class _Level5DashboardScreenState extends State<Level5DashboardScreen> {
                   padding: const EdgeInsets.all(18),
                   child: SingleChildScrollView(
                     child: Column(
-                    children: [
+                    children: [                      // Último resultado A/B
+                      Builder(builder: (context) {
+                        final ab = context.watch<ABResultState?>()?.last;
+                        if (ab == null) return const SizedBox.shrink();
+                        return _Card(
+                          child: ListTile(
+                            leading: const Icon(Icons.science),
+                            title: const Text('Último A/B Test'),
+                            subtitle: Text('pA: ${ab['pA']} · pB: ${ab['pB']} · p: ${ab['p']} · sig: ${ab['sig']}'),
+                            trailing: Text('Lift: ${ab['lift']}'),
+                          ),
+                        );
+                      }),
                       // Ratón analista (avatar)
                       SizedBox(
                         height: 90,
@@ -414,3 +427,6 @@ class _PieCheese extends StatelessWidget {
     );
   }
 }
+
+
+
