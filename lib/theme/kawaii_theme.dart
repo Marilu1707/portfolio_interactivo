@@ -75,11 +75,11 @@ class KawaiiTheme {
       // Chips
       chipTheme: base.chipTheme.copyWith(
         backgroundColor: card,
-        side: BorderSide(color: Colors.brown.shade200.withValues(alpha: 0.5)),
+        side: BorderSide(color: Colors.brown.shade200.withOpacity(0.5)),
         selectedColor: accent,
         labelStyle: const TextStyle(color: Colors.brown, fontWeight: FontWeight.w600),
         shape: StadiumBorder(
-          side: BorderSide(color: Colors.brown.shade200.withValues(alpha: 0.5)),
+          side: BorderSide(color: Colors.brown.shade200.withOpacity(0.5)),
         ),
       ),
 

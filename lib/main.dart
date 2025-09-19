@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:intl/intl.dart';
-import 'package:flutter_web_plugins/flutter_web_plugins.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter_web_plugins/url_strategy.dart';
+import 'package:overlay_support/overlay_support.dart';
 
 // Screens
 import 'home_screen.dart';
@@ -24,7 +26,9 @@ import 'state/ab_result_state.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   // Use hash URLs to avoid 404s on static hosts without rewrites
-  setUrlStrategy(const HashUrlStrategy());
+  if (kIsWeb) {
+    setUrlStrategy(const HashUrlStrategy());
+  }
 
   // Log uncaught Flutter errors in production to the browser console
   FlutterError.onError = (details) {
@@ -40,13 +44,15 @@ Future<void> main() async {
   await ordersState.load();
 
   runApp(
-    MultiProvider(
-      providers: [
-        ChangeNotifierProvider.value(value: appState),
-        ChangeNotifierProvider.value(value: ordersState),
-        ChangeNotifierProvider(create: (_) => ABResultState()..load()),
-      ],
-      child: const MariluApp(),
+    OverlaySupport.global(
+      child: MultiProvider(
+        providers: [
+          ChangeNotifierProvider.value(value: appState),
+          ChangeNotifierProvider.value(value: ordersState),
+          ChangeNotifierProvider(create: (_) => ABResultState()..load()),
+        ],
+        child: const MariluApp(),
+      ),
     ),
   );
 }

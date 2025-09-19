@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../utils/kawaii_toast.dart';
 
 import '../state/app_state.dart';
 import '../services/ml_service.dart';
@@ -104,6 +105,12 @@ class _Level4MlPredictionScreenState extends State<Level4MlPredictionScreen> {
                 wastePenalty: !ok,
               );
               if (!mounted) return;
+              if (ok) {
+                KawaiiToast.success('🧀 Aprendido: conversión con $quesoSugerido');
+              } else {
+                KawaiiToast.warn('Aprendido: no convirtió con $quesoSugerido');
+              }
+              return;
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
                     content: Text(ok

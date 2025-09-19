@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
+import '../utils/kawaii_toast.dart';
 
 Future<void> descargarCV(BuildContext context) async {
-  ScaffoldMessenger.of(context).showSnackBar(
-    const SnackBar(content: Text('Descarga no soportada en esta plataforma.')),
-  );
+  KawaiiToast.warn('Descarga no soportada en esta plataforma.');
 }
-

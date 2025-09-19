@@ -8,6 +8,7 @@ import '../theme/kawaii_theme.dart';
 import '../state/app_state.dart';
 import '../state/orders_state.dart';
 import '../services/ml_service.dart';
+import '../utils/kawaii_toast.dart';
 
 // Pantalla Nivel 1 (Juego): simula pedidos y mide aciertos por queso.
 class Level1GameScreen extends StatefulWidget {
@@ -104,13 +105,17 @@ class _Level1GameScreenState extends State<Level1GameScreen> {
     );
     ordersState.addOrder(chosen);
 
-    final messenger = ScaffoldMessenger.of(context);
+    if (isCorrect) {
+      KawaiiToast.success('🧀 Pedido correcto, se descontó 1 de $chosen');
+    } else {
+      KawaiiToast.warn('Ups... Pedido incorrecto, se desperdiciaron 2 de $chosen');
+    }
+
+    
     final snackMessage = isCorrect
         ? '✅ Pedido correcto, se descontó 1 de $chosen'
         : '❌ Pedido incorrecto, se desperdiciaron 2 de $chosen 🗑️';
-    messenger
-      ..hideCurrentSnackBar()
-      ..showSnackBar(SnackBar(content: Text(snackMessage)));
+    
 
     // Aprendizaje online (Nivel 4): registrar evento y actualizar modelo
     try {
@@ -231,7 +236,7 @@ class _Level1GameScreenState extends State<Level1GameScreen> {
                                     boxShadow: [
                                       BoxShadow(
                                         color: Colors.black
-                                            .withValues(alpha: 0.05),
+                                            .withOpacity(0.05),
                                         blurRadius: 8,
                                         offset: const Offset(0, 4),
                                       ),
@@ -287,7 +292,7 @@ class _Level1GameScreenState extends State<Level1GameScreen> {
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-            color: Colors.brown.shade200.withValues(alpha: 0.6), width: 2),
+            color: Colors.brown.shade200.withOpacity(0.6), width: 2),
       ),
       alignment: Alignment.center,
       child: Text(text,
@@ -303,10 +308,10 @@ class _Level1GameScreenState extends State<Level1GameScreen> {
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-            color: Colors.brown.shade200.withValues(alpha: 0.6), width: 2),
+            color: Colors.brown.shade200.withOpacity(0.6), width: 2),
         boxShadow: [
           BoxShadow(
-              color: Colors.brown.shade200.withValues(alpha: 0.15),
+              color: Colors.brown.shade200.withOpacity(0.15),
               blurRadius: 4,
               offset: const Offset(0, 2)),
         ],
@@ -325,7 +330,7 @@ class _Level1GameScreenState extends State<Level1GameScreen> {
       label: Text(label),
       style: OutlinedButton.styleFrom(
         side: BorderSide(
-            color: Colors.brown.shade200.withValues(alpha: 0.6), width: 1.6),
+            color: Colors.brown.shade200.withOpacity(0.6), width: 1.6),
         foregroundColor: Colors.brown,
         backgroundColor: const Color(0xFFFFF8E7),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),

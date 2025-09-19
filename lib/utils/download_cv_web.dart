@@ -1,5 +1,6 @@
 // ignore_for_file: deprecated_member_use
 import 'package:flutter/material.dart';
+import '../utils/kawaii_toast.dart';
 // ignore: avoid_web_libraries_in_flutter
 import 'dart:html' as html;
 
@@ -11,7 +12,5 @@ Future<void> descargarCV(BuildContext context) async {
   html.document.body?.append(a);
   a.click();
   a.remove();
-  ScaffoldMessenger.of(context).showSnackBar(
-    const SnackBar(content: Text('Descargando CV...')),
-  );
+  KawaiiToast.info('Descargando CV...');
 }

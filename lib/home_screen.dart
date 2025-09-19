@@ -82,7 +82,7 @@ class HomeDesktop extends StatelessWidget {
                             shape: BoxShape.circle,
                             boxShadow: [
                               BoxShadow(
-                                  color: Colors.black.withValues(alpha: 0.05),
+                  color: Colors.black.withOpacity(0.05),
                                   blurRadius: 8,
                                   offset: const Offset(0, 4)),
                             ],
@@ -343,7 +343,7 @@ class _HomeCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-              color: Colors.black.withValues(alpha: 0.05),
+                  color: Colors.black.withOpacity(0.05),
               blurRadius: 8,
               offset: const Offset(0, 4)),
         ],
@@ -391,7 +391,7 @@ class _Chips extends StatelessWidget {
                         borderRadius: BorderRadius.circular(999),
                         border: Border.all(
                             color:
-                                Colors.brown.shade200.withValues(alpha: 0.5)),
+            Colors.brown.shade200.withOpacity(0.5)),
                       ),
                       child: Text(
                         t,
@@ -439,7 +439,7 @@ class EduPill extends StatelessWidget {
           color: Colors.white,
           borderRadius: BorderRadius.circular(24),
           border:
-              Border.all(color: Colors.brown.shade200.withValues(alpha: 0.5)),
+          Border.all(color: Colors.brown.shade200.withOpacity(0.5)),
         ),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -486,7 +486,7 @@ class _LevelCard extends StatelessWidget {
             borderRadius: BorderRadius.circular(16),
             color: Theme.of(context).colorScheme.surface,
             border: Border.all(
-                color: Theme.of(context).dividerColor.withValues(alpha: 0.4)),
+                  color: Theme.of(context).dividerColor.withOpacity(0.4)),
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,

@@ -33,6 +33,10 @@ migrate_working_dir/
 /build/
 /coverage/
 
+# Ignore backup artifacts
+lib/screens/*.bak
+lib/screens/*_backup.txt
+
 # Symbolication related
 app.*.symbols
 

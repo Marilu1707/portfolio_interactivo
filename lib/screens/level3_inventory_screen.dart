@@ -5,6 +5,7 @@ import '../widgets/inventory_mouse.dart';
 import '../models/inventory_item.dart';
 import '../theme/kawaii_theme.dart';
 import '../state/app_state.dart';
+import '../utils/kawaii_toast.dart';
 
 // Pantalla Nivel 3 (Inventario): muestra stock por queso y permite reponer.
 class Level3InventoryScreen extends StatefulWidget {
@@ -21,6 +22,13 @@ class _Level3InventoryScreenState extends State<Level3InventoryScreen> {
   final df = DateFormat('dd/MM/yyyy', 'es_AR');
   final ScrollController _mobileCtrl = ScrollController();
   final Map<String, GlobalKey> _rowKeys = {};
+
+  // Variante toast (overlay) para notificaciones kawaii
+  void _addOneToast(AppState app, InventoryItem row, int qty) {
+    app.restock(row.name, qty);
+    final plural = qty > 1 ? 's' : '';
+    KawaiiToast.success('🧀 Se agregaron $qty unidad$plural de ${row.name} (stock: ${row.stock})');
+  }
 
   // Suma unidades al stock del queso seleccionado y muestra SnackBar.
   void _addOne(AppState app, InventoryItem row, int qty) {
@@ -105,7 +113,7 @@ class _Level3InventoryScreenState extends State<Level3InventoryScreen> {
                           color: card,
                           borderRadius: BorderRadius.circular(18),
                           boxShadow: [
-                            BoxShadow(color: Colors.black.withValues(alpha: 0.06), blurRadius: 10, offset: const Offset(0, 4)),
+                            BoxShadow(color: Colors.black.withOpacity(0.06), blurRadius: 10, offset: const Offset(0, 4)),
                           ],
                         ),
                         padding: const EdgeInsets.fromLTRB(12, 6, 12, 12),
@@ -135,7 +143,7 @@ class _Level3InventoryScreenState extends State<Level3InventoryScreen> {
                                     mainAxisAlignment: MainAxisAlignment.end,
                                     children: [
                                       OutlinedButton(
-                                        onPressed: () => _addOne(app, r, 1),
+                                        onPressed: () => _addOneToast(app, r, 1),
                                         style: OutlinedButton.styleFrom(
                                           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                                           minimumSize: const Size(0, 40),
@@ -144,7 +152,7 @@ class _Level3InventoryScreenState extends State<Level3InventoryScreen> {
                                       ),
                                       const SizedBox(width: 8),
                                       OutlinedButton(
-                                        onPressed: () => _addOne(app, r, 5),
+                                        onPressed: () => _addOneToast(app, r, 5),
                                         style: OutlinedButton.styleFrom(
                                           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                                           minimumSize: const Size(0, 40),
@@ -177,7 +185,7 @@ class _Level3InventoryScreenState extends State<Level3InventoryScreen> {
                                 color: card,
                                 borderRadius: BorderRadius.circular(16),
                                 boxShadow: [
-                                  BoxShadow(color: Colors.black.withValues(alpha: 0.06), blurRadius: 10, offset: const Offset(0, 4)),
+                                  BoxShadow(color: Colors.black.withOpacity(0.06), blurRadius: 10, offset: const Offset(0, 4)),
                                 ],
                               ),
                               padding: const EdgeInsets.all(12),
@@ -197,8 +205,8 @@ class _Level3InventoryScreenState extends State<Level3InventoryScreen> {
                                     child: StockStatusDot(stock: r.stock),
                                   ),
                                   Wrap(spacing: 8, children: [
-                                    OutlinedButton(onPressed: () => _addOne(app, r, 1), child: const Text('Agregar')),
-                                    OutlinedButton(onPressed: () => _addOne(app, r, 5), child: const Text('+5')),
+                                    OutlinedButton(onPressed: () => _addOneToast(app, r, 1), child: const Text('Agregar')),
+                                    OutlinedButton(onPressed: () => _addOneToast(app, r, 5), child: const Text('+5')),
                                   ]),
                                 ],
                               ),

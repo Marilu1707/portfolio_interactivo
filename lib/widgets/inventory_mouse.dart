@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../utils/kawaii_toast.dart';
 
 class InventoryMouseItem {
   final String name;
@@ -58,9 +59,11 @@ class _InventoryMouseState extends State<InventoryMouse>
         ? 'Todo ok: stock suficiente en $total productos.'
         : 'Stock bajo (${bajos.length}): ${bajos.map((e) => e.name).join(', ')}';
     if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(msg), behavior: SnackBarBehavior.floating, duration: const Duration(seconds: 3)),
-      );
+      if (bajos.isEmpty) {
+        KawaiiToast.info(msg);
+      } else {
+        KawaiiToast.warn(msg);
+      }
     }
     widget.onTap?.call();
   }
@@ -80,7 +83,7 @@ class _InventoryMouseState extends State<InventoryMouse>
           decoration: BoxDecoration(
             color: const Color(0xFFFFF3CC),
             borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: const Color(0xFFB78F6A).withValues(alpha: 0.35), width: 1.2),
+            border: Border.all(color: const Color(0xFFB78F6A).withOpacity(0.35), width: 1.2),
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,

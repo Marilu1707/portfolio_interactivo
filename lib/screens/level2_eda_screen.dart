@@ -147,7 +147,7 @@ class _TopQuesosCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
+            color: Colors.black.withOpacity(0.05),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -213,7 +213,7 @@ class _PedidosChartCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
+            color: Colors.black.withOpacity(0.05),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -298,7 +298,7 @@ class _PedidosChartCard extends StatelessWidget {
                     side: BorderSide(color: theme.colorScheme.outlineVariant),
                   ),
                   backgroundColor:
-                      theme.colorScheme.surfaceVariant.withValues(alpha: 0.25),
+                      theme.colorScheme.surfaceVariant.withOpacity(0.25),
                 ),
             ],
           ),
@@ -369,7 +369,7 @@ class _RecomendacionCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
+            color: Colors.black.withOpacity(0.05),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),

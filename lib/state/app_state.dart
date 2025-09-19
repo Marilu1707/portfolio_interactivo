@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import '../models/inventory_item.dart';
 import '../data/cheese_country_es.dart';
 
@@ -61,7 +61,12 @@ class AppState extends ChangeNotifier {
     required String bucketAB, // "A" o "B"
   }) {
     final now = DateTime.now();
-    rounds.add(GameRound(order: order, chosen: chosen, bucket: bucketAB, isCorrect: isCorrect, ts: now));
+    rounds.add(GameRound(
+        order: order,
+        chosen: chosen,
+        bucket: bucketAB,
+        isCorrect: isCorrect,
+        ts: now));
     totalServed += 1;
     servedByCheese.update(chosen, (v) => v + 1, ifAbsent: () => 1);
 
@@ -69,18 +74,16 @@ class AppState extends ChangeNotifier {
       correct += 1;
       final country = kCheeseCountryEs[chosen] ?? 'Otro';
       servedByCountry.update(country, (v) => v + 1, ifAbsent: () => 1);
-      final item = inventory[chosen];
-      if (item != null) {
-        item.stock = (item.stock - 1).clamp(0, 1 << 31);
-      }
     } else {
       wrong += 1;
     }
 
     if (bucketAB == 'A') {
-      aN += 1; if (isCorrect) aConv += 1;
+      aN += 1;
+      if (isCorrect) aConv += 1;
     } else {
-      bN += 1; if (isCorrect) bConv += 1;
+      bN += 1;
+      if (isCorrect) bConv += 1;
     }
 
     notifyListeners();
@@ -123,8 +126,22 @@ class AppState extends ChangeNotifier {
 
   double tasaA() => usuariosA == 0 ? 0 : conversionesA / usuariosA;
   double tasaB() => usuariosB == 0 ? 0 : conversionesB / usuariosB;
-  double promedioMsA() => tiemposA.isEmpty ? 0 : tiemposA.reduce((a,b)=>a+b) / tiemposA.length;
-  double promedioMsB() => tiemposB.isEmpty ? 0 : tiemposB.reduce((a,b)=>a+b) / tiemposB.length;
+  double promedioMsA() =>
+      tiemposA.isEmpty ? 0 : tiemposA.reduce((a, b) => a + b) / tiemposA.length;
+  double promedioMsB() =>
+      tiemposB.isEmpty ? 0 : tiemposB.reduce((a, b) => a + b) / tiemposB.length;
+
+  /// Usa stock cuando sale un queso del inventario.
+  /// Si falló el pedido, contamos desperdicio y baja 2 unidades.
+  void useCheese(String cheese, {required bool success}) {
+    final item = inventory[cheese];
+    if (item == null) {
+      return;
+    }
+    final amount = success ? 1 : 2;
+    item.stock = (item.stock - amount).clamp(0, 1 << 31);
+    notifyListeners();
+  }
 
   // Repone stock de un queso (si existe)
   void restock(String cheese, int qty) {
@@ -137,8 +154,17 @@ class AppState extends ChangeNotifier {
   }
 
   // Setea resultado del A/B para el dashboard
-  void setAbTestResult({required double pC, required double pT, required double z, required double p}) {
-    this.pC = pC; this.pT = pT; zScore = z; pValue = p; hasAb = true; notifyListeners();
+  void setAbTestResult(
+      {required double pC,
+      required double pT,
+      required double z,
+      required double p}) {
+    this.pC = pC;
+    this.pT = pT;
+    zScore = z;
+    pValue = p;
+    hasAb = true;
+    notifyListeners();
   }
 
   // Tasa de acierto global
@@ -170,7 +196,12 @@ class GameRound {
   final String bucket;
   final bool isCorrect;
   final DateTime ts;
-  GameRound({required this.order, required this.chosen, required this.bucket, required this.isCorrect, required this.ts});
+  GameRound(
+      {required this.order,
+      required this.chosen,
+      required this.bucket,
+      required this.isCorrect,
+      required this.ts});
 }
 
 class CheeseCount {
@@ -178,4 +209,3 @@ class CheeseCount {
   final int count;
   CheeseCount(this.name, this.count);
 }
-

@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import '../utils/kawaii_toast.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:path_provider/path_provider.dart';
 import 'package:open_filex/open_filex.dart';
@@ -16,8 +17,6 @@ Future<void> descargarCV(BuildContext context) async {
     );
     await OpenFilex.open(file.path);
   } catch (e) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('No se pudo abrir el CV: $e')),
-    );
+    KawaiiToast.error('No se pudo abrir el CV: $e');
   }
 }
