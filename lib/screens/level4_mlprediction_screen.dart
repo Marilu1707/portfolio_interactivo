@@ -1,22 +1,12 @@
-// lib/screens/level4_mlprediction_screen.dart
-import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-// Si ya tenés tu AppState en otro path, ajustá este import:
 import '../state/app_state.dart';
+import '../services/ml_service.dart';
 
-/// Nivel 4 — Predicción ML (Regresión logística simple)
-/// ---------------------------------------------------
-/// Objetivo: estimar la probabilidad de “acierto/conversión”
-/// del próximo pedido en base a features simples del juego
-/// (racha de aciertos, tiempo promedio, queso elegido, hora, stock).
-///
-/// - UI mobile-first con controles (sliders/dropdown).
-/// - Botón “Predecir” -> calcula prob. con una regresión logística
-///   con coeficientes de ejemplo (podés calibrarlos más adelante).
-/// - Muestra probabilidad (%) y una sugerencia de queso
-///   basada en los pedidos reales (AppState.pedidosPorQueso).
+/// Nivel 4 — Predicción ML (online)
+/// Muestra un recomendador que aprende en vivo (LR online + SGD)
+/// tomando contexto simple y el label de cada intento.
 class Level4MlPredictionScreen extends StatefulWidget {
   const Level4MlPredictionScreen({super.key});
 
@@ -26,98 +16,139 @@ class Level4MlPredictionScreen extends StatefulWidget {
 }
 
 class _Level4MlPredictionScreenState extends State<Level4MlPredictionScreen> {
-  // Orden fijo de quesos en toda la app
   static const ordenQuesos = <String>[
     'Mozzarella',
     'Cheddar',
     'Parmesano',
     'Gouda',
     'Brie',
-    'Azul',
+    'Azul'
   ];
 
-  // ---------- Features (con valores iniciales razonables) ----------
-  double racha = 2;        // racha de aciertos (0..10)
-  double tiempoMs = 6000;  // tiempo promedio (ms) (1000..15000)
-  int quesoIdx = 0;        // índice del queso seleccionado (0..5)
-  int hora = 13;           // hora del día (0..23)
-  double stockProm = 10;   // stock promedio visible (0..20)
+  // Features controlados desde la UI
+  double racha = 2;
+  double tiempoMs = 6000;
+  int hora = 13;
+  double stockProm = 10;
 
-  // ---------- Salidas ----------
-  double? probPredicha; // 0..1
-  String? sugerencia;   // texto explicando qué conviene ofrecer
+  // Salida del modelo
+  double? probPredicha;
+  String? textoSugerencia;
+  String? quesoSugerido;
 
-  // ---------- Coeficientes del modelo (de ejemplo) ----------
-  // p = sigmoid(b0 + b1*racha + b2*tiempo + b3(queso) + b4*horaNorm + b5*stock)
-  // Ajustá estos coeficientes a medida que tengas datos reales.
-  final double b0 = -1.2;
-  final double bRacha = 0.25;
-  final double bTiempo = -0.00015; // penaliza tiempos altos
-  final List<double> bQueso = [0.10, 0.08, 0.12, 0.05, 0.06, 0.04]; // por queso
-  final double bHora = 0.30;      // efecto de “hora” tras normalizar
-  final double bStock = 0.04;     // más stock, más chances
-
-  // Sigmoide para la regresión logística
-  double _sigmoid(double z) => 1 / (1 + math.exp(-z));
-
-  // Normalización simple de hora a [-1, 1] (centrada en 12)
-  double _horaNorm(int h) => ((h - 12) / 12.0).clamp(-1.0, 1.0);
-
-  // Construye la recomendación rápida según pedidos reales (AppState)
-  String _buildSugerencia(AppState? s) {
-    if (s == null || s.pedidosPorQueso.isEmpty) {
-      return 'Sugerencia: ofrecé Mozzarella para empezar (sin datos suficientes).';
-    }
-    String mejor = ordenQuesos.first;
-    int max = -1;
-    for (final q in ordenQuesos) {
-      final v = s.pedidosPorQueso[q] ?? 0;
-      if (v > max) {
-        max = v;
-        mejor = q;
-      }
-    }
-    return 'Sugerencia: ofrecé $mejor (mayor demanda histórica en tu juego).';
+  @override
+  void initState() {
+    super.initState();
+    // carga eventos previos y reconstruye el modelo
+    MlService.instance.init();
   }
 
-  // Calcula la probabilidad con los features actuales
-  void _predecir(AppState? s) {
-    final xRacha = racha;                // ya está en escala 0..10
-    final xTiempo = tiempoMs;            // ms
-    final xQueso = bQueso[quesoIdx];     // efecto directo por tipo de queso
-    final xHora = _horaNorm(hora);       // [-1, 1]
-    final xStock = stockProm;            // 0..20 (ajustar si usás otro rango)
-
-    final z = b0 +
-        bRacha * xRacha +
-        bTiempo * xTiempo +
-        xQueso +
-        bHora * xHora +
-        bStock * xStock;
-
-    final p = _sigmoid(z);
+  Future<void> _predecir(AppState? app) async {
+    final sugerido = MlService.instance.suggest(
+      streak: racha.toInt(),
+      avgMs: tiempoMs,
+      hour: hora,
+      stock: stockProm,
+    );
+    final p = MlService.instance.predictProba(
+      streak: racha.toInt(),
+      avgMs: tiempoMs,
+      hour: hora,
+      stock: stockProm,
+      cheese: sugerido,
+    );
     setState(() {
+      quesoSugerido = sugerido;
       probPredicha = p;
-      sugerencia = _buildSugerencia(s);
+      textoSugerencia =
+          'Sugerencia: ofrecé $sugerido (p≈${(p * 100).toStringAsFixed(1)}%).';
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    // Si usás Provider, tomamos AppState. Si no, queda null y no se rompe.
     final app = context.mounted ? context.read<AppState?>() : null;
-
     final isMobile = MediaQuery.of(context).size.width < 700;
+
+    final params = _ParametrosCard(
+      racha: racha.toInt(),
+      tiempoMs: tiempoMs,
+      quesoIdx: 0,
+      hora: hora,
+      stockProm: stockProm,
+      onRacha: (v) => setState(() => racha = v.toDouble()),
+      onTiempo: (v) => setState(() => tiempoMs = v),
+      onQueso: (_) {},
+      onHora: (v) => setState(() => hora = v),
+      onStock: (v) => setState(() => stockProm = v),
+      onPredecir: () => _predecir(app),
+    );
+
+    final result = _ResultadoCard(
+      probPredicha: probPredicha,
+      sugerencia: textoSugerencia,
+    );
+
+    final aprender = (quesoSugerido == null)
+        ? const SizedBox.shrink()
+        : _AprenderCard(
+            texto: '¿Cómo salió la última sugerencia ($quesoSugerido)?',
+            onAprender: (ok) async {
+              await MlService.instance.learn(
+                streak: racha.toInt(),
+                avgMs: tiempoMs,
+                hour: hora,
+                stock: stockProm,
+                cheeseShown: quesoSugerido!,
+                converted: ok ? 1 : 0,
+                wastePenalty: !ok,
+              );
+              if (!mounted) return;
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                    content: Text(ok
+                        ? '✓ Aprendido: conversión con $quesoSugerido'
+                        : '× Aprendido: no convirtió con $quesoSugerido')),
+              );
+            },
+          );
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Nivel 4 — Predicción ML'),
+        title: const Text('Nivel 4 — Predicción ML (online)'),
         centerTitle: true,
       ),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(16),
-          child: isMobile ? _buildMobile(app) : _buildDesktop(app),
+          child: isMobile
+              ? Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    params,
+                    const SizedBox(height: 12),
+                    result,
+                    const SizedBox(height: 12),
+                    aprender
+                  ],
+                )
+              : Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(child: params),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          result,
+                          const SizedBox(height: 12),
+                          aprender
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
         ),
       ),
       bottomNavigationBar: Padding(
@@ -126,76 +157,22 @@ class _Level4MlPredictionScreenState extends State<Level4MlPredictionScreen> {
           height: 54,
           child: FilledButton.icon(
             onPressed: () => Navigator.pushNamed(context, '/level5'),
-            icon: const Icon(Icons.arrow_forward),
-            label: const Text('Ir al Nivel 5 (A/B Test)'),
+            icon: const Icon(Icons.arrow_right_alt_rounded),
+            label: const Text('Siguiente nivel'),
           ),
         ),
       ),
     );
   }
-
-  // ---------- Layouts ----------
-
-  Widget _buildMobile(AppState? s) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        _InputsCard(
-          racha: racha,
-          tiempoMs: tiempoMs,
-          quesoIdx: quesoIdx,
-          hora: hora,
-          stockProm: stockProm,
-          onRacha: (v) => setState(() => racha = v),
-          onTiempo: (v) => setState(() => tiempoMs = v),
-          onQueso: (v) => setState(() => quesoIdx = v),
-          onHora: (v) => setState(() => hora = v),
-          onStock: (v) => setState(() => stockProm = v),
-          onPredecir: () => _predecir(s),
-        ),
-        const SizedBox(height: 12),
-        _ResultadoCard(probPredicha: probPredicha, sugerencia: sugerencia),
-      ],
-    );
-  }
-
-  Widget _buildDesktop(AppState? s) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Expanded(
-          child: _InputsCard(
-            racha: racha,
-            tiempoMs: tiempoMs,
-            quesoIdx: quesoIdx,
-            hora: hora,
-            stockProm: stockProm,
-            onRacha: (v) => setState(() => racha = v),
-            onTiempo: (v) => setState(() => tiempoMs = v),
-            onQueso: (v) => setState(() => quesoIdx = v),
-            onHora: (v) => setState(() => hora = v),
-            onStock: (v) => setState(() => stockProm = v),
-            onPredecir: () => _predecir(s),
-          ),
-        ),
-        const SizedBox(width: 16),
-        Expanded(
-          child: _ResultadoCard(probPredicha: probPredicha, sugerencia: sugerencia),
-        ),
-      ],
-    );
-  }
 }
 
-/// ---------- Widgets de UI ----------
-
-class _InputsCard extends StatelessWidget {
-  final double racha;
+class _ParametrosCard extends StatelessWidget {
+  final int racha;
   final double tiempoMs;
-  final int quesoIdx;
+  final int quesoIdx; // mantenemos la API original (no se usa aquí)
   final int hora;
   final double stockProm;
-  final ValueChanged<double> onRacha;
+  final ValueChanged<int> onRacha;
   final ValueChanged<double> onTiempo;
   final ValueChanged<int> onQueso;
   final ValueChanged<int> onHora;
@@ -208,10 +185,10 @@ class _InputsCard extends StatelessWidget {
     'Parmesano',
     'Gouda',
     'Brie',
-    'Azul',
+    'Azul'
   ];
 
-  const _InputsCard({
+  const _ParametrosCard({
     required this.racha,
     required this.tiempoMs,
     required this.quesoIdx,
@@ -227,11 +204,6 @@ class _InputsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final labelStyle = Theme.of(context)
-        .textTheme
-        .labelLarge
-        ?.copyWith(fontWeight: FontWeight.w700);
-
     return Card(
       elevation: 0,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -240,65 +212,44 @@ class _InputsCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Parámetros del modelo', style: labelStyle),
-            const SizedBox(height: 12),
-
-            // Racha
-            Text('Racha de aciertos: ${racha.toInt()}'),
+            const Text('Racha de aciertos'),
             Slider(
               min: 0,
               max: 10,
-              value: racha,
-              onChanged: onRacha,
+              divisions: 10,
+              value: racha.toDouble(),
+              label: '$racha',
+              onChanged: (v) => onRacha(v.round()),
             ),
             const SizedBox(height: 8),
-
-            // Tiempo promedio
-            Text('Tiempo promedio por pedido (ms): ${tiempoMs.toInt()}'),
+            const Text('Tiempo promedio por pedido (ms)'),
             Slider(
-              min: 1000,
+              min: 500,
               max: 15000,
+              divisions: 29,
               value: tiempoMs,
+              label: tiempoMs.toStringAsFixed(0),
               onChanged: onTiempo,
             ),
             const SizedBox(height: 8),
-
-            // Queso
-            Text('Queso del próximo pedido (estimado):'),
-            const SizedBox(height: 4),
-            DropdownButton<int>(
-              value: quesoIdx,
-              items: List.generate(
-                _quesos.length,
-                (i) => DropdownMenuItem(
-                  value: i,
-                  child: Text(_quesos[i]),
-                ),
-              ),
-              onChanged: (v) => onQueso(v ?? 0),
-            ),
-            const SizedBox(height: 8),
-
-            // Hora
-            Text('Hora del día: $hora h'),
+            const Text('Hora del día (0–23)'),
             Slider(
               min: 0,
               max: 23,
               divisions: 23,
               value: hora.toDouble(),
+              label: '$hora h',
               onChanged: (v) => onHora(v.toInt()),
             ),
             const SizedBox(height: 8),
-
-            // Stock
-            Text('Stock promedio visible: ${stockProm.toStringAsFixed(1)}'),
+            const Text('Stock promedio visible'),
             Slider(
               min: 0,
               max: 20,
               value: stockProm,
+              label: stockProm.toStringAsFixed(1),
               onChanged: onStock,
             ),
-
             const SizedBox(height: 12),
             SizedBox(
               width: double.infinity,
@@ -362,13 +313,13 @@ class _ResultadoCard extends StatelessWidget {
                     const SizedBox(height: 8),
                     const Text(
                       'Cómo se calculó:',
-                      style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14),
+                      style:
+                          TextStyle(fontWeight: FontWeight.w700, fontSize: 14),
                     ),
                     const SizedBox(height: 6),
                     const Text(
-                      'Usamos una regresión logística simple con tus parámetros '
-                      '(racha, tiempo, queso, hora, stock). Podés calibrar los coeficientes '
-                      'según resultados reales para mejorar la precisión.',
+                      'Usamos un modelo de regresión logística online que aprende con tus jugadas '
+                      '(racha, tiempo, queso, hora, stock). Se calibra en vivo con cada intento.',
                     ),
                   ],
                 )
@@ -395,3 +346,47 @@ class _ResultadoCard extends StatelessWidget {
   }
 }
 
+class _AprenderCard extends StatelessWidget {
+  final String texto;
+  final void Function(bool ok) onAprender;
+  const _AprenderCard({required this.texto, required this.onAprender});
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      elevation: 0,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              texto,
+              style: Theme.of(context)
+                  .textTheme
+                  .labelLarge
+                  ?.copyWith(fontWeight: FontWeight.w700),
+            ),
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                ElevatedButton.icon(
+                  onPressed: () => onAprender(true),
+                  icon: const Icon(Icons.check_circle_outline),
+                  label: const Text('Convirtió'),
+                ),
+                const SizedBox(width: 12),
+                OutlinedButton.icon(
+                  onPressed: () => onAprender(false),
+                  icon: const Icon(Icons.cancel_outlined),
+                  label: const Text('No convirtió'),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}

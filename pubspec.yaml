@@ -1,4 +1,4 @@
-name: flutter_portfolio
+﻿name: flutter_portfolio
 description: Portfolio-app kawaii pastel de Marilu
 publish_to: "none"
 version: 1.0.0+1
@@ -20,6 +20,7 @@ dependencies:
   provider: ^6.1.2
   path_provider: ^2.1.5
   open_filex: ^4.5.0
+  shared_preferences: ^2.3.2
 
 dev_dependencies:
   flutter_test:
@@ -47,3 +48,5 @@ flutter_native_splash:
   android_12:
     color: "#FFF9E8"
     image: assets/img/raton_menu.png
+
+

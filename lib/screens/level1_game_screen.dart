@@ -1,4 +1,4 @@
-﻿import 'dart:math';
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/cheese_stat.dart';
@@ -6,6 +6,8 @@ import '../services/data_service.dart';
 import '../data/cheese_catalog.dart';
 import '../theme/kawaii_theme.dart';
 import '../state/app_state.dart';
+import '../state/orders_state.dart';
+import '../services/ml_service.dart';
 
 // Pantalla Nivel 1 (Juego): simula pedidos y mide aciertos por queso.
 class Level1GameScreen extends StatefulWidget {
@@ -28,6 +30,7 @@ class _Level1GameScreenState extends State<Level1GameScreen> {
   String? currentOrder;
   String? _currentBucket; // "A" o "B"
   String? feedback;
+  DateTime? _orderStart;
   // Mapeo de display es-AR
   String _esAr(String name) => name;
 
@@ -65,6 +68,7 @@ class _Level1GameScreenState extends State<Level1GameScreen> {
       currentOrder = _weightedOrder();
       _currentBucket = _rng.nextBool() ? 'A' : 'B';
       feedback = null;
+      _orderStart = DateTime.now();
     });
   }
 
@@ -73,6 +77,7 @@ class _Level1GameScreenState extends State<Level1GameScreen> {
     if (currentOrder == null) return;
     final orderNow = currentOrder!;
     final isCorrect = (chosen == orderNow);
+
     setState(() {
       if (isCorrect) {
         streak += 1;
@@ -82,16 +87,52 @@ class _Level1GameScreenState extends State<Level1GameScreen> {
       } else {
         score = score > 0 ? score - 5 : 0;
         streak = 0;
-        feedback = 'Ups... -5';
+        feedback = 'Ups... -5 🗑️';
       }
       currentOrder = null;
     });
-    context.read<AppState>().recordServe(
+
+    final app = context.read<AppState>();
+    final ordersState = context.read<OrdersState>();
+
+    app.useCheese(chosen, success: isCorrect);
+    app.recordServe(
       order: orderNow,
       chosen: chosen,
       isCorrect: isCorrect,
       bucketAB: _currentBucket ?? 'A',
     );
+    ordersState.addOrder(chosen);
+
+    final messenger = ScaffoldMessenger.of(context);
+    final snackMessage = isCorrect
+        ? '✅ Pedido correcto, se descontó 1 de $chosen'
+        : '❌ Pedido incorrecto, se desperdiciaron 2 de $chosen 🗑️';
+    messenger
+      ..hideCurrentSnackBar()
+      ..showSnackBar(SnackBar(content: Text(snackMessage)));
+
+    // Aprendizaje online (Nivel 4): registrar evento y actualizar modelo
+    try {
+      final elapsedMs = _orderStart == null
+          ? 0.0
+          : DateTime.now().difference(_orderStart!).inMilliseconds.toDouble();
+      final inv = app.inventory.values.toList();
+      final avgStock = inv.isEmpty
+          ? 0.0
+          : inv.map((e) => e.stock).fold<int>(0, (a, b) => a + b) /
+              inv.length;
+      MlService.instance.learn(
+        streak: streak,
+        avgMs: elapsedMs,
+        hour: DateTime.now().hour,
+        stock: avgStock.toDouble(),
+        cheeseShown: chosen,
+        converted: isCorrect ? 1 : 0,
+        wastePenalty: !isCorrect,
+      );
+    } catch (_) {}
+
     Future.delayed(const Duration(milliseconds: 900), _nextOrder);
   }
 
@@ -107,46 +148,53 @@ class _Level1GameScreenState extends State<Level1GameScreen> {
       ),
       body: SafeArea(
         child: loading
-          ? const Center(child: CircularProgressIndicator())
-          : Center(
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 900),
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.all(24),
-                  child: Column(
-                    children: [
-                      Align(
-                        alignment: Alignment.centerLeft,
-                        child: Text(
-                          'Pedidos',
-                          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                                fontWeight: FontWeight.w900,
-                                color: Colors.brown,
-                              ) ??
-                              const TextStyle(fontSize: 20, fontWeight: FontWeight.w900, color: Colors.brown),
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      Row(
-                        children: [
-                          _pill('Puntaje  $score'),
-                          const SizedBox(width: 12),
-                          _pill('Racha  $streak'),
-                          const Spacer(),
-                          ElevatedButton.icon(
-                            onPressed: () => Navigator.pushNamed(context, '/level2'),
-                            icon: const Icon(Icons.arrow_forward),
-                            label: const Text('Siguiente nivel'),
+            ? const Center(child: CircularProgressIndicator())
+            : Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 900),
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.all(24),
+                    child: Column(
+                      children: [
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            'Pedidos',
+                            style: Theme.of(context)
+                                    .textTheme
+                                    .titleLarge
+                                    ?.copyWith(
+                                      fontWeight: FontWeight.w900,
+                                      color: Colors.brown,
+                                    ) ??
+                                const TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.w900,
+                                    color: Colors.brown),
                           ),
-                        ],
-                      ),
-                      const SizedBox(height: 16),
-                      Card(
-                        elevation: 0,
-                        color: card,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(18),
                         ),
+                        const SizedBox(height: 12),
+                        Row(
+                          children: [
+                            _pill('Puntaje  $score'),
+                            const SizedBox(width: 12),
+                            _pill('Racha  $streak'),
+                            const Spacer(),
+                            ElevatedButton.icon(
+                              onPressed: () =>
+                                  Navigator.pushNamed(context, '/level2'),
+                              icon: const Icon(Icons.arrow_forward),
+                              label: const Text('Siguiente nivel'),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 16),
+                        Card(
+                          elevation: 0,
+                          color: card,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(18),
+                          ),
                           child: Padding(
                             padding: const EdgeInsets.all(20),
                             child: Column(
@@ -171,7 +219,8 @@ class _Level1GameScreenState extends State<Level1GameScreen> {
                                 const SizedBox(height: 12),
                                 if (currentOrder != null)
                                   _speech('¡Quiero ${_esAr(currentOrder!)}!'),
-                                if (currentOrder == null) const SizedBox(height: 32),
+                                if (currentOrder == null)
+                                  const SizedBox(height: 32),
                                 const SizedBox(height: 16),
                                 Container(
                                   width: 180,
@@ -181,7 +230,8 @@ class _Level1GameScreenState extends State<Level1GameScreen> {
                                     shape: BoxShape.circle,
                                     boxShadow: [
                                       BoxShadow(
-                                        color: Colors.black.withValues(alpha: 0.05),
+                                        color: Colors.black
+                                            .withValues(alpha: 0.05),
                                         blurRadius: 8,
                                         offset: const Offset(0, 4),
                                       ),
@@ -192,7 +242,9 @@ class _Level1GameScreenState extends State<Level1GameScreen> {
                                     'assets/img/mouse_kawaii.png',
                                     width: 120,
                                     fit: BoxFit.contain,
-                                    errorBuilder: (context, error, stack) => const Icon(Icons.pets, size: 84, color: Colors.brown),
+                                    errorBuilder: (context, error, stack) =>
+                                        const Icon(Icons.pets,
+                                            size: 84, color: Colors.brown),
                                   ),
                                 ),
                                 const SizedBox(height: 12),
@@ -200,27 +252,30 @@ class _Level1GameScreenState extends State<Level1GameScreen> {
                                   Chip(
                                     label: Text(feedback!),
                                     backgroundColor: const Color(0xFFFFE79A),
-                                    labelStyle: const TextStyle(color: KawaiiTheme.onAccent, fontWeight: FontWeight.w700),
+                                    labelStyle: const TextStyle(
+                                        color: KawaiiTheme.onAccent,
+                                        fontWeight: FontWeight.w700),
                                   ),
                               ],
                             ),
                           ),
                         ),
-                      const SizedBox(height: 16),
-                      Wrap(
-                        spacing: 8,
-                        runSpacing: 8,
-                        alignment: WrapAlignment.center,
-                        children: kCheeses
-                            .map((c) => _cheeseChip(c.nombre, () => _serve(c.nombre)))
-                            .toList(),
-                      ),
-                    ],
+                        const SizedBox(height: 16),
+                        Wrap(
+                          spacing: 8,
+                          runSpacing: 8,
+                          alignment: WrapAlignment.center,
+                          children: kCheeses
+                              .map((c) =>
+                                  _cheeseChip(c.nombre, () => _serve(c.nombre)))
+                              .toList(),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
-            ),
-        ),
+      ),
     );
   }
 
@@ -231,10 +286,13 @@ class _Level1GameScreenState extends State<Level1GameScreen> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.brown.shade200.withValues(alpha: 0.6), width: 2),
+        border: Border.all(
+            color: Colors.brown.shade200.withValues(alpha: 0.6), width: 2),
       ),
       alignment: Alignment.center,
-      child: Text(text, style: const TextStyle(fontWeight: FontWeight.w800, color: Colors.brown)),
+      child: Text(text,
+          style: const TextStyle(
+              fontWeight: FontWeight.w800, color: Colors.brown)),
     );
   }
 
@@ -244,12 +302,19 @@ class _Level1GameScreenState extends State<Level1GameScreen> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.brown.shade200.withValues(alpha: 0.6), width: 2),
+        border: Border.all(
+            color: Colors.brown.shade200.withValues(alpha: 0.6), width: 2),
         boxShadow: [
-          BoxShadow(color: Colors.brown.shade200.withValues(alpha: 0.15), blurRadius: 4, offset: const Offset(0, 2)),
+          BoxShadow(
+              color: Colors.brown.shade200.withValues(alpha: 0.15),
+              blurRadius: 4,
+              offset: const Offset(0, 2)),
         ],
       ),
-      child: Text(text, softWrap: true, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: Colors.brown)),
+      child: Text(text,
+          softWrap: true,
+          style: const TextStyle(
+              fontSize: 16, fontWeight: FontWeight.w800, color: Colors.brown)),
     );
   }
 
@@ -259,7 +324,8 @@ class _Level1GameScreenState extends State<Level1GameScreen> {
       icon: const Icon(Icons.local_pizza),
       label: Text(label),
       style: OutlinedButton.styleFrom(
-        side: BorderSide(color: Colors.brown.shade200.withValues(alpha: 0.6), width: 1.6),
+        side: BorderSide(
+            color: Colors.brown.shade200.withValues(alpha: 0.6), width: 1.6),
         foregroundColor: Colors.brown,
         backgroundColor: const Color(0xFFFFF8E7),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
@@ -269,5 +335,3 @@ class _Level1GameScreenState extends State<Level1GameScreen> {
     );
   }
 }
-
-
