@@ -1,5 +1,4 @@
 
-````markdown
 # 🧀 Nido Mozzarella — Portfolio Interactivo de Data Science  
 
 Bienvenid@ a mi **portfolio-app** 🎮✨.  
