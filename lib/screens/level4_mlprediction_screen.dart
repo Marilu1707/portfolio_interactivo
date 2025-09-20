@@ -248,7 +248,7 @@ class _ParametrosCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final sliderTheme = SliderTheme.of(context).copyWith(
-      showValueIndicator: ShowValueIndicator.always,
+      showValueIndicator: ShowValueIndicator.onDrag,
       trackHeight: 4,
       thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 12),
       overlayShape: const RoundSliderOverlayShape(overlayRadius: 18),
@@ -617,10 +617,8 @@ void _showReasons(BuildContext context, Map<String, double> contribs, double p) 
     builder: (c) {
       final theme = Theme.of(c);
       final media = MediaQuery.of(c);
-      final scrollHeightNum = (media.size.height * 0.55).clamp(240.0, 420.0);
-      final scrollHeight = scrollHeightNum is double
-          ? scrollHeightNum
-          : scrollHeightNum.toDouble();
+      final scrollHeight =
+          (media.size.height * 0.55).clamp(240.0, 420.0).toDouble();
 
       return SafeArea(
         child: Padding(

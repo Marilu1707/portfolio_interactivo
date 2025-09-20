@@ -7,6 +7,15 @@ import '../theme/kawaii_theme.dart';
 import '../state/app_state.dart';
 import '../utils/game_popup.dart';
 
+void _inventorySnack(BuildContext context, String message) {
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(
+      content: Text(message),
+      behavior: SnackBarBehavior.floating,
+    ),
+  );
+}
+
 // Pantalla Nivel 3 (Inventario): muestra stock por queso y permite reponer.
 class Level3InventoryScreen extends StatefulWidget {
   const Level3InventoryScreen({super.key});
@@ -79,18 +88,6 @@ class _Level3InventoryScreenState extends State<Level3InventoryScreen> {
 
     app.restock(row.name, qty);
     return true;
-  }
-
-  void _inventorySnack(BuildContext context, String message) {
-    final messenger = ScaffoldMessenger.maybeOf(context);
-    if (messenger == null) return;
-    messenger.showSnackBar(
-      SnackBar(
-        content: Text(message),
-        behavior: SnackBarBehavior.floating,
-        duration: const Duration(seconds: 2),
-      ),
-    );
   }
 
   // (Método _addOne removido; se usa _addOneToast con GamePopup)
