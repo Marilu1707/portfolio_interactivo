@@ -24,6 +24,24 @@ class HomeDesktop extends StatelessWidget {
     }
   }
 
+  Widget _playButton(BuildContext context, {bool expanded = false}) {
+    final button = FilledButton(
+      onPressed: () => Navigator.pushNamed(context, '/level1'),
+      style: FilledButton.styleFrom(
+        backgroundColor: const Color(0xFFFFD76B),
+        foregroundColor: onAccent,
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      ),
+      child: const Text('Jugar ahora',
+          style: TextStyle(fontWeight: FontWeight.w800, fontSize: 18)),
+    );
+    if (expanded) {
+      return SizedBox(width: double.infinity, child: button);
+    }
+    return button;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -33,14 +51,15 @@ class HomeDesktop extends StatelessWidget {
         elevation: 0,
         title: const Text('Marilú — Data Science'),
       ),
-      body: LayoutBuilder(
-        builder: (context, c) {
-          final isMobile = c.maxWidth < 720;
-          return Center(
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 1100),
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.all(20),
+      body: SafeArea(
+        child: LayoutBuilder(
+          builder: (context, c) {
+            final isMobile = c.maxWidth < 720;
+            return Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 1100),
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.all(16),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -54,21 +73,23 @@ class HomeDesktop extends StatelessWidget {
                         final left = Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
-                            children: const [
-                              Text('👋 Hola, soy Marilú',
+                            children: [
+                              const Text('👋 Hola, soy Marilú',
                                   style: TextStyle(
                                       fontSize: 40,
                                       fontWeight: FontWeight.w900,
                                       color: onAccent)),
-                              SizedBox(height: 8),
-                              Text(
+                              const SizedBox(height: 8),
+                              const Text(
                                   'Data Science + Full stack — convierto datos en decisiones.',
                                   style:
                                       TextStyle(fontSize: 18, color: onAccent)),
-                              SizedBox(height: 8),
-                              Text(
+                              const SizedBox(height: 8),
+                              const Text(
                                   'Descubrí mis habilidades jugando por niveles.',
                                   style: TextStyle(color: onAccent)),
+                              const SizedBox(height: 20),
+                              _playButton(context),
                             ],
                           ),
                         );
@@ -82,9 +103,11 @@ class HomeDesktop extends StatelessWidget {
                             shape: BoxShape.circle,
                             boxShadow: [
                               BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
-                                  blurRadius: 8,
-                                  offset: const Offset(0, 4)),
+                                color: Colors.black
+                                    .withValues(alpha: 0.05),
+                                blurRadius: 8,
+                                offset: const Offset(0, 4),
+                              ),
                             ],
                           ),
                           alignment: Alignment.center,
@@ -161,21 +184,25 @@ class HomeDesktop extends StatelessWidget {
                       children: [
                         Expanded(
                           child: _HomeCard(
-                            child: const Column(
+                            child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                _H3('✨ Sobre mí'),
-                                SizedBox(height: 8),
-                                Text(
+                                const _H3('✨ Sobre mí'),
+                                const SizedBox(height: 8),
+                                const Text(
                                   'Estudiante de Negocios Digitales (UADE). Me formé en análisis de datos, marketing y desarrollo web. '
                                   'Capacitaciones en Python, Django, React.js y SQL. Me interesa combinar tecnología, eficiencia operativa y enfoque '
                                   'estratégico para crear soluciones simples y efectivas.',
                                 ),
-                                SizedBox(height: 12),
-                                _Dot('Análisis de datos (Python, SQL, EDA)'),
-                                _Dot('Desarrollo web (Django, React.js)'),
-                                _Dot(
+                                const SizedBox(height: 12),
+                                const _Dot('Análisis de datos (Python, SQL, EDA)'),
+                                const _Dot('Desarrollo web (Django, React.js)'),
+                                const _Dot(
                                     'Orientación a resultados + mejora de procesos.'),
+                                if (isMobile) ...[
+                                  const SizedBox(height: 16),
+                                  _playButton(context, expanded: true),
+                                ],
                               ],
                             ),
                           ),
@@ -294,15 +321,22 @@ class HomeDesktop extends StatelessWidget {
                     ),
 
                     const SizedBox(height: 24),
-                    Container(
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                      decoration: BoxDecoration(
-                          color: const Color(0xFFFFE7A6),
-                          borderRadius: BorderRadius.circular(10)),
-                      alignment: Alignment.center,
-                      child: const Text(
-                          '© 2025 Marilú — Data Science & Fullstack',
-                          style: TextStyle(color: onAccent)),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        _playButton(context, expanded: true),
+                        const SizedBox(height: 12),
+                        Container(
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          decoration: BoxDecoration(
+                              color: const Color(0xFFFFE7A6),
+                              borderRadius: BorderRadius.circular(10)),
+                          alignment: Alignment.center,
+                          child: const Text(
+                              '© 2025 Marilú — Data Science & Fullstack',
+                              style: TextStyle(color: onAccent)),
+                        ),
+                      ],
                     ),
                   ],
                 ),
@@ -341,12 +375,14 @@ class _HomeCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: HomeDesktop.card,
         borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
-              blurRadius: 8,
-              offset: const Offset(0, 4)),
-        ],
+                              boxShadow: [
+                                BoxShadow(
+                                  color:
+                                      Colors.black.withValues(alpha: 0.05),
+                                  blurRadius: 8,
+                                  offset: const Offset(0, 4),
+                                ),
+                              ],
       ),
       padding: const EdgeInsets.all(16),
       child: child,
@@ -390,8 +426,8 @@ class _Chips extends StatelessWidget {
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(999),
                         border: Border.all(
-                            color:
-            Colors.brown.shade200.withOpacity(0.5)),
+                            color: Colors.brown.shade200
+                                .withValues(alpha: 0.5)),
                       ),
                       child: Text(
                         t,
@@ -439,7 +475,7 @@ class EduPill extends StatelessWidget {
           color: Colors.white,
           borderRadius: BorderRadius.circular(24),
           border:
-          Border.all(color: Colors.brown.shade200.withOpacity(0.5)),
+          Border.all(color: Colors.brown.shade200.withValues(alpha: 0.5)),
         ),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -486,7 +522,9 @@ class _LevelCard extends StatelessWidget {
             borderRadius: BorderRadius.circular(16),
             color: Theme.of(context).colorScheme.surface,
             border: Border.all(
-                  color: Theme.of(context).dividerColor.withOpacity(0.4)),
+                color: Theme.of(context)
+                    .dividerColor
+                    .withValues(alpha: 0.4)),
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,

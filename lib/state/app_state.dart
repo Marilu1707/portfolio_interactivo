@@ -15,6 +15,9 @@ class AppState extends ChangeNotifier {
   int correct = 0;
   int wrong = 0;
 
+  // Progreso por nivel
+  bool level1Cleared = false;
+
   // Puntajes base por queso para EDA (Nivel 2)
   // Nota: si tenés una fuente CSV, podés popular esto en el init.
   final Map<String, double> puntajeBase = const {
@@ -86,6 +89,12 @@ class AppState extends ChangeNotifier {
       if (isCorrect) bConv += 1;
     }
 
+    notifyListeners();
+  }
+
+  void markLevel1Cleared() {
+    if (level1Cleared) return;
+    level1Cleared = true;
     notifyListeners();
   }
 

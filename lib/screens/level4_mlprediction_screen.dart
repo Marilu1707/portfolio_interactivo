@@ -135,6 +135,23 @@ class _Level4MlPredictionScreenState extends State<Level4MlPredictionScreen> {
             },
           );
 
+    final reasonsButton = Align(
+      alignment: Alignment.centerLeft,
+      child: TextButton.icon(
+        onPressed: (_lastContribs.isEmpty || probPredicha == null)
+            ? null
+            : () =>
+                _showReasons(context, _lastContribs, probPredicha ?? 0),
+        icon: const Icon(Icons.insights_outlined),
+        label: const Text('Motivos de esta predicción'),
+        style: TextButton.styleFrom(
+          minimumSize: const Size(0, 44),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        ),
+      ),
+    );
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Nivel 4 — Predicción ML (online)'),
@@ -149,34 +166,25 @@ class _Level4MlPredictionScreenState extends State<Level4MlPredictionScreen> {
       ),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
-          child: isMobile
-              ? Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Text(
-                      'Ajustá los sliders y tocá “Predecir”. El modelo sugiere qué queso ofrecer ahora.',
-                      style: Theme.of(context).textTheme.bodyMedium,
-                    ),
-                    const SizedBox(height: 12),
-                    params,
-                    const SizedBox(height: 12),
-                    result,
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: TextButton.icon(
-                        onPressed: (_lastContribs.isEmpty || probPredicha == null)
-                            ? null
-                            : () => _showReasons(context, _lastContribs, probPredicha ?? 0),
-                        icon: const Icon(Icons.insights_outlined),
-                        label: const Text('Motivos de esta predicción'),
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    aprender
-                  ],
-                )
-              : Row(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(
+                'Ajustá los sliders y tocá “Predecir”. El modelo sugiere qué queso ofrecer ahora.',
+                style: Theme.of(context).textTheme.bodyMedium,
+                softWrap: true,
+              ),
+              const SizedBox(height: 12),
+              if (isMobile) ...[
+                params,
+                const SizedBox(height: 12),
+                result,
+                reasonsButton,
+                const SizedBox(height: 12),
+                aprender,
+              ] else
+                Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Expanded(child: params),
@@ -186,23 +194,17 @@ class _Level4MlPredictionScreenState extends State<Level4MlPredictionScreen> {
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
                           result,
-                          Align(
-                            alignment: Alignment.centerLeft,
-                            child: TextButton.icon(
-                              onPressed: (_lastContribs.isEmpty || probPredicha == null)
-                                  ? null
-                                  : () => _showReasons(context, _lastContribs, probPredicha ?? 0),
-                              icon: const Icon(Icons.insights_outlined),
-                              label: const Text('Motivos de esta predicción'),
-                            ),
-                          ),
+                          reasonsButton,
                           const SizedBox(height: 12),
-                          aprender
+                          aprender,
                         ],
                       ),
                     ),
                   ],
                 ),
+              const SizedBox(height: 120),
+            ],
+          ),
         ),
       ),
       bottomNavigationBar: SafeArea(
@@ -251,6 +253,27 @@ class _ParametrosCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final sliderTheme = SliderTheme.of(context).copyWith(
+      showValueIndicator: ShowValueIndicator.always,
+      trackHeight: 4,
+      thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 12),
+      overlayShape: const RoundSliderOverlayShape(overlayRadius: 18),
+    );
+
+    Widget minMax(String minLabel, String maxLabel) {
+      final style = Theme.of(context).textTheme.labelSmall;
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 4),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(minLabel, style: style),
+            Text(maxLabel, style: style),
+          ],
+        ),
+      );
+    }
+
     return Card(
       elevation: 0,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -260,43 +283,60 @@ class _ParametrosCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text('Racha de aciertos'),
-            Slider(
-              min: 0,
-              max: 10,
-              divisions: 10,
-              value: racha.toDouble(),
-              label: '$racha',
-              onChanged: (v) => onRacha(v.round()),
+            SliderTheme(
+              data: sliderTheme,
+              child: Slider(
+                min: 0,
+                max: 10,
+                divisions: 10,
+                value: racha.toDouble(),
+                label: '$racha',
+                onChanged: (v) => onRacha(v.round()),
+              ),
             ),
-            const SizedBox(height: 8),
+            minMax('0', '10'),
+            const SizedBox(height: 12),
             const Text('Tiempo promedio por pedido (ms)'),
-            Slider(
-              min: 500,
-              max: 15000,
-              divisions: 29,
-              value: tiempoMs,
-              label: tiempoMs.toStringAsFixed(0),
-              onChanged: onTiempo,
+            SliderTheme(
+              data: sliderTheme,
+              child: Slider(
+                min: 500,
+                max: 15000,
+                divisions: 29,
+                value: tiempoMs,
+                label: '${tiempoMs.toStringAsFixed(0)} ms',
+                onChanged: onTiempo,
+              ),
             ),
-            const SizedBox(height: 8),
+            minMax('500 ms', '15000 ms'),
+            const SizedBox(height: 12),
             const Text('Hora del día (0–23)'),
-            Slider(
-              min: 0,
-              max: 23,
-              divisions: 23,
-              value: hora.toDouble(),
-              label: '$hora h',
-              onChanged: (v) => onHora(v.toInt()),
+            SliderTheme(
+              data: sliderTheme,
+              child: Slider(
+                min: 0,
+                max: 23,
+                divisions: 23,
+                value: hora.toDouble(),
+                label: '$hora h',
+                onChanged: (v) => onHora(v.toInt()),
+              ),
             ),
-            const SizedBox(height: 8),
+            minMax('0 h', '23 h'),
+            const SizedBox(height: 12),
             const Text('Stock promedio visible'),
-            Slider(
-              min: 0,
-              max: 20,
-              value: stockProm,
-              label: stockProm.toStringAsFixed(1),
-              onChanged: onStock,
+            SliderTheme(
+              data: sliderTheme,
+              child: Slider(
+                min: 0,
+                max: 20,
+                divisions: 20,
+                value: stockProm,
+                label: stockProm.toStringAsFixed(1),
+                onChanged: onStock,
+              ),
             ),
+            minMax('0', '20'),
             const SizedBox(height: 12),
             SizedBox(
               width: double.infinity,
@@ -317,7 +357,7 @@ class _ParametrosCard extends StatelessWidget {
 class _ResultadoCard extends StatelessWidget {
   final double? probPredicha;
   final String? sugerencia;
- 
+
   const _ResultadoCard({
     required this.probPredicha,
     required this.sugerencia,
@@ -354,20 +394,10 @@ class _ResultadoCard extends StatelessWidget {
                     Text(
                       sugerencia ?? '',
                       style: Theme.of(context).textTheme.bodyMedium,
+                      softWrap: true,
                     ),
                     const SizedBox(height: 16),
-                    const Divider(),
-                    const SizedBox(height: 8),
-                    const Text(
-                      'Cómo se calculó:',
-                      style:
-                          TextStyle(fontWeight: FontWeight.w700, fontSize: 14),
-                    ),
-                    const SizedBox(height: 6),
-                    const Text(
-                      'Usamos un modelo de regresión logística online que aprende con tus jugadas '
-                      '(racha, tiempo, queso, hora, stock). Se calibra en vivo con cada intento.',
-                    ),
+                    const _HowCalculatedTile(),
                   ],
                 )
               : Column(
@@ -384,11 +414,51 @@ class _ResultadoCard extends StatelessWidget {
                     const Text(
                       'Ajustá los parámetros y tocá “Predecir” para estimar la probabilidad '
                       'de acierto del próximo pedido.',
+                      softWrap: true,
                     ),
+                    const SizedBox(height: 16),
+                    const _HowCalculatedTile(),
                   ],
                 ),
         ),
       ),
+    );
+  }
+}
+
+class _HowCalculatedTile extends StatelessWidget {
+  const _HowCalculatedTile();
+
+  @override
+  Widget build(BuildContext context) {
+    final bodyStyle = Theme.of(context).textTheme.bodyMedium;
+    return ExpansionTile(
+      tilePadding: EdgeInsets.zero,
+      childrenPadding: const EdgeInsets.only(bottom: 8),
+      collapsedShape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+      title: const Text('Cómo se calculó (tocar para ver)'),
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Usamos un modelo de regresión logística online que aprende con tus jugadas (racha, tiempo, queso, hora, stock).',
+                style: bodyStyle,
+                softWrap: true,
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'Se recalibra en vivo con cada intento para mejorar la sugerencia siguiente.',
+                style: bodyStyle,
+                softWrap: true,
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }
@@ -422,12 +492,28 @@ class _AprenderCard extends StatelessWidget {
                   onPressed: () => onAprender(true),
                   icon: const Icon(Icons.check_circle_outline),
                   label: const Text('Convirtió'),
+                  style: ElevatedButton.styleFrom(
+                    minimumSize: const Size(140, 48),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 20, vertical: 14),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
                 ),
                 const SizedBox(width: 12),
                 OutlinedButton.icon(
                   onPressed: () => onAprender(false),
                   icon: const Icon(Icons.cancel_outlined),
                   label: const Text('No convirtió'),
+                  style: OutlinedButton.styleFrom(
+                    minimumSize: const Size(140, 48),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+                  ),
                 ),
               ],
             ),

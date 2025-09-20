@@ -90,110 +90,140 @@ class _Level5AbTestScreenState extends State<Level5AbTestScreen> {
           ),
         ],
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: LayoutBuilder(
-          builder: (context, c) {
-            final isNarrow = c.maxWidth < 760;
-            final form = _buildPanels(isNarrow);
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Text(
-                  'Compará la tasa de conversión de Control (A) vs Tratamiento (B) con Z para dos proporciones (prueba bilateral).',
-                  style: theme.textTheme.bodyMedium,
-                ),
-                const SizedBox(height: 16),
-                if (isNarrow) ...[
-                  form[0],
-                  const SizedBox(height: 12),
-                  form[1],
-                ] else
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Expanded(child: form[0]),
-                      const SizedBox(width: 16),
-                      Expanded(child: form[1]),
-                    ],
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(16),
+          child: LayoutBuilder(
+            builder: (context, c) {
+              final isNarrow = c.maxWidth < 760;
+              final form = _buildPanels(isNarrow);
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Text(
+                    'Compará la tasa de conversión de Control (A) vs Tratamiento (B) con Z para dos proporciones (prueba bilateral).',
+                    style: theme.textTheme.bodyMedium,
+                    softWrap: true,
                   ),
-                const SizedBox(height: 16),
-                Align(
-                  child: ElevatedButton(
-                    onPressed: _onCalculate,
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 16),
-                      minimumSize: const Size.fromHeight(56),
-                      backgroundColor: const Color(0xFFFFD54F),
-                      foregroundColor: Colors.brown,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                  const SizedBox(height: 12),
+                  const _AbTestExplanationTile(),
+                  const SizedBox(height: 16),
+                  if (isNarrow) ...[
+                    form[0],
+                    const SizedBox(height: 12),
+                    form[1],
+                  ] else
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(child: form[0]),
+                        const SizedBox(width: 16),
+                        Expanded(child: form[1]),
+                      ],
                     ),
-                    child: const Text('Calcular Z y p-valor'),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Card(
-                  elevation: 0,
-                  color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: .5),
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Column(crossAxisAlignment: CrossAxisAlignment.start, children:[Text(_summary, style: theme.textTheme.titleMedium), if(_pTwo!=null) const SizedBox(height:10), if(_pTwo!=null) Text("Detalle: pA=${( (_pA??0)*100).toStringAsFixed(1)}% · pB=${( (_pB??0)*100).toStringAsFixed(1)}% · Δ=${( (_diff??0)*100).toStringAsFixed(1)}% · Lift=${_lift==null?"—":"${((_lift??0)*100).toStringAsFixed(1)}%"} · IC95%=[${( (_ciL??0)*100).toStringAsFixed(1)}%, ${( (_ciH??0)*100).toStringAsFixed(1)}%] · p=${(_pTwo??0).toStringAsFixed(4)}")]),
-                  ),
-                ),
-                if (_pTwo != null) ...[
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 16),
                   Align(
-                    alignment: Alignment.centerRight,
-                    child: ElevatedButton.icon(
-                      onPressed: () async {
-                        final result = {
-                          'nA': _cNController.text,
-                          'cA': _cXController.text,
-                          'pA': _pA?.toStringAsFixed(4),
-                          'nB': _tNController.text,
-                          'cB': _tXController.text,
-                          'pB': _pB?.toStringAsFixed(4),
-                          'diff': _diff?.toStringAsFixed(4),
-                          'lift': _lift == null ? '—' : '${(_lift! * 100).toStringAsFixed(1)}%',
-                          'z': _z?.toStringAsFixed(3),
-                          'p': _pTwo?.toStringAsFixed(4),
-                          'ci': _ciL == null || _ciH == null
-                              ? '—'
-                              : '[${(_ciL! * 100).toStringAsFixed(1)}%, ${(_ciH!*100).toStringAsFixed(1)}%]',
-                          'sig': _sig ? 'Sí' : 'No',
-                          'alpha': '0.05',
-                          'note': 'Resultado guardado desde Nivel A/B',
-                        };
-                        final ab = context.read<ABResultState>();
-                        await ab.save(result);
-                        if (!context.mounted) return;
-                        Navigator.pushNamed(context, '/dashboard');
-                      },
-                      icon: const Icon(Icons.arrow_forward),
-                      label: const Text('Ir al Dashboard'),
+                    child: ElevatedButton(
+                      onPressed: _onCalculate,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFFFFE082),
+                        padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 16),
+                        minimumSize: const Size.fromHeight(56),
+                        backgroundColor: const Color(0xFFFFD54F),
                         foregroundColor: Colors.brown,
-                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      ),
+                      child: const Text('Calcular Z y p-valor'),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Card(
+                    elevation: 0,
+                    color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: .5),
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            _summary,
+                            style: theme.textTheme.titleMedium,
+                            softWrap: true,
+                          ),
+                          if (_pTwo != null) ...[
+                            const SizedBox(height: 10),
+                            Text(
+                              'Detalle: pA=${((_pA ?? 0) * 100).toStringAsFixed(1)}% · pB=${((_pB ?? 0) * 100).toStringAsFixed(1)}% · Δ=${((_diff ?? 0) * 100).toStringAsFixed(1)}% · Lift=${_lift == null ? '—' : '${((_lift ?? 0) * 100).toStringAsFixed(1)}%'} · IC95%=[${((_ciL ?? 0) * 100).toStringAsFixed(1)}%, ${((_ciH ?? 0) * 100).toStringAsFixed(1)}%] · p=${(_pTwo ?? 0).toStringAsFixed(4)}',
+                              softWrap: true,
+                            ),
+                            const SizedBox(height: 8),
+                            const Text(
+                              'Tip: p < 0.05 ⇒ diferencia significativa (bilateral, α = 0.05).',
+                              style: TextStyle(fontSize: 13, fontStyle: FontStyle.italic),
+                            ),
+                          ],
+                        ],
                       ),
                     ),
                   ),
+                  if (_pTwo != null) ...[
+                    const SizedBox(height: 12),
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: ElevatedButton.icon(
+                        onPressed: () async {
+                          final result = {
+                            'nA': _cNController.text,
+                            'cA': _cXController.text,
+                            'pA': _pA?.toStringAsFixed(4),
+                            'nB': _tNController.text,
+                            'cB': _tXController.text,
+                            'pB': _pB?.toStringAsFixed(4),
+                            'diff': _diff?.toStringAsFixed(4),
+                            'lift': _lift == null ? '—' : '${(_lift! * 100).toStringAsFixed(1)}%',
+                            'z': _z?.toStringAsFixed(3),
+                            'p': _pTwo?.toStringAsFixed(4),
+                            'ci': _ciL == null || _ciH == null
+                                ? '—'
+                                : '[${(_ciL! * 100).toStringAsFixed(1)}%, ${(_ciH!*100).toStringAsFixed(1)}%]',
+                            'sig': _sig ? 'Sí' : 'No',
+                            'alpha': '0.05',
+                            'note': 'Resultado guardado desde Nivel A/B',
+                          };
+                          final ab = context.read<ABResultState>();
+                          await ab.save(result);
+                          if (!context.mounted) return;
+                          Navigator.pushNamed(context, '/dashboard');
+                        },
+                        icon: const Icon(Icons.arrow_forward),
+                        label: const Text('Ir al Dashboard'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFFFFE082),
+                          foregroundColor: Colors.brown,
+                          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        ),
+                      ),
+                    ),
+                  ],
+                  const SizedBox(height: 120),
                 ],
-              ],
-            );
-          },
+              );
+            },
+          ),
         ),
       ),
     );
   }
 
-  List<Widget> _buildPanels(bool compact) {
-    InputDecoration dec(String label) => InputDecoration(
+  List<Widget> _buildPanels(bool _) {
+    InputDecoration dec(String label, String hint) => InputDecoration(
           labelText: label,
-          border: const OutlineInputBorder(),
+          hintText: hint,
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
           contentPadding:
-              const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+              const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
         );
 
     final List<TextInputFormatter> digits =
@@ -203,9 +233,12 @@ class _Level5AbTestScreenState extends State<Level5AbTestScreen> {
       required String title,
       required TextEditingController nCtrl,
       required TextEditingController xCtrl,
+      required String hintN,
+      required String hintX,
     }) {
       return Card(
         elevation: 0,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Column(
@@ -215,18 +248,22 @@ class _Level5AbTestScreenState extends State<Level5AbTestScreen> {
               const SizedBox(height: 12),
               TextField(
                 controller: nCtrl,
-                keyboardType: TextInputType.number,
+                keyboardType:
+                    const TextInputType.numberWithOptions(decimal: false),
                 inputFormatters: digits,
                 textInputAction: TextInputAction.next,
-                decoration: dec('N usuarios'),
+                scrollPadding: const EdgeInsets.only(bottom: 220),
+                decoration: dec('N usuarios', hintN),
               ),
               const SizedBox(height: 12),
               TextField(
                 controller: xCtrl,
-                keyboardType: TextInputType.number,
+                keyboardType:
+                    const TextInputType.numberWithOptions(decimal: false),
                 inputFormatters: digits,
                 textInputAction: TextInputAction.done,
-                decoration: dec('Conversiones'),
+                scrollPadding: const EdgeInsets.only(bottom: 220),
+                decoration: dec('Conversiones', hintX),
                 onSubmitted: (_) => _onCalculate(),
               ),
             ],
@@ -235,8 +272,20 @@ class _Level5AbTestScreenState extends State<Level5AbTestScreen> {
       );
     }
 
-    final control = card(title: 'Control (A)', nCtrl: _cNController, xCtrl: _cXController);
-    final treatment = card(title: 'Tratamiento (B)', nCtrl: _tNController, xCtrl: _tXController);
+    final control = card(
+      title: 'Control (A)',
+      nCtrl: _cNController,
+      xCtrl: _cXController,
+      hintN: 'Ej.: 120',
+      hintX: 'Ej.: 30',
+    );
+    final treatment = card(
+      title: 'Tratamiento (B)',
+      nCtrl: _tNController,
+      xCtrl: _tXController,
+      hintN: 'Ej.: 120',
+      hintX: 'Ej.: 36',
+    );
     return [control, treatment];
   }
 
@@ -387,6 +436,34 @@ class _Bullet extends StatelessWidget {
           Expanded(child: Text(text)),
         ],
       ),
+    );
+  }
+}
+
+class _AbTestExplanationTile extends StatelessWidget {
+  const _AbTestExplanationTile();
+
+  @override
+  Widget build(BuildContext context) {
+    return ExpansionTile(
+      tilePadding: EdgeInsets.zero,
+      childrenPadding: const EdgeInsets.only(bottom: 12),
+      collapsedShape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+      title: const Text('Cómo se calculó (tocar para ver)'),
+      children: const [
+        Padding(
+          padding: EdgeInsets.fromLTRB(12, 0, 12, 12),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _Bullet('Prueba Z bilateral para comparar dos proporciones con α = 0,05.'),
+              _Bullet('Calculamos p̂ combinando muestras, error estándar y Z para estimar la diferencia.'),
+              _Bullet('Interpretación: p < 0.05 ⇒ diferencia significativa; Z > 0 favorece B, Z < 0 favorece A.'),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }
