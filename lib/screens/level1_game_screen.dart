@@ -562,7 +562,7 @@ class _Level1GameScreenState extends State<Level1GameScreen>
                       ? Theme.of(context).colorScheme.primary
                       : Theme.of(context)
                           .colorScheme
-                          .surfaceVariant
+                          .surfaceContainerHighest
                           .withValues(alpha: 0.8),
                   foregroundColor: canProceed
                       ? Theme.of(context).colorScheme.onPrimary
