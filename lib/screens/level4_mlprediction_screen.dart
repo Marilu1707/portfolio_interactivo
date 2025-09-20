@@ -65,7 +65,7 @@ class _Level4MlPredictionScreenState extends State<Level4MlPredictionScreen> {
         'stock': 0.25,
         'mozzarella': 0.02,
         'cheddar': 0.10,
-        'parmesano': 0.08,
+        'provolone': 0.08,
         'gouda': 0.05,
         'brie': -0.04,
         'Provolone': -0.06,
@@ -157,13 +157,19 @@ class _Level4MlPredictionScreenState extends State<Level4MlPredictionScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Predicción ML (online)'),
+        title: const Text('Predicción ML'),
         centerTitle: true,
         actions: [
-          IconButton(
-            tooltip: '¿Cómo funciona?',
-            icon: const Icon(Icons.help_outline),
+          TextButton(
             onPressed: () => _showHowItWorks(context),
+            style: TextButton.styleFrom(
+              foregroundColor: Theme.of(context).colorScheme.onPrimary,
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+            ),
+            child: const Text(
+              '¿?',
+              style: TextStyle(fontWeight: FontWeight.w800),
+            ),
           ),
         ],
       ),

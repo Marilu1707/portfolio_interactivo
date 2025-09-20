@@ -43,7 +43,7 @@ class _Level5AbTestScreenState extends State<Level5AbTestScreen> {
           icon: const Icon(Icons.arrow_back),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text('Experimento A/B'),
+        title: const Text('A/B Test'),
         actions: [
           if (_pTwo != null)
             TextButton.icon(
@@ -86,10 +86,16 @@ class _Level5AbTestScreenState extends State<Level5AbTestScreen> {
               icon: const Icon(Icons.send),
               label: const Text('Enviar al Dashboard'),
             ),
-          IconButton(
-            tooltip: '¿Cómo funciona?',
-            icon: const Icon(Icons.help_outline),
+          TextButton(
             onPressed: () => _showHelp(context),
+            style: TextButton.styleFrom(
+              foregroundColor: Colors.brown,
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+            ),
+            child: const Text(
+              '¿?',
+              style: TextStyle(fontWeight: FontWeight.w800),
+            ),
           ),
         ],
       ),
