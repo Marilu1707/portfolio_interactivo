@@ -190,9 +190,11 @@ class HomeDesktop extends StatelessWidget {
                                 const _H3('✨ Sobre mí'),
                                 const SizedBox(height: 8),
                                 const Text(
-                                  'Estudiante de Negocios Digitales (UADE). Me formé en análisis de datos, marketing y desarrollo web. '
-                                  'Capacitaciones en Python, Django, React.js y SQL. Me interesa combinar tecnología, eficiencia operativa y enfoque '
-                                  'estratégico para crear soluciones simples y efectivas.',
+                                  'Estudiante de Negocios Digitales (UADE). '
+                                  'Me formé en análisis de datos, marketing y desarrollo web. '
+                                  'Capacitaciones en Python, Django, React.js y SQL. '
+                                  'Me interesa combinar tecnología, eficiencia operativa y enfoque estratégico '
+                                  'para crear soluciones simples y efectivas.',
                                 ),
                                 const SizedBox(height: 12),
                                 const _Dot('Análisis de datos (Python, SQL, EDA)'),
@@ -375,14 +377,13 @@ class _HomeCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: HomeDesktop.card,
         borderRadius: BorderRadius.circular(20),
-                              boxShadow: [
-                                BoxShadow(
-                                  color:
-                                      Colors.black.withValues(alpha: 0.05),
-                                  blurRadius: 8,
-                                  offset: const Offset(0, 4),
-                                ),
-                              ],
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 8,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       padding: const EdgeInsets.all(16),
       child: child,

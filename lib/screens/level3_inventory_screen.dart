@@ -25,7 +25,12 @@ class _Level3InventoryScreenState extends State<Level3InventoryScreen> {
 
   // Variante toast (overlay) para notificaciones kawaii
   void _addOneToast(AppState app, InventoryItem row, int qty) {
-    final success = _tryRestock(app: app, row: row, qty: qty);
+    final success = _tryRestock(
+      context: context,
+      app: app,
+      row: row,
+      qty: qty,
+    );
     if (!success) return;
     final plural = qty > 1 ? 's' : '';
     GamePopup.show(context,
@@ -34,40 +39,40 @@ class _Level3InventoryScreenState extends State<Level3InventoryScreen> {
   }
 
   bool _tryRestock({
+    required BuildContext context,
     required AppState app,
     required InventoryItem row,
     required int qty,
   }) {
-    final messenger = ScaffoldMessenger.maybeOf(context);
     if (qty <= 0) {
-      messenger?.showSnackBar(_inventorySnack('Ingresá una cantidad positiva.'));
+      _inventorySnack(context, 'Ingresá una cantidad positiva.');
       return false;
     }
 
     final reorderPoint = row.reorderPoint > 0 ? row.reorderPoint : 5;
 
     if (row.stock <= 0) {
-      messenger?.showSnackBar(
-        _inventorySnack(
-            'Sin stock actual: sumamos $qty unidad${qty > 1 ? 'es' : ''} para reiniciar inventario.'),
+      _inventorySnack(
+        context,
+        'Sin stock actual: sumamos $qty unidad${qty > 1 ? 'es' : ''} para reiniciar inventario.',
       );
       app.restock(row.name, qty);
       return true;
     }
 
     if (row.stock >= reorderPoint) {
-      messenger?.showSnackBar(
-        _inventorySnack(
-            'Ya estás en el stock seguro ($reorderPoint). Usá el inventario actual antes de reponer más.'),
+      _inventorySnack(
+        context,
+        'Ya estás en el stock seguro ($reorderPoint). Usá el inventario actual antes de reponer más.',
       );
       return false;
     }
 
     final nextStock = row.stock + qty;
     if (nextStock > reorderPoint) {
-      messenger?.showSnackBar(
-        _inventorySnack(
-            'Con esta reposición superarías el stock seguro ($reorderPoint). Reponé menos unidades.'),
+      _inventorySnack(
+        context,
+        'Con esta reposición superarías el stock seguro ($reorderPoint). Reponé menos unidades.',
       );
       return false;
     }
@@ -76,11 +81,15 @@ class _Level3InventoryScreenState extends State<Level3InventoryScreen> {
     return true;
   }
 
-  SnackBar _inventorySnack(String message) {
-    return SnackBar(
-      content: Text(message),
-      behavior: SnackBarBehavior.floating,
-      duration: const Duration(seconds: 2),
+  void _inventorySnack(BuildContext context, String message) {
+    final messenger = ScaffoldMessenger.maybeOf(context);
+    if (messenger == null) return;
+    messenger.showSnackBar(
+      SnackBar(
+        content: Text(message),
+        behavior: SnackBarBehavior.floating,
+        duration: const Duration(seconds: 2),
+      ),
     );
   }
 
@@ -122,8 +131,8 @@ class _Level3InventoryScreenState extends State<Level3InventoryScreen> {
             child: Padding(
               padding: const EdgeInsets.all(16),
               child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
                 Builder(builder: (context) {
                   final mouseItems = rows
                       .map((r) => InventoryMouseItem(name: r.name, stock: r.stock))
@@ -209,16 +218,16 @@ class _Level3InventoryScreenState extends State<Level3InventoryScreen> {
                                   )),
                                   DataCell(SizedBox(
                                     width: 220,
-                                  child: _buildTrailing(
-                                    stock: r.stock,
-                                    isOut: isOut,
-                                    reorderPoint: reorderPoint,
-                                    onAddOne: () => _addOneToast(app, r, 1),
-                                    onAddFive: () => _addOneToast(app, r, 5),
-                                    onRestockSafe: () => _addOneToast(app, r, reorderPoint),
-                                    dotColor: _statusColor(r.stock),
-                                  ),
-                                )),
+                                    child: _buildTrailing(
+                                      stock: r.stock,
+                                      isOut: isOut,
+                                      reorderPoint: reorderPoint,
+                                      onAddOne: () => _addOneToast(app, r, 1),
+                                      onAddFive: () => _addOneToast(app, r, 5),
+                                      onRestockSafe: () => _addOneToast(app, r, reorderPoint),
+                                      dotColor: _statusColor(r.stock),
+                                    ),
+                                  )),
                                 ]);
                               }).toList(),
                             ),
@@ -228,8 +237,8 @@ class _Level3InventoryScreenState extends State<Level3InventoryScreen> {
                     );
                     if (!isMobile) return table;
 
-                      // Mobile: list of row-cards
-                      return ListView.builder(
+                    // Mobile: list of row-cards
+                    return ListView.builder(
                         controller: _mobileCtrl,
                         itemCount: rows.length,
                         padding: const EdgeInsets.only(bottom: 12),
@@ -527,10 +536,10 @@ class _InventoryStatusBadge extends StatelessWidget {
         final safePoint = reorderPoint > 0 ? reorderPoint : 5;
         final bool atCap = !isOut && stock >= safePoint;
         final Color baseColor = Colors.brown;
-        final messenger = ScaffoldMessenger.maybeOf(context);
         void showOutSnack() {
-          messenger?.showSnackBar(
-            _inventorySnack('Sin stock actual. Usá “Reponer stock seguro” para reiniciar inventario.'),
+          _inventorySnack(
+            context,
+            'Sin stock actual. Usá “Reponer stock seguro” para reiniciar inventario.',
           );
         }
         Color buttonColor(bool highlight) =>

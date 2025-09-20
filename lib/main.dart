@@ -28,7 +28,7 @@ void main() {
     }
   };
   if (kIsWeb) {
-    setUrlStrategy(const PathUrlStrategy());
+    setUrlStrategy(PathUrlStrategy());
   }
   runApp(const MyApp());
 }
