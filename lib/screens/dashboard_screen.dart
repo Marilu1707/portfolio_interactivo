@@ -249,7 +249,11 @@ class _Level5DashboardScreenState extends State<Level5DashboardScreen> {
                     const SizedBox(height: 20),
                     Center(
                       child: OutlinedButton.icon(
-                        onPressed: () => Navigator.pushNamed(context, '/'),
+                        onPressed: () {
+                          if (!mounted) return;
+                          Navigator.of(context)
+                              .pushNamedAndRemoveUntil('/', (route) => false);
+                        },
                         icon: const Icon(Icons.home),
                         label: const Text('Volver a Home'),
                       ),
