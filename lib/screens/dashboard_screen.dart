@@ -538,7 +538,8 @@ class _ChartPlaceholder extends StatelessWidget {
               for (final label in labels)
                 Chip(
                   label: Text('$label: $valueText'),
-                  backgroundColor: Theme.of(context).colorScheme.surfaceVariant,
+                  backgroundColor:
+                      Theme.of(context).colorScheme.surfaceContainerHighest,
                   visualDensity: VisualDensity.compact,
                   materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                 ),

@@ -312,7 +312,7 @@ class _PedidosChartCard extends StatelessWidget {
                   )
                 : Container(
                     decoration: BoxDecoration(
-                      color: theme.colorScheme.surfaceVariant
+                      color: theme.colorScheme.surfaceContainerHighest
                           .withValues(alpha: 0.35),
                       borderRadius: BorderRadius.circular(14),
                     ),
