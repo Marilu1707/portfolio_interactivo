@@ -36,6 +36,9 @@ class AppState extends ChangeNotifier {
   // Variante activa del juego para A/B ("A" = control, "B" = tratamiento)
   String variante = 'A';
 
+  int? _lastLevelCompleted;
+  int? get lastLevelCompleted => _lastLevelCompleted;
+
   // Tiempos por variante (ms) para métricas adicionales
   final List<int> tiemposA = [];
   final List<int> tiemposB = [];
@@ -95,6 +98,16 @@ class AppState extends ChangeNotifier {
   void markLevel1Cleared() {
     if (level1Cleared) return;
     level1Cleared = true;
+    notifyListeners();
+  }
+
+  void setLevelCompleted(int level) {
+    _lastLevelCompleted = level;
+    notifyListeners();
+  }
+
+  void clearLastLevelCompleted() {
+    _lastLevelCompleted = null;
     notifyListeners();
   }
 

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../state/ab_result_state.dart';
+import '../state/app_state.dart';
 
 class Level5AbTestScreen extends StatefulWidget {
   const Level5AbTestScreen({super.key});
@@ -48,6 +49,7 @@ class _Level5AbTestScreenState extends State<Level5AbTestScreen> {
             TextButton.icon(
               onPressed: () {
                 if (!mounted) return;
+                context.read<AppState>().setLevelCompleted(5);
                 Navigator.pushNamed(context, '/dashboard');
               },
               icon: const Icon(Icons.analytics),
@@ -78,6 +80,7 @@ class _Level5AbTestScreenState extends State<Level5AbTestScreen> {
                 final ab = context.read<ABResultState>();
                 await ab.save(result);
                 if (!context.mounted) return;
+                context.read<AppState>().setLevelCompleted(5);
                 Navigator.pushNamed(context, '/dashboard');
               },
               icon: const Icon(Icons.send),
@@ -192,6 +195,7 @@ class _Level5AbTestScreenState extends State<Level5AbTestScreen> {
                           final ab = context.read<ABResultState>();
                           await ab.save(result);
                           if (!context.mounted) return;
+                          context.read<AppState>().setLevelCompleted(5);
                           Navigator.pushNamed(context, '/dashboard');
                         },
                         icon: const Icon(Icons.arrow_forward),
