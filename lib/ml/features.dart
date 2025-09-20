@@ -7,7 +7,7 @@ class Features {
     'Parmesano',
     'Gouda',
     'Brie',
-    'Azul',
+    'Provolone',
   ];
 
   /// Build the 14-dim feature vector described in the brief.

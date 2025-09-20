@@ -6,7 +6,7 @@ import '../state/app_state.dart';
 import '../state/ab_result_state.dart';
 import '../state/orders_state.dart';
 
-const _kCheeseLabels = <String>['Mozzarella', 'Cheddar', 'Parmesano', 'Gouda', 'Brie', 'Azul'];
+const _kCheeseLabels = <String>['Mozzarella', 'Cheddar', 'Parmesano', 'Gouda', 'Brie', 'Provolone'];
 
 class Level5DashboardScreen extends StatefulWidget {
   const Level5DashboardScreen({super.key});

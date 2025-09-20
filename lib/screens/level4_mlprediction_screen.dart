@@ -68,7 +68,7 @@ class _Level4MlPredictionScreenState extends State<Level4MlPredictionScreen> {
         'parmesano': 0.08,
         'gouda': 0.05,
         'brie': -0.04,
-        'azul': -0.06,
+        'Provolone': -0.06,
       };
       final cheeseKey = sugerido.toLowerCase();
       _lastContribs = <String, double>{

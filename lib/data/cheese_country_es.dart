@@ -12,7 +12,7 @@ const Map<String, String> kCheeseCountryEs = {
   'Gruyère': 'Suiza',
   'Emmental': 'Suiza',
   'Cheddar': 'Reino Unido',
-  'Azul': 'Francia',
+  'Provolone': 'Francia',
   'Blue': 'Reino Unido',
   'Manchego': 'España',
   'Feta': 'Grecia',

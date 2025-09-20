@@ -99,7 +99,7 @@ class MlService {
       'Parmesano',
       'Gouda',
       'Brie',
-      'Azul'
+      'Provolone'
     ];
     double best = -1;
     String bestC = cheeses.first;

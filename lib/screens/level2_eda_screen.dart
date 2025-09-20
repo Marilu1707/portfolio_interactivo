@@ -20,7 +20,7 @@ class Level2EdaScreen extends StatelessWidget {
     'Parmesano',
     'Gouda',
     'Brie',
-    'Azul',
+    'Provolone',
   ];
 
   /// Ordena los quesos por cantidad de pedidos (descendente).

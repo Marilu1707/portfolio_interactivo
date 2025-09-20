@@ -29,7 +29,7 @@ class AppState extends ChangeNotifier {
     'Gouda': 3.3,
     'Mozzarella': 3.8,
     'Cheddar': 3.5,
-    'Azul': 3.2,
+    'Provolone': 3.2,
   };
 
   // A/B buckets (contadores de muestra y conversiones)
