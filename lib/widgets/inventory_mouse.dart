@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../utils/constants.dart';
 import '../utils/kawaii_toast.dart';
 
 class InventoryMouseItem {
@@ -11,7 +12,12 @@ class InventoryMouse extends StatefulWidget {
   final List<InventoryMouseItem> items;
   final int lowThreshold;
   final VoidCallback? onTap;
-  const InventoryMouse({super.key, required this.items, this.lowThreshold = 9, this.onTap});
+  const InventoryMouse({
+    super.key,
+    required this.items,
+    this.lowThreshold = kStockYellowMin - 1,
+    this.onTap,
+  });
 
   @override
   State<InventoryMouse> createState() => _InventoryMouseState();
@@ -102,7 +108,7 @@ class _InventoryMouseState extends State<InventoryMouse>
                   const Text('Ratón de Depósito', style: TextStyle(fontWeight: FontWeight.w700, color: Color(0xFF5B4636))),
                   Text(
                     widget.items.any((e) => e.stock <= widget.lowThreshold)
-                        ? '¡Atención! Stock crítico (0–9)'
+                        ? '¡Atención! Stock crítico (0–${widget.lowThreshold})'
                         : 'Todo en orden 🧀',
                     style: const TextStyle(color: Color(0xFF5B4636)),
                   ),

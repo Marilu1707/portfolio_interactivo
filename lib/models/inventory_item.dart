@@ -1,3 +1,5 @@
+import '../utils/constants.dart';
+
 // Modelo: ítem de inventario con stock y fecha de caducidad
 class InventoryItem {
   final int id;
@@ -11,7 +13,7 @@ class InventoryItem {
     required this.name,
     required this.stock,
     required this.expiry,
-    this.reorderPoint = 30,
+    this.reorderPoint = kStockMax,
   });
 
   /// Construye desde CSV [id, nombre, stock_ignorado, YYYY-MM-DD].
@@ -20,10 +22,10 @@ class InventoryItem {
     return InventoryItem(
       id: int.tryParse(row[0].toString()) ?? 0,
       name: row[1].toString(),
-      // Arranca siempre con 30 unidades, ignorando el CSV
-      stock: 30,
+      // Arranca siempre con el stock máximo definido en la app.
+      stock: kStockMax,
       expiry: DateTime.tryParse(row[3].toString()) ?? DateTime.now().add(const Duration(days: 365)),
-      reorderPoint: 30,
+      reorderPoint: kStockMax,
     );
   }
 

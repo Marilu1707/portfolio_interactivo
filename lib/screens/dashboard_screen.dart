@@ -2,11 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:intl/intl.dart';
+
 import '../state/app_state.dart';
 import '../state/ab_result_state.dart';
 import '../state/orders_state.dart';
+import '../widgets/ab_result_card.dart';
+import '../widgets/kawaii_card.dart';
 
-const _kCheeseLabels = <String>['Mozzarella', 'Cheddar', 'Parmesano', 'Gouda', 'Brie', 'Provolone'];
+const _kCheeseLabels = <String>['Mozzarella', 'Cheddar', 'Provolone', 'Gouda', 'Brie', 'Azul'];
 
 class Level5DashboardScreen extends StatefulWidget {
   const Level5DashboardScreen({super.key});
@@ -60,7 +63,7 @@ class _Level5DashboardScreenState extends State<Level5DashboardScreen> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     // Header compacto
-                    kawaiiCard(
+                    KawaiiCard(
                       child: Row(
                         children: [
                           const Expanded(
@@ -132,7 +135,7 @@ class _Level5DashboardScreenState extends State<Level5DashboardScreen> {
                     // Pedidos vs Servidos (cumplimiento)
                     Builder(builder: (context) {
                       final orders = context.watch<OrdersState>();
-                      return kawaiiCard(
+                      return KawaiiCard(
                         child: _DemandVsServed(
                           requested: orders.requestedByCheese,
                           served: orders.servedByCheese,
@@ -142,18 +145,9 @@ class _Level5DashboardScreenState extends State<Level5DashboardScreen> {
                     const SizedBox(height: 24),
                     // Último A/B (si hay)
                     Builder(builder: (context) {
-                      final ab = context.watch<ABResultState?>()?.last;
+                      final ab = context.watch<ABResultState>().last;
                       if (ab == null) return const SizedBox.shrink();
-                      return kawaiiCard(
-                        child: ListTile(
-                          leading: const Icon(Icons.science),
-                          title: const Text('Último A/B Test'),
-                          subtitle: Text(
-                            'pA: ${ab['pA']} · pB: ${ab['pB']} · p: ${ab['p']} · sig: ${ab['sig']}',
-                          ),
-                          trailing: Text('Lift: ${ab['lift']}'),
-                        ),
-                      );
+                      return AbResultCard(result: ab);
                     }),
                     const SizedBox(height: 24),
                     // Gráficos
@@ -163,7 +157,7 @@ class _Level5DashboardScreenState extends State<Level5DashboardScreen> {
                       children: [
                         SizedBox(
                           width: isWide ? (cons.maxWidth - 24) * .6 : cons.maxWidth,
-                          child: kawaiiCard(
+                          child: KawaiiCard(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
@@ -182,7 +176,7 @@ class _Level5DashboardScreenState extends State<Level5DashboardScreen> {
                         ),
                         SizedBox(
                           width: isWide ? (cons.maxWidth - 24) * .38 : cons.maxWidth,
-                          child: kawaiiCard(
+                          child: KawaiiCard(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
@@ -203,7 +197,7 @@ class _Level5DashboardScreenState extends State<Level5DashboardScreen> {
                     ),
                     const SizedBox(height: 24),
                     // Insights
-                    kawaiiCard(
+                    KawaiiCard(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -269,21 +263,6 @@ class _Level5DashboardScreenState extends State<Level5DashboardScreen> {
 }
 
 // Card base kawaii pro
-Widget kawaiiCard({required Widget child}) => Container(
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: .92),
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-              color: Colors.brown.withValues(alpha: .08),
-              blurRadius: 12,
-              offset: const Offset(0, 6)),
-        ],
-      ),
-      padding: const EdgeInsets.all(16),
-      child: child,
-    );
-
 // KPI tile
 class KpiTile extends StatelessWidget {
   final String label;
@@ -293,7 +272,7 @@ class KpiTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return kawaiiCard(
+    return KawaiiCard(
       child: Row(
         children: [
           Container(
