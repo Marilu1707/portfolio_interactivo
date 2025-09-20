@@ -99,7 +99,7 @@ class _Level5AbTestScreenState extends State<Level5AbTestScreen> {
           child: LayoutBuilder(
             builder: (context, c) {
               final isNarrow = c.maxWidth < 760;
-              final form = _buildPanels(isNarrow);
+              final form = _buildPanels();
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
@@ -219,7 +219,7 @@ class _Level5AbTestScreenState extends State<Level5AbTestScreen> {
     );
   }
 
-  List<Widget> _buildPanels(bool _) {
+  List<Widget> _buildPanels() {
     InputDecoration dec(String label, String hint) => InputDecoration(
           labelText: label,
           hintText: hint,
@@ -293,7 +293,7 @@ class _Level5AbTestScreenState extends State<Level5AbTestScreen> {
     return [control, treatment];
   }
 
-    void _onCalculate() {
+  void _onCalculate() {
     // cerrar teclado en móvil
     FocusScope.of(context).unfocus();
     final nC = int.tryParse(_cNController.text) ?? 0;
@@ -350,7 +350,9 @@ class _Level5AbTestScreenState extends State<Level5AbTestScreen> {
           'Z = ${z.toStringAsFixed(2)} · p-valor = ${p.toStringAsFixed(3)}\n'
           '$gana$notaSup';
     });
-  }// CDF aproximada Normal(0,1)
+  }
+
+  // CDF aproximada Normal(0,1)
   double _phi(double z) {
     const p = 0.2316419;
     const b1 = 0.319381530;

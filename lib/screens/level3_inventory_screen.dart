@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import '../widgets/inventory_mouse.dart';
@@ -25,12 +25,63 @@ class _Level3InventoryScreenState extends State<Level3InventoryScreen> {
 
   // Variante toast (overlay) para notificaciones kawaii
   void _addOneToast(AppState app, InventoryItem row, int qty) {
-    if (qty <= 0) return;
-    app.restock(row.name, qty);
+    final success = _tryRestock(app: app, row: row, qty: qty);
+    if (!success) return;
     final plural = qty > 1 ? 's' : '';
     GamePopup.show(context,
         '🧀 +$qty unidad$plural de ${row.name} (stock: ${row.stock})',
         color: Colors.green, icon: Icons.check_circle);
+  }
+
+  bool _tryRestock({
+    required AppState app,
+    required InventoryItem row,
+    required int qty,
+  }) {
+    final messenger = ScaffoldMessenger.maybeOf(context);
+    if (qty <= 0) {
+      messenger?.showSnackBar(_inventorySnack('Ingresá una cantidad positiva.'));
+      return false;
+    }
+
+    final reorderPoint = row.reorderPoint > 0 ? row.reorderPoint : 5;
+
+    if (row.stock <= 0) {
+      messenger?.showSnackBar(
+        _inventorySnack(
+            'Sin stock actual: sumamos $qty unidad${qty > 1 ? 'es' : ''} para reiniciar inventario.'),
+      );
+      app.restock(row.name, qty);
+      return true;
+    }
+
+    if (row.stock >= reorderPoint) {
+      messenger?.showSnackBar(
+        _inventorySnack(
+            'Ya estás en el stock seguro ($reorderPoint). Usá el inventario actual antes de reponer más.'),
+      );
+      return false;
+    }
+
+    final nextStock = row.stock + qty;
+    if (nextStock > reorderPoint) {
+      messenger?.showSnackBar(
+        _inventorySnack(
+            'Con esta reposición superarías el stock seguro ($reorderPoint). Reponé menos unidades.'),
+      );
+      return false;
+    }
+
+    app.restock(row.name, qty);
+    return true;
+  }
+
+  SnackBar _inventorySnack(String message) {
+    return SnackBar(
+      content: Text(message),
+      behavior: SnackBarBehavior.floating,
+      duration: const Duration(seconds: 2),
+    );
   }
 
   // (Método _addOne removido; se usa _addOneToast con GamePopup)
@@ -50,7 +101,7 @@ class _Level3InventoryScreenState extends State<Level3InventoryScreen> {
     }
   }
 
-    @override
+  @override
   Widget build(BuildContext context) {
     final app = context.watch<AppState>();
     // Ordena por nombre para visualización consistente.
@@ -158,49 +209,16 @@ class _Level3InventoryScreenState extends State<Level3InventoryScreen> {
                                   )),
                                   DataCell(SizedBox(
                                     width: 220,
-                                    child: Row(
-                                      mainAxisAlignment: MainAxisAlignment.end,
-                                      children: [
-                                        Tooltip(
-                                          message: 'Agregar 1',
-                                          child: Semantics(
-                                            button: true,
-                                            label: 'Agregar una unidad',
-                                            child: OutlinedButton(
-                                              onPressed: isOut
-                                                  ? null
-                                                  : () => _addOneToast(app, r, 1),
-                                              style: OutlinedButton.styleFrom(
-                                                padding: const EdgeInsets.symmetric(
-                                                    horizontal: 14, vertical: 12),
-                                                minimumSize: const Size(0, 48),
-                                              ),
-                                              child: const Text('Agregar'),
-                                            ),
-                                          ),
-                                        ),
-                                        const SizedBox(width: 8),
-                                        Tooltip(
-                                          message: 'Agregar 5',
-                                          child: Semantics(
-                                            button: true,
-                                            label: 'Agregar cinco unidades',
-                                            child: OutlinedButton(
-                                              onPressed: isOut
-                                                  ? null
-                                                  : () => _addOneToast(app, r, 5),
-                                              style: OutlinedButton.styleFrom(
-                                                padding: const EdgeInsets.symmetric(
-                                                    horizontal: 12, vertical: 12),
-                                                minimumSize: const Size(0, 48),
-                                              ),
-                                              child: const Text('+5'),
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  )),
+                                  child: _buildTrailing(
+                                    stock: r.stock,
+                                    isOut: isOut,
+                                    reorderPoint: reorderPoint,
+                                    onAddOne: () => _addOneToast(app, r, 1),
+                                    onAddFive: () => _addOneToast(app, r, 5),
+                                    onRestockSafe: () => _addOneToast(app, r, reorderPoint),
+                                    dotColor: _statusColor(r.stock),
+                                  ),
+                                )),
                                 ]);
                               }).toList(),
                             ),
@@ -267,8 +285,10 @@ class _Level3InventoryScreenState extends State<Level3InventoryScreen> {
                                           _buildTrailing(
                                             stock: r.stock,
                                             isOut: isOut,
+                                            reorderPoint: reorderPoint,
                                             onAddOne: () => _addOneToast(app, r, 1),
                                             onAddFive: () => _addOneToast(app, r, 5),
+                                            onRestockSafe: () => _addOneToast(app, r, reorderPoint),
                                             dotColor: _statusColor(r.stock),
                                           ),
                                         ],
@@ -352,7 +372,10 @@ class _Level3InventoryScreenState extends State<Level3InventoryScreen> {
                   children: [
                     Expanded(
                       child: ElevatedButton.icon(
-                        onPressed: () => Navigator.pushNamed(context, '/level4'),
+                        onPressed: () {
+                          context.read<AppState>().setLevelCompleted(3);
+                          Navigator.pushNamed(context, '/level4');
+                        },
                         icon: const Icon(Icons.arrow_right_alt_rounded),
                         label: const Text('Siguiente nivel'),
                       ),
@@ -492,13 +515,87 @@ class _InventoryStatusBadge extends StatelessWidget {
   Widget _buildTrailing({
     required int stock,
     required bool isOut,
+    required int reorderPoint,
     required VoidCallback onAddOne,
     required VoidCallback onAddFive,
+    required VoidCallback onRestockSafe,
     required Color dotColor,
   }) {
     return LayoutBuilder(
       builder: (context, cons) {
         final isTight = cons.maxWidth < 180 || MediaQuery.of(context).size.width < 380;
+        final safePoint = reorderPoint > 0 ? reorderPoint : 5;
+        final bool atCap = !isOut && stock >= safePoint;
+        final Color baseColor = Colors.brown;
+        final messenger = ScaffoldMessenger.maybeOf(context);
+        void showOutSnack() {
+          messenger?.showSnackBar(
+            _inventorySnack('Sin stock actual. Usá “Reponer stock seguro” para reiniciar inventario.'),
+          );
+        }
+        Color buttonColor(bool highlight) =>
+            highlight ? baseColor.withValues(alpha: 0.45) : baseColor;
+        BorderSide borderColor(bool highlight) => BorderSide(
+              color: highlight
+                  ? baseColor.withValues(alpha: 0.25)
+                  : baseColor.withValues(alpha: 0.6),
+              width: 1.6,
+            );
+
+        Widget quickAction({
+          required String label,
+          required String tooltip,
+          required VoidCallback onTap,
+          required bool highlight,
+          bool disabled = false,
+        }) {
+          final style = OutlinedButton.styleFrom(
+            minimumSize: const Size(48, 48),
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+            foregroundColor: buttonColor(highlight),
+            side: borderColor(highlight),
+          );
+          final button = OutlinedButton(
+            onPressed: disabled ? null : onTap,
+            style: style,
+            child: Text(label),
+          );
+          final semantics = Semantics(
+            button: true,
+            enabled: !disabled,
+            label: disabled ? 'Sin stock disponible' : tooltip,
+            child: button,
+          );
+          final actionChild = disabled
+              ? GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTap: showOutSnack,
+                  child: AbsorbPointer(
+                    child: Opacity(opacity: 0.5, child: semantics),
+                  ),
+                )
+              : semantics;
+          final disabledTooltip =
+              'Sin stock disponible. Reponé antes de usar accesos rápidos.';
+          return Tooltip(
+            message: disabled ? disabledTooltip : tooltip,
+            child: actionChild,
+          );
+        }
+
+        Widget restockButton({double? width}) => SizedBox(
+              width: width,
+              child: FilledButton.icon(
+                onPressed: onRestockSafe,
+                icon: const Icon(Icons.inventory_rounded),
+                label: Text('Reponer stock seguro ($safePoint)'),
+                style: FilledButton.styleFrom(
+                  minimumSize: const Size.fromHeight(44),
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                ),
+              ),
+            );
+
         if (isTight) {
           return Column(
             mainAxisSize: MainAxisSize.min,
@@ -507,39 +604,27 @@ class _InventoryStatusBadge extends StatelessWidget {
               Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Tooltip(
-                    message: 'Agregar 1',
-                    child: Semantics(
-                      button: true,
-                      label: 'Agregar una unidad',
-                      child: OutlinedButton(
-                        onPressed: isOut ? null : onAddOne,
-                        style: OutlinedButton.styleFrom(
-                          minimumSize: const Size(48, 48),
-                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                        ),
-                        child: const Text('Agregar'),
-                      ),
-                    ),
+                  quickAction(
+                    label: 'Agregar',
+                    tooltip: 'Agregar 1',
+                    onTap: onAddOne,
+                    highlight: isOut || atCap,
+                    disabled: isOut,
                   ),
                   const SizedBox(width: 8),
-                  Tooltip(
-                    message: 'Agregar 5',
-                    child: Semantics(
-                      button: true,
-                      label: 'Agregar cinco unidades',
-                      child: OutlinedButton(
-                        onPressed: isOut ? null : onAddFive,
-                        style: OutlinedButton.styleFrom(
-                          minimumSize: const Size(48, 48),
-                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                        ),
-                        child: const Text('+5'),
-                      ),
-                    ),
+                  quickAction(
+                    label: '+5',
+                    tooltip: 'Agregar 5',
+                    onTap: onAddFive,
+                    highlight: atCap || isOut,
+                    disabled: isOut,
                   ),
                 ],
               ),
+              if (isOut) ...[
+                const SizedBox(height: 8),
+                restockButton(width: double.infinity),
+              ],
               const SizedBox(height: 6),
               Row(
                 mainAxisSize: MainAxisSize.min,
@@ -553,44 +638,31 @@ class _InventoryStatusBadge extends StatelessWidget {
           );
         }
 
-        return Row(
-          mainAxisSize: MainAxisSize.min,
+        return Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          crossAxisAlignment: WrapCrossAlignment.center,
           children: [
             _StockDot(color: dotColor),
-            const SizedBox(width: 8),
-            Text('Stock: $stock', style: Theme.of(context).textTheme.labelMedium),
-            const SizedBox(width: 12),
-            Tooltip(
-              message: 'Agregar 1',
-              child: Semantics(
-                button: true,
-                label: 'Agregar una unidad',
-                child: OutlinedButton(
-                  onPressed: isOut ? null : onAddOne,
-                  style: OutlinedButton.styleFrom(
-                    minimumSize: const Size(48, 48),
-                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                  ),
-                  child: const Text('Agregar'),
-                ),
-              ),
+            Padding(
+              padding: const EdgeInsets.only(right: 4),
+              child: Text('Stock: $stock', style: Theme.of(context).textTheme.labelMedium),
             ),
-            const SizedBox(width: 8),
-            Tooltip(
-              message: 'Agregar 5',
-              child: Semantics(
-                button: true,
-                label: 'Agregar cinco unidades',
-                child: OutlinedButton(
-                  onPressed: isOut ? null : onAddFive,
-                  style: OutlinedButton.styleFrom(
-                    minimumSize: const Size(48, 48),
-                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                  ),
-                  child: const Text('+5'),
-                ),
-              ),
+            quickAction(
+              label: 'Agregar',
+              tooltip: 'Agregar 1',
+              onTap: onAddOne,
+              highlight: isOut || atCap,
+              disabled: isOut,
             ),
+            quickAction(
+              label: '+5',
+              tooltip: 'Agregar 5',
+              onTap: onAddFive,
+              highlight: atCap || isOut,
+              disabled: isOut,
+            ),
+            if (isOut) restockButton(width: 220),
           ],
         );
       },

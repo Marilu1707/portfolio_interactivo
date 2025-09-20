@@ -60,7 +60,7 @@ class HomeDesktop extends StatelessWidget {
                 constraints: const BoxConstraints(maxWidth: 1100),
                 child: SingleChildScrollView(
                   padding: const EdgeInsets.all(16),
-                child: Column(
+                  child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // Hero
@@ -123,9 +123,9 @@ class HomeDesktop extends StatelessWidget {
 
                         final children = isMobile
                             ? <Widget>[
-                                Center(child: mouseCircle),
-                                const SizedBox(height: 16),
                                 left,
+                                const SizedBox(height: 16),
+                                Center(child: mouseCircle),
                               ]
                             : <Widget>[
                                 left,
@@ -456,43 +456,6 @@ class _Dot extends StatelessWidget {
           const Text('•  '),
           Expanded(child: Text(text)),
         ],
-      ),
-    );
-  }
-}
-
-class EduPill extends StatelessWidget {
-  final String emoji;
-  final String text;
-  const EduPill({super.key, required this.emoji, required this.text});
-  @override
-  Widget build(BuildContext context) {
-    return ConstrainedBox(
-      constraints: const BoxConstraints(minWidth: 120, maxWidth: 560),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(24),
-          border:
-          Border.all(color: Colors.brown.shade200.withValues(alpha: 0.5)),
-        ),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(emoji, style: const TextStyle(fontSize: 18)),
-            const SizedBox(width: 8),
-            Flexible(
-              child: Text(
-                text,
-                softWrap: true,
-                overflow: TextOverflow.visible,
-                style: const TextStyle(height: 1.2),
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:provider/provider.dart';
 
+import '../state/app_state.dart';
 import '../state/orders_state.dart';
 
 /// Nivel 2 — Exploración de datos (mobile-first)
@@ -111,7 +112,10 @@ class Level2EdaScreen extends StatelessWidget {
               Align(
                 alignment: buttonAlignment,
                 child: ElevatedButton.icon(
-                  onPressed: () => Navigator.pushNamed(context, '/level3'),
+                  onPressed: () {
+                    context.read<AppState>().setLevelCompleted(2);
+                    Navigator.pushNamed(context, '/level3');
+                  },
                   icon: const Icon(Icons.arrow_forward),
                   label: const Text('Ir al Nivel 3'),
                   style: ElevatedButton.styleFrom(
@@ -204,10 +208,12 @@ class _PedidosChartCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final hasData = series.any((value) => value > 0);
     final maxCount =
         series.isEmpty ? 0 : series.reduce((a, b) => a > b ? a : b);
-    final maxY = (maxCount == 0 ? 1 : maxCount).toDouble();
-    final interval = maxY <= 5 ? 1.0 : (maxY / 5).ceilToDouble();
+    final safeMax = maxCount <= 0 ? 1.0 : maxCount.toDouble();
+    final interval = safeMax <= 5 ? 1.0 : (safeMax / 5).ceilToDouble();
+    final chartMaxY = hasData ? safeMax + interval : safeMax;
 
     return Container(
       decoration: BoxDecoration(
@@ -233,58 +239,92 @@ class _PedidosChartCard extends StatelessWidget {
           const SizedBox(height: 12),
           SizedBox(
             height: 220,
-            child: BarChart(
-              BarChartData(
-                alignment: BarChartAlignment.spaceAround,
-                minY: 0,
-                maxY: maxY + 1,
-                gridData: FlGridData(show: true),
-                titlesData: FlTitlesData(
-                  rightTitles: const AxisTitles(),
-                  topTitles: const AxisTitles(),
-                  leftTitles: AxisTitles(
-                    sideTitles: SideTitles(
-                        showTitles: true, interval: interval, reservedSize: 28),
-                  ),
-                  bottomTitles: AxisTitles(
-                    sideTitles: SideTitles(
-                      showTitles: true,
-                      reservedSize: 42,
-                      getTitlesWidget: (value, meta) {
-                        final i = value.toInt();
-                        if (i < 0 || i >= labels.length) {
-                          return const SizedBox.shrink();
-                        }
-                        return Padding(
-                          padding: const EdgeInsets.only(top: 6.0),
-                          child: Text(
-                            labels[i],
-                            textAlign: TextAlign.center,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: theme.textTheme.labelSmall,
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                ),
-                barGroups: [
-                  for (int i = 0; i < labels.length; i++)
-                    BarChartGroupData(
-                      x: i,
-                      barRods: [
-                        BarChartRodData(
-                          toY: series[i].toDouble(),
-                          width: 18,
-                          borderRadius: BorderRadius.circular(6),
-                          color: theme.colorScheme.primary,
+            child: hasData
+                ? BarChart(
+                    BarChartData(
+                      alignment: BarChartAlignment.spaceAround,
+                      minY: 0,
+                      maxY: chartMaxY,
+                      gridData: FlGridData(
+                        show: true,
+                        drawVerticalLine: false,
+                        getDrawingHorizontalLine: (value) => FlLine(
+                          color: theme.dividerColor.withValues(alpha: 0.18),
+                          strokeWidth: 1,
                         ),
+                      ),
+                      titlesData: FlTitlesData(
+                        rightTitles: const AxisTitles(),
+                        topTitles: const AxisTitles(),
+                        leftTitles: AxisTitles(
+                          sideTitles: SideTitles(
+                            showTitles: true,
+                            interval: interval,
+                            reservedSize: 32,
+                            getTitlesWidget: (value, _) {
+                              final n = value.round();
+                              if (n < 0) {
+                                return const SizedBox.shrink();
+                              }
+                              return Text('$n',
+                                  style: theme.textTheme.bodySmall);
+                            },
+                          ),
+                        ),
+                        bottomTitles: AxisTitles(
+                          sideTitles: SideTitles(
+                            showTitles: true,
+                            reservedSize: 42,
+                            getTitlesWidget: (value, _) {
+                              final i = value.toInt();
+                              if (i < 0 || i >= labels.length) {
+                                return const SizedBox.shrink();
+                              }
+                              return Padding(
+                                padding: const EdgeInsets.only(top: 6.0),
+                                child: Text(
+                                  labels[i],
+                                  textAlign: TextAlign.center,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: theme.textTheme.labelSmall,
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                      ),
+                      barGroups: [
+                        for (int i = 0; i < labels.length; i++)
+                          BarChartGroupData(
+                            x: i,
+                            barRods: [
+                              BarChartRodData(
+                                toY: series[i].toDouble(),
+                                width: 18,
+                                borderRadius: BorderRadius.circular(6),
+                                color: theme.colorScheme.primary,
+                              ),
+                            ],
+                          ),
                       ],
                     ),
-                ],
-              ),
-            ),
+                  )
+                : Container(
+                    decoration: BoxDecoration(
+                      color: theme.colorScheme.surfaceVariant
+                          .withValues(alpha: 0.35),
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    padding: const EdgeInsets.all(16),
+                    child: Center(
+                      child: Text(
+                        'Sin datos aún — jugá el Nivel 1 para registrar pedidos.',
+                        textAlign: TextAlign.center,
+                        style: theme.textTheme.bodyMedium,
+                      ),
+                    ),
+                  ),
           ),
           const SizedBox(height: 10),
           Wrap(

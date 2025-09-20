@@ -273,6 +273,7 @@ class _Level1GameScreenState extends State<Level1GameScreen>
           ElevatedButton(
             onPressed: () {
               Navigator.pop(context);
+              context.read<AppState>().setLevelCompleted(1);
               Navigator.pushNamed(context, '/level2');
             },
             child: const Text('Ir al Nivel 2'),
@@ -467,7 +468,10 @@ class _Level1GameScreenState extends State<Level1GameScreen>
               height: 56,
               child: FilledButton.icon(
                 onPressed: canProceed
-                    ? () => Navigator.pushNamed(context, '/level2')
+                    ? () {
+                        context.read<AppState>().setLevelCompleted(1);
+                        Navigator.pushNamed(context, '/level2');
+                      }
                     : null,
                 icon: const Icon(Icons.arrow_forward),
                 label: const Text('Siguiente nivel'),

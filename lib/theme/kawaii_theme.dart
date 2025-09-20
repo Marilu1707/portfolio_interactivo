@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 /// Tema central kawaii pastel para toda la app.
 class KawaiiTheme {
@@ -20,13 +21,32 @@ class KawaiiTheme {
       ),
     );
 
+    final notoTextTheme = GoogleFonts.notoSansTextTheme(base.textTheme).apply(
+      bodyColor: Colors.brown, // tono cálido en lugar de negro puro
+      displayColor: Colors.brown,
+    ).copyWith(
+      headlineMedium: GoogleFonts.notoSans(
+        fontSize: 28,
+        fontWeight: FontWeight.w900,
+        color: Colors.brown,
+      ),
+      titleLarge: GoogleFonts.notoSans(
+        fontSize: 20,
+        fontWeight: FontWeight.w800,
+        color: Colors.brown,
+      ),
+      bodyMedium: GoogleFonts.notoSans(height: 1.3),
+    );
+
     return base.copyWith(
+      fontFamily: GoogleFonts.notoSans().fontFamily,
+
       // AppBar
-      appBarTheme: const AppBarTheme(
+      appBarTheme: AppBarTheme(
         elevation: 0,
         backgroundColor: bg,
         foregroundColor: onAccent,
-        titleTextStyle: TextStyle(
+        titleTextStyle: GoogleFonts.notoSans(
           color: onAccent,
           fontWeight: FontWeight.w800,
           fontSize: 18,
@@ -34,16 +54,7 @@ class KawaiiTheme {
       ),
 
       // Textos
-      textTheme: base.textTheme.apply(
-        bodyColor: Colors.brown,  // tono cálido en lugar de negro puro
-        displayColor: Colors.brown,
-      ).copyWith(
-        headlineMedium: const TextStyle(
-          fontSize: 28, fontWeight: FontWeight.w900, color: Colors.brown),
-        titleLarge: const TextStyle(
-          fontSize: 20, fontWeight: FontWeight.w800, color: Colors.brown),
-        bodyMedium: const TextStyle(height: 1.3),
-      ),
+      textTheme: notoTextTheme,
 
       // Botón elevado (primario)
       elevatedButtonTheme: ElevatedButtonThemeData(
@@ -55,7 +66,7 @@ class KawaiiTheme {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(14),
           ),
-          textStyle: const TextStyle(fontWeight: FontWeight.w800),
+          textStyle: GoogleFonts.notoSans(fontWeight: FontWeight.w800),
         ),
       ),
 
@@ -68,7 +79,7 @@ class KawaiiTheme {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(14),
           ),
-          textStyle: const TextStyle(fontWeight: FontWeight.w600),
+          textStyle: GoogleFonts.notoSans(fontWeight: FontWeight.w600),
         ),
       ),
 
@@ -77,7 +88,8 @@ class KawaiiTheme {
         backgroundColor: card,
         side: BorderSide(color: Colors.brown.shade200.withValues(alpha: 0.5)),
         selectedColor: accent,
-        labelStyle: const TextStyle(color: Colors.brown, fontWeight: FontWeight.w600),
+        labelStyle:
+            GoogleFonts.notoSans(color: Colors.brown, fontWeight: FontWeight.w600),
         shape: StadiumBorder(
           side: BorderSide(color: Colors.brown.shade200.withValues(alpha: 0.5)),
         ),
@@ -96,7 +108,7 @@ class KawaiiTheme {
         filled: true,
         fillColor: Colors.white,
         contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-        labelStyle: const TextStyle(color: Colors.brown),
+        labelStyle: GoogleFonts.notoSans(color: Colors.brown),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
           borderSide: BorderSide(color: Colors.brown.shade200, width: 2),

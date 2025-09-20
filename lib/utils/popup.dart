@@ -8,6 +8,7 @@ enum PopupType { success, error, warning, info }
 class Popup {
   static OverlayEntry? _entry;
   static Timer? _timer;
+  static AnimationController? _controller;
 
   static void show(
     BuildContext context, {
@@ -26,6 +27,9 @@ class Popup {
     };
 
     final overlay = Overlay.of(context, rootOverlay: true);
+    if (overlay == null) {
+      return;
+    }
 
     final animationCtrl = AnimationController(
       vsync: overlay,
@@ -33,6 +37,7 @@ class Popup {
       reverseDuration: const Duration(milliseconds: 160),
     );
 
+    _controller = animationCtrl;
     final scale = CurvedAnimation(parent: animationCtrl, curve: Curves.easeOutBack);
     final fade = CurvedAnimation(parent: animationCtrl, curve: Curves.easeOut);
 
@@ -135,6 +140,8 @@ class Popup {
   static void _hide() {
     _timer?.cancel();
     _timer = null;
+    _controller?.dispose();
+    _controller = null;
     _entry?.remove();
     _entry = null;
   }
