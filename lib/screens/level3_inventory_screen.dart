@@ -123,7 +123,7 @@ class _Level3InventoryScreenState extends State<Level3InventoryScreen> {
       DataCell(Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
         decoration: BoxDecoration(
-          color: color.withOpacity(0.15),
+          color: color.withValues(alpha: 0.15),
           borderRadius: BorderRadius.circular(20),
         ),
         child: Text(
@@ -202,7 +202,7 @@ class _Level3InventoryScreenState extends State<Level3InventoryScreen> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
-                  color: color.withOpacity(0.15),
+                  color: color.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Text(
@@ -426,8 +426,8 @@ class _StockBadge extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20),
-        color: color.withOpacity(0.15),
-        border: Border.all(color: color.withOpacity(0.35)),
+        color: color.withValues(alpha: 0.15),
+        border: Border.all(color: color.withValues(alpha: 0.35)),
       ),
       child: Text('$value',
           style: TextStyle(fontWeight: FontWeight.w700, color: color)),

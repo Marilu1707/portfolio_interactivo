@@ -11,7 +11,7 @@ class KawaiiToast {
     Duration duration = const Duration(milliseconds: 1600),
     bool success = true,
   }) {
-    final overlay = Overlay.of(context);
+    final overlay = Overlay.maybeOf(context);
     if (overlay == null) return;
 
     final entry = OverlayEntry(
@@ -31,7 +31,7 @@ class KawaiiToast {
                   borderRadius: BorderRadius.circular(12),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(.12),
+                      color: Colors.black.withValues(alpha: .12),
                       blurRadius: 10,
                       offset: const Offset(0, 4),
                     ),
