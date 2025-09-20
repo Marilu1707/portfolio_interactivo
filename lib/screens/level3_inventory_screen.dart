@@ -7,15 +7,6 @@ import '../theme/kawaii_theme.dart';
 import '../state/app_state.dart';
 import '../utils/kawaii_toast.dart';
 
-void _showInvSnack(BuildContext context, String message) {
-  ScaffoldMessenger.of(context).showSnackBar(
-    SnackBar(
-      content: Text(message),
-      behavior: SnackBarBehavior.floating,
-    ),
-  );
-}
-
 // Pantalla Nivel 3 (Inventario): muestra stock por queso y permite reponer.
 class Level3InventoryScreen extends StatefulWidget {
   const Level3InventoryScreen({super.key});
@@ -32,11 +23,30 @@ class _Level3InventoryScreenState extends State<Level3InventoryScreen> {
   final ScrollController _mobileCtrl = ScrollController();
   final Map<String, GlobalKey> _rowKeys = {};
 
+  void _showToast(
+    String message, {
+    Color? color,
+    IconData icon = Icons.check_circle,
+    Alignment alignment = Alignment.bottomRight,
+    EdgeInsets? margin,
+  }) {
+    final successColor = const Color(0xFF34A853);
+    KawaiiToast.show(
+      context,
+      message,
+      icon: icon,
+      color: color ?? successColor,
+      duration: const Duration(seconds: 2),
+      alignment: alignment,
+      margin: margin ?? const EdgeInsets.only(right: 24, bottom: 24, left: 16),
+      success: color == null || color == successColor,
+    );
+  }
+
   // Variante toast (overlay) para notificaciones kawaii
   void _addOneToast(AppState app, InventoryItem row, int qty) {
     final before = row.stock;
     final success = _tryRestock(
-      context: context,
       app: app,
       row: row,
       qty: qty,
@@ -46,27 +56,25 @@ class _Level3InventoryScreenState extends State<Level3InventoryScreen> {
     final added = updated - before;
     final units = added > 0 ? added : 0;
     final plural = units == 1 ? '' : 'es';
-    KawaiiToast.show(
-      context,
+    _showToast(
       '🧀 +$units unidad$plural de ${row.name} (stock: $updated)',
       icon: Icons.check_circle,
+      margin: const EdgeInsets.only(right: 24, bottom: 72, left: 16),
     );
   }
 
   bool _tryRestock({
-    required BuildContext context,
     required AppState app,
     required InventoryItem row,
     required int qty,
   }) {
-    if (qty <= 0) {
-      _showInvSnack(context, 'Ingresá una cantidad positiva.');
-      return false;
-    }
-
     final next = (row.stock + qty).clamp(0, AppState.maxStock).toInt();
     if (next == row.stock) {
-      _showInvSnack(context, 'Ya estás al máximo (${AppState.maxStock}).');
+      _showToast(
+        'Ya estás al máximo (${AppState.maxStock}).',
+        color: Colors.orange,
+        icon: Icons.info_outline,
+      );
       return false;
     }
 
@@ -108,6 +116,7 @@ class _Level3InventoryScreenState extends State<Level3InventoryScreen> {
   DataRow _row(BuildContext context, AppState app, InventoryItem item) {
     final status = _statusText(item.stock);
     final color = _statusColor(item.stock);
+    final isAtMax = item.stock >= AppState.maxStock;
 
     return DataRow(cells: [
       DataCell(SizedBox(
@@ -148,17 +157,24 @@ class _Level3InventoryScreenState extends State<Level3InventoryScreen> {
           ),
           const SizedBox(width: 8),
           OutlinedButton(
-            onPressed: () {
-              final before = item.stock;
-              app.restockFull(item.name);
-              if (before < AppState.maxStock) {
-                _showInvSnack(context,
-                    'Llevamos ${item.name} al máximo (${AppState.maxStock}).');
-              } else {
-                _showInvSnack(
-                    context, 'Ya estás al máximo (${AppState.maxStock}).');
-              }
-            },
+            onPressed: isAtMax
+                ? null
+                : () {
+                    final diff = AppState.maxStock - item.stock;
+                    if (diff <= 0) {
+                      _showToast(
+                        'Ya estás al máximo (${AppState.maxStock}).',
+                        color: Colors.orange,
+                        icon: Icons.info_outline,
+                      );
+                      return;
+                    }
+                    app.restock(item.name, diff);
+                    _showToast(
+                      'Llevamos ${item.name} al máximo (${AppState.maxStock}).',
+                      icon: Icons.upgrade_rounded,
+                    );
+                  },
             child: const Text('100%'),
           ),
         ],
@@ -170,6 +186,7 @@ class _Level3InventoryScreenState extends State<Level3InventoryScreen> {
     final isEmpty = item.stock <= 0;
     final status = _statusText(item.stock);
     final color = _statusColor(item.stock);
+    final isAtMax = item.stock >= AppState.maxStock;
 
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 6),
@@ -251,17 +268,24 @@ class _Level3InventoryScreenState extends State<Level3InventoryScreen> {
               const SizedBox(width: 8),
               Expanded(
                 child: OutlinedButton(
-                  onPressed: () {
-                    final before = item.stock;
-                    app.restockFull(item.name);
-                    if (before < AppState.maxStock) {
-                      _showInvSnack(context,
-                          'Llevamos ${item.name} al máximo (${AppState.maxStock}).');
-                    } else {
-                      _showInvSnack(
-                          context, 'Ya estás al máximo (${AppState.maxStock}).');
-                    }
-                  },
+                  onPressed: isAtMax
+                      ? null
+                      : () {
+                          final diff = AppState.maxStock - item.stock;
+                          if (diff <= 0) {
+                            _showToast(
+                              'Ya estás al máximo (${AppState.maxStock}).',
+                              color: Colors.orange,
+                              icon: Icons.info_outline,
+                            );
+                            return;
+                          }
+                          app.restock(item.name, diff);
+                          _showToast(
+                            'Llevamos ${item.name} al máximo (${AppState.maxStock}).',
+                            icon: Icons.upgrade_rounded,
+                          );
+                        },
                   child: const Text('100%'),
                 ),
               ),

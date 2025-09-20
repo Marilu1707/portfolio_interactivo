@@ -69,7 +69,7 @@ class DataService {
   }
 
   /// Carga inventario con ID, nombre y fecha de caducidad (YYYY-MM-DD).
-  /// El stock inicial se fija en 10 al parsear cada fila (ver InventoryItem.fromCsv).
+  /// El stock inicial se fija en 30 al parsear cada fila (ver InventoryItem.fromCsv).
   static Future<List<InventoryItem>> loadInventory() async {
     // Si existe CSV, lo ignoramos: inventario semilla fijo con 6 quesos
     final now = DateTime.now();
@@ -77,7 +77,13 @@ class DataService {
     final out = <InventoryItem>[];
     var id = 1;
     for (final c in kCheeses) {
-      out.add(InventoryItem(id: id++, name: c.nombre, stock: 10, expiry: expiry));
+      out.add(InventoryItem(
+        id: id++,
+        name: c.nombre,
+        stock: 30,
+        expiry: expiry,
+        reorderPoint: 30,
+      ));
     }
     return out;
   }

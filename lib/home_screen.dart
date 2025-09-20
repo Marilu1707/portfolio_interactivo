@@ -24,6 +24,50 @@ class HomeDesktop extends StatelessWidget {
     }
   }
 
+  void _openDashboardModal(BuildContext context) {
+    showModalBottomSheet<void>(
+      context: context,
+      useSafeArea: true,
+      builder: (ctx) => Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Elegí qué querés analizar',
+              style: TextStyle(
+                fontWeight: FontWeight.w800,
+                color: onAccent,
+              ),
+            ),
+            const SizedBox(height: 12),
+            ListTile(
+              leading: const Icon(Icons.space_dashboard_rounded,
+                  color: onAccent),
+              title: const Text('Ver Dashboard'),
+              subtitle: const Text('KPIs, participación y evolución del juego'),
+              onTap: () {
+                Navigator.pop(ctx);
+                Navigator.pushNamed(context, '/dashboard');
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.science, color: onAccent),
+              title: const Text('Experimento A/B'),
+              subtitle:
+                  const Text('Calculá la prueba Z y guardá los resultados'),
+              onTap: () {
+                Navigator.pop(ctx);
+                Navigator.pushNamed(context, '/level5');
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _playButton(BuildContext context, {bool expanded = false}) {
     final button = FilledButton(
       onPressed: () => Navigator.pushNamed(context, '/level1'),
@@ -263,50 +307,70 @@ class HomeDesktop extends StatelessWidget {
 
                     const SizedBox(height: 20),
 
-                    // Niveles
-                    const _H3('🎮 Niveles'),
+                    const _H3('🧑‍🍳 Yo / Presentación del juego'),
+                    const SizedBox(height: 8),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: const [
+                        Icon(Icons.restaurant_menu,
+                            size: 48, color: onAccent),
+                        SizedBox(width: 12),
+                        Expanded(
+                          child: Text(
+                            'Nido Mozzarella es un restaurante kawaii donde podés poner a prueba tus reflejos y luego analizar los datos generados.',
+                            softWrap: true,
+                          ),
+                        ),
+                      ],
+                    ),
+
+                    const SizedBox(height: 20),
+                    const _H3('📊 Datos del juego'),
                     const SizedBox(height: 10),
-                    // Tarjetas con accesos a cada nivel gamificado.
                     Wrap(
                       spacing: 14,
                       runSpacing: 14,
                       children: [
                         _LevelCard(
-                            title: 'Nivel 1',
-                            subtitle: '🍽️ Restaurante',
-                            icon: Icons.pets,
-                            onTap: () =>
-                                Navigator.pushNamed(context, '/level1')),
+                          title: 'EDA interactiva',
+                          subtitle: 'Explorá participación por queso',
+                          icon: Icons.bar_chart_rounded,
+                          onTap: () => Navigator.pushNamed(context, '/level2'),
+                        ),
                         _LevelCard(
-                            title: 'Nivel 2',
-                            subtitle: '📊 EDA',
-                            icon: Icons.bar_chart_rounded,
-                            onTap: () =>
-                                Navigator.pushNamed(context, '/level2')),
+                          title: 'Predicción ML',
+                          subtitle: 'Modelo online y aprendizaje',
+                          icon: Icons.auto_graph,
+                          onTap: () => Navigator.pushNamed(context, '/level4'),
+                        ),
                         _LevelCard(
-                            title: 'Nivel 3',
-                            subtitle: '📦 Inventario',
-                            icon: Icons.inventory_2_rounded,
-                            onTap: () =>
-                                Navigator.pushNamed(context, '/level3')),
+                          title: 'Dashboard & A/B',
+                          subtitle: 'Panel con insights y experimento',
+                          icon: Icons.space_dashboard_rounded,
+                          onTap: () => _openDashboardModal(context),
+                        ),
+                      ],
+                    ),
+
+                    const SizedBox(height: 20),
+                    const _H3('🎮 Jugar'),
+                    const SizedBox(height: 10),
+                    Wrap(
+                      spacing: 14,
+                      runSpacing: 14,
+                      children: [
                         _LevelCard(
-                            title: 'Nivel 4',
-                            subtitle: '🤖 Predicción ML',
-                            icon: Icons.auto_graph,
-                            onTap: () =>
-                                Navigator.pushNamed(context, '/level4')),
+                          title: 'Nido Mozzarella',
+                          subtitle: 'Atendé pedidos y sumá puntos',
+                          icon: Icons.restaurant_menu,
+                          onTap: () => Navigator.pushNamed(context, '/level1'),
+                        ),
                         _LevelCard(
-                            title: 'Nivel 5',
-                            subtitle: '🔀 A/B Test',
-                            icon: Icons.science,
-                            onTap: () =>
-                                Navigator.pushNamed(context, '/level5')),
-                        _LevelCard(
-                            title: 'Panel',
-                            subtitle: '📉 Dashboard',
-                            icon: Icons.space_dashboard_rounded,
-                            onTap: () =>
-                                Navigator.pushNamed(context, '/dashboard')),
+                          title: 'Inventario',
+                          subtitle: 'Gestioná y reponé quesos',
+                          icon: Icons.inventory_2_rounded,
+                          onTap: () => Navigator.pushNamed(context, '/level3'),
+                        ),
                       ],
                     ),
 

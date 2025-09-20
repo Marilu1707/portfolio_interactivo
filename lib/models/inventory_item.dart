@@ -11,18 +11,19 @@ class InventoryItem {
     required this.name,
     required this.stock,
     required this.expiry,
-    this.reorderPoint = 5,
+    this.reorderPoint = 30,
   });
 
   /// Construye desde CSV [id, nombre, stock_ignorado, YYYY-MM-DD].
-  /// Forzamos stock inicial = 10 (según requisitos de UX).
+  /// Forzamos stock inicial = 30 (según requisitos de UX).
   factory InventoryItem.fromCsv(List<dynamic> row) {
     return InventoryItem(
       id: int.tryParse(row[0].toString()) ?? 0,
       name: row[1].toString(),
-      // Arranca siempre con 10 unidades, ignorando el CSV
-      stock: 10,
+      // Arranca siempre con 30 unidades, ignorando el CSV
+      stock: 30,
       expiry: DateTime.tryParse(row[3].toString()) ?? DateTime.now().add(const Duration(days: 365)),
+      reorderPoint: 30,
     );
   }
 

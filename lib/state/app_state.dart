@@ -65,10 +65,10 @@ class AppState extends ChangeNotifier {
 
   void restockFull(String name) {
     final item = inventory[name];
-    if (item == null || item.stock >= maxStock) return;
-
-    inventory[name] = item.copyWith(stock: maxStock);
-    notifyListeners();
+    if (item == null) return;
+    final diff = maxStock - item.stock;
+    if (diff <= 0) return;
+    restock(name, diff);
   }
 
   /// Intenta servir un queso. Devuelve true si se pudo.

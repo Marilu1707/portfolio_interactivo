@@ -102,7 +102,7 @@ class _InventoryMouseState extends State<InventoryMouse>
                   const Text('Ratón de Depósito', style: TextStyle(fontWeight: FontWeight.w700, color: Color(0xFF5B4636))),
                   Text(
                     widget.items.any((e) => e.stock <= widget.lowThreshold)
-                        ? '¡Atención! Stock crítico (<10)'
+                        ? '¡Atención! Stock crítico (0–9)'
                         : 'Todo en orden 🧀',
                     style: const TextStyle(color: Color(0xFF5B4636)),
                   ),
