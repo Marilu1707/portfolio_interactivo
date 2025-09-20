@@ -7,6 +7,7 @@ class KawaiiTheme {
   static const Color bg = Color(0xFFFFF9E8);        // crema
   static const Color accent = Color(0xFFFFE79A);    // amarillo pastel
   static const Color onAccent = Color(0xFF5B4E2F);  // marrón cálido
+  static const Color textDark = Color(0xFF6B4E16);  // marrón profundo para texto/iconos
   static const Color card = Colors.white;
   static const Color border = Color(0xFFD7C6A8);
 
@@ -122,6 +123,22 @@ class KawaiiTheme {
       popupMenuTheme: PopupMenuThemeData(
         color: card,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      ),
+
+      expansionTileTheme: ExpansionTileThemeData(
+        iconColor: textDark,
+        collapsedIconColor: textDark,
+        textColor: textDark,
+        collapsedTextColor: textDark,
+        backgroundColor: Colors.transparent,
+        collapsedBackgroundColor: Colors.transparent,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        collapsedShape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      ),
+
+      listTileTheme: const ListTileThemeData(
+        iconColor: textDark,
+        textColor: textDark,
       ),
 
       // Iconos
