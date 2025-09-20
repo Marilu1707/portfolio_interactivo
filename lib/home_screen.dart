@@ -54,6 +54,7 @@ class HomeDesktop extends StatelessWidget {
       body: SafeArea(
         child: LayoutBuilder(
           builder: (context, c) {
+            // Consideramos mobile si el ancho disponible es menor a 720 px.
             final isMobile = c.maxWidth < 720;
             return Center(
               child: ConstrainedBox(
@@ -61,20 +62,21 @@ class HomeDesktop extends StatelessWidget {
                 child: SingleChildScrollView(
                   padding: const EdgeInsets.all(16),
                   child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Hero
-                    Container(
-                      decoration: BoxDecoration(
-                          color: accent,
-                          borderRadius: BorderRadius.circular(20)),
-                      padding: const EdgeInsets.all(22),
-                      child: Builder(builder: (context) {
-                        final left = Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Text('👋 Hola, soy Marilú',
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Hero
+                      Container(
+                        decoration: BoxDecoration(
+                            color: accent,
+                            borderRadius: BorderRadius.circular(20)),
+                        padding: const EdgeInsets.all(22),
+                        child: Builder(builder: (context) {
+                          // Hero combinado: texto a la izquierda y personaje a la derecha.
+                          final left = Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text('👋 Hola, soy Marilú',
                                   style: TextStyle(
                                       fontSize: 40,
                                       fontWeight: FontWeight.w900,
@@ -141,6 +143,7 @@ class HomeDesktop extends StatelessWidget {
                       }),
                     ),
                     const SizedBox(height: 14),
+                    // Acciones principales debajo del hero.
                     Wrap(
                       spacing: 12,
                       runSpacing: 12,
@@ -263,6 +266,7 @@ class HomeDesktop extends StatelessWidget {
                     // Niveles
                     const _H3('🎮 Niveles'),
                     const SizedBox(height: 10),
+                    // Tarjetas con accesos a cada nivel gamificado.
                     Wrap(
                       spacing: 14,
                       runSpacing: 14,

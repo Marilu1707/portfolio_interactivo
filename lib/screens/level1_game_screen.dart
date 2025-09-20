@@ -22,6 +22,7 @@ class Level1GameScreen extends StatefulWidget {
 
 class _Level1GameScreenState extends State<Level1GameScreen>
     with SingleTickerProviderStateMixin {
+  // SingleTickerProvider permite animar el temporizador circular por pedido.
   static const Color bg = KawaiiTheme.bg;
   static const Color card = KawaiiTheme.card;
 
@@ -29,6 +30,7 @@ class _Level1GameScreenState extends State<Level1GameScreen>
   List<CheeseStat> stats = [];
   bool loading = true;
 
+  // Marcadores del juego en curso.
   int score = 0;
   int streak = 0;
   String? currentOrder;
@@ -47,7 +49,7 @@ class _Level1GameScreenState extends State<Level1GameScreen>
   Timer? _levelTimer;
   late int _secondsLeft;
 
-  // Timer por pedido
+  // Timer por pedido: anima de 0→1 y dispara timeout.
   late final AnimationController _orderTimer; // 0→1
   final Duration orderDuration = const Duration(seconds: 12);
 
@@ -55,6 +57,7 @@ class _Level1GameScreenState extends State<Level1GameScreen>
   void initState() {
     super.initState();
     _init();
+    // Cuenta regresiva global del nivel.
     _secondsLeft = _maxSeconds;
     _orderTimer = AnimationController(vsync: this, duration: orderDuration)
       ..addStatusListener((s) {
@@ -62,6 +65,7 @@ class _Level1GameScreenState extends State<Level1GameScreen>
           _onOrderTimeout();
         }
       });
+    // Timer global que controla el tiempo límite del nivel.
     _levelTimer = Timer.periodic(const Duration(seconds: 1), (t) {
       if (!mounted) return;
       setState(() => _secondsLeft--);
@@ -80,6 +84,7 @@ class _Level1GameScreenState extends State<Level1GameScreen>
 
   // Carga datos de referencia y arranca la primera orden
   Future<void> _init() async {
+    // Lee métricas históricas y ordena por participación para ponderar pedidos.
     final data = await DataService.loadCheeseStats();
     data.sort((a, b) => b.share.compareTo(a.share));
     setState(() {
@@ -90,6 +95,7 @@ class _Level1GameScreenState extends State<Level1GameScreen>
   }
 
   String _weightedOrder() {
+    // Suma total de participación para seleccionar un queso proporcionalmente.
     final total = stats.fold<double>(0, (a, b) => a + b.share);
     var r = _rng.nextDouble() * total;
     for (final s in stats) {
@@ -99,7 +105,7 @@ class _Level1GameScreenState extends State<Level1GameScreen>
     return stats.isNotEmpty ? stats.last.name : 'Mozzarella';
   }
 
-  // Selecciona el prÃ³ximo pedido (ponderado por share) y bucket A/B
+  // Selecciona el próximo pedido (ponderado por share) y bucket A/B
   void _nextOrder() {
     if (stats.isEmpty) return;
     setState(() {
@@ -112,6 +118,7 @@ class _Level1GameScreenState extends State<Level1GameScreen>
   }
 
   void _startOrderTimer() {
+    // Reinicia la animación para el temporizador circular.
     _orderTimer
       ..reset()
       ..forward();
@@ -124,14 +131,14 @@ class _Level1GameScreenState extends State<Level1GameScreen>
     final ordersState = context.read<OrdersState>();
 
     setState(() {
-      // penalización similar a fallo
+      // Penalización similar a fallo para no dejar pedidos sin atender.
       score = score > 0 ? score - 5 : 0;
       streak = 0;
       feedback = 'Tiempo agotado';
       currentOrder = null;
     });
 
-    // registrar demanda, reducir 1 unidad del pedido (desperdicio)
+    // Registrar demanda y reducir stock porque el pedido se desperdició.
     unawaited(ordersState.addRequest(orderNow));
     app.restock(orderNow, -1); // -1 unidad
 
@@ -163,6 +170,7 @@ class _Level1GameScreenState extends State<Level1GameScreen>
       return; // no evalúes el pedido
     }
 
+    // Continúa con la evaluación asíncrona del pedido.
     unawaited(_serve(cheese));
   }
 
@@ -172,6 +180,7 @@ class _Level1GameScreenState extends State<Level1GameScreen>
     final ordersState = context.read<OrdersState>();
 
     setState(() {
+      // Penaliza y pasa a la siguiente orden si no hay inventario.
       score = score > 0 ? score - 1 : 0;
       streak = 0;
       feedback = 'Sin stock de $cheese... -1';
@@ -188,6 +197,7 @@ class _Level1GameScreenState extends State<Level1GameScreen>
 
     unawaited(ordersState.addRequest(orderNow));
 
+    // Actualiza contadores globales de progreso.
     _orderCount++;
     _miss++;
 
@@ -221,6 +231,7 @@ class _Level1GameScreenState extends State<Level1GameScreen>
     final app = context.read<AppState>();
     final ordersState = context.read<OrdersState>();
 
+    // Guarda la jugada para estadísticas globales y experimento A/B.
     app.recordServe(
       order: orderNow,
       chosen: chosen,
@@ -249,7 +260,7 @@ class _Level1GameScreenState extends State<Level1GameScreen>
 
     
 
-    // Aprendizaje online (Nivel 4): registrar evento y actualizar modelo
+    // Aprendizaje online (Nivel 4): registrar evento y actualizar modelo.
     try {
       final elapsedMs = _orderStart == null
           ? 0.0
@@ -287,6 +298,7 @@ class _Level1GameScreenState extends State<Level1GameScreen>
   }
 
   void _finishLevel({required String reason}) {
+    // Detiene timers y muestra el resumen final.
     _orderTimer.stop();
     _levelTimer?.cancel();
     if (!mounted) return;
@@ -336,6 +348,7 @@ class _Level1GameScreenState extends State<Level1GameScreen>
   }
 
   void _restartLevel() {
+    // Reinicia puntuaciones y contadores para comenzar de cero.
     setState(() {
       score = 0;
       streak = 0;
@@ -364,6 +377,7 @@ class _Level1GameScreenState extends State<Level1GameScreen>
         ? 'Te faltan ${remainingOrders == 1 ? '1 pedido' : '$remainingOrders pedidos'} para desbloquear el Nivel 2.'
         : 'Completá las $_maxOrders órdenes para desbloquear el Nivel 2.';
 
+    // Contenedor principal del nivel con tablero, pedidos y acciones.
     return Scaffold(
       backgroundColor: bg,
       appBar: AppBar(
@@ -402,6 +416,7 @@ class _Level1GameScreenState extends State<Level1GameScreen>
                           ),
                         ),
                         const SizedBox(height: 12),
+                        // Estado rápido del nivel: orden actual, tiempo, score.
                         Wrap(
                           spacing: 12,
                           runSpacing: 12,
@@ -416,6 +431,7 @@ class _Level1GameScreenState extends State<Level1GameScreen>
                           ],
                         ),
                         const SizedBox(height: 16),
+                        // Muestra progreso global respecto a las 20 órdenes.
                         LinearProgressIndicator(
                           value: _orderCount / _maxOrders,
                           backgroundColor: Colors.brown.withValues(alpha: .1),
@@ -429,6 +445,7 @@ class _Level1GameScreenState extends State<Level1GameScreen>
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(18),
                           ),
+                          // Tarjeta principal del nivel con pedido activo.
                           child: Padding(
                             padding: const EdgeInsets.all(20),
                             child: Column(
@@ -498,6 +515,7 @@ class _Level1GameScreenState extends State<Level1GameScreen>
                           spacing: 8,
                           runSpacing: 8,
                           alignment: WrapAlignment.center,
+                          // Listado de opciones de queso a elegir.
                           children: kCheeses
                               .map((c) => _cheeseChip(context, appState, c.nombre))
                               .toList(),
@@ -539,6 +557,7 @@ class _Level1GameScreenState extends State<Level1GameScreen>
             ),
             if (!canProceed) ...[
               const SizedBox(height: 8),
+              // Texto de ayuda cuando todavía no se desbloqueó el siguiente nivel.
               Text(
                 lockedMessage,
                 textAlign: TextAlign.center,
@@ -553,6 +572,7 @@ class _Level1GameScreenState extends State<Level1GameScreen>
   }
 
   Widget _pill(String text) {
+    // Ficha visual reutilizable para mostrar métricas rápidas.
     return Container(
       height: 40,
       padding: const EdgeInsets.symmetric(horizontal: 14),
@@ -575,6 +595,7 @@ class _Level1GameScreenState extends State<Level1GameScreen>
     final outOfStock = app.isOutOfStock(cheese);
     final disabled = currentOrder == null || outOfStock;
     final border = Colors.brown.shade200.withValues(alpha: 0.6);
+    // Cada chip representa un queso servible desde el inventario.
     return ActionChip(
       label: Text(cheese,
           style:
@@ -596,6 +617,7 @@ class _Level1GameScreenState extends State<Level1GameScreen>
         final remaining = orderDuration * (1.0 - _orderTimer.value);
         final secs = (remaining.inMilliseconds / 1000).ceil();
         final color = secs <= 3 ? Colors.red : Colors.brown;
+        // Cabecera con temporizador regresivo y pedido actual.
         return Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [

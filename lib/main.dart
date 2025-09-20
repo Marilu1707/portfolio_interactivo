@@ -19,7 +19,9 @@ import 'state/orders_state.dart';
 import 'theme/kawaii_theme.dart';
 
 void main() {
+  // Asegura que el motor de Flutter esté listo antes de usar canales nativos.
   WidgetsFlutterBinding.ensureInitialized();
+  // Redirigimos los errores globales para imprimirlos en consola con stacktrace.
   FlutterError.onError = (details) {
     FlutterError.presentError(details);
     debugPrint('FLUTTER ERROR: ${details.exceptionAsString()}');
@@ -28,6 +30,7 @@ void main() {
     }
   };
   if (kIsWeb) {
+    // Usa rutas limpias sin hash cuando se ejecuta en navegador.
     setUrlStrategy(PathUrlStrategy());
   }
   runApp(const MyApp());
@@ -46,13 +49,16 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
+    // Pre-cargamos los servicios y estado global antes de construir la UI.
     _initFuture = _loadDependencies();
   }
 
   Future<_AppDependencies> _loadDependencies() async {
+    // Configura el locale por defecto para formatos y fechas.
     Intl.defaultLocale = 'es_AR';
     final seed = await DataService.loadInventory();
 
+    // Estados compartidos que se inyectarán con Provider.
     final appState = AppState()..initInventory(seed);
     final ordersState = OrdersState();
     await ordersState.load();
@@ -72,6 +78,7 @@ class _MyAppState extends State<MyApp> {
       future: _initFuture,
       builder: (context, snapshot) {
         if (snapshot.connectionState != ConnectionState.done) {
+          // Splash mínimo mientras se inicializa la aplicación.
           return const MaterialApp(
             debugShowCheckedModeBanner: false,
             home: Scaffold(
@@ -82,6 +89,7 @@ class _MyAppState extends State<MyApp> {
         }
 
         if (snapshot.hasError) {
+          // Mensaje de error amigable si falló la carga inicial.
           return MaterialApp(
             debugShowCheckedModeBanner: false,
             home: Scaffold(
@@ -101,6 +109,7 @@ class _MyAppState extends State<MyApp> {
         }
 
         final deps = snapshot.data!;
+        // Inyectamos los estados compartidos en el árbol de widgets.
         return MultiProvider(
           providers: [
             ChangeNotifierProvider.value(value: deps.appState),
@@ -157,6 +166,7 @@ class MariluApp extends StatelessWidget {
       ],
       builder: (context, child) {
         final media = MediaQuery.of(context);
+        // Limita la escala de texto del sistema para preservar el diseño.
         return MediaQuery(
           data: media.copyWith(
             textScaler:
@@ -166,6 +176,7 @@ class MariluApp extends StatelessWidget {
         );
       },
       title: 'Marilu - Ciencia de Datos',
+      // Evita el efecto glow de scroll en web/desktop.
       scrollBehavior: const _NoGlowScrollBehavior(),
       theme: KawaiiTheme.materialTheme(),
       initialRoute: '/',
@@ -194,6 +205,7 @@ class _NoGlowScrollBehavior extends ScrollBehavior {
     Widget child,
     ScrollableDetails details,
   ) {
+    // Devuelve el child directamente para eliminar la animación por defecto.
     return child;
   }
 }
