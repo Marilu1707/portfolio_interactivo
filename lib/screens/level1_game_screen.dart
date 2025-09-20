@@ -378,8 +378,8 @@ class _Level1GameScreenState extends State<Level1GameScreen>
     final canProceed = appState.level1Cleared;
     final remainingOrders = (_maxOrders - _orderCount).clamp(0, _maxOrders);
     final String lockedMessage = remainingOrders > 0
-        ? 'Te faltan ${remainingOrders == 1 ? '1 pedido' : '$remainingOrders pedidos'} para desbloquear el Inventario.'
-        : 'Completá las $_maxOrders órdenes para desbloquear el Inventario.';
+        ? 'Jugá ${remainingOrders == 1 ? '1 pedido más' : '$remainingOrders pedidos más'} para desbloquear el Inventario. Mientras tanto, revisá el resumen en la EDA.'
+        : 'Completá las $_maxOrders órdenes para habilitar el Inventario.';
     final orderDisplay = _orderCount + (currentOrder != null ? 1 : 0);
     final timeDisplay =
         '${(_secondsLeft ~/ 60).toString().padLeft(2, '0')}:${(_secondsLeft % 60).toString().padLeft(2, '0')}';
@@ -399,7 +399,7 @@ class _Level1GameScreenState extends State<Level1GameScreen>
       appBar: AppBar(
         backgroundColor: bg,
         elevation: 0,
-        title: const Text('Nivel 1 — Nido Mozzarella'),
+        title: const Text('Nido Mozzarella'),
         centerTitle: true,
       ),
       body: SafeArea(
@@ -454,15 +454,6 @@ class _Level1GameScreenState extends State<Level1GameScreen>
                             padding: const EdgeInsets.all(20),
                             child: Column(
                               children: [
-                                const Text(
-                                  'NIVEL 1',
-                                  style: TextStyle(
-                                    letterSpacing: 2,
-                                    color: Colors.brown,
-                                    fontWeight: FontWeight.w700,
-                                  ),
-                                ),
-                                const SizedBox(height: 6),
                                 const Text(
                                   'Nido Mozzarella',
                                   style: TextStyle(
@@ -552,19 +543,38 @@ class _Level1GameScreenState extends State<Level1GameScreen>
             SizedBox(
               height: 56,
               child: FilledButton.icon(
-                onPressed: canProceed
-                    ? () {
-                        context.read<AppState>().setLevelCompleted(1);
-                        Navigator.pushNamed(context, '/level3');
-                      }
-                    : null,
-                icon: const Icon(Icons.inventory_2_outlined),
-                label: const Text('Ir a Inventario'),
+                onPressed: () {
+                  context.read<AppState>().setLevelCompleted(1);
+                  if (canProceed) {
+                    Navigator.pushNamed(context, '/level3');
+                  } else {
+                    Navigator.pushNamed(context, '/level2');
+                  }
+                },
+                icon: Icon(
+                  canProceed
+                      ? Icons.inventory_2_outlined
+                      : Icons.assessment_outlined,
+                ),
+                label: Text(canProceed ? 'Ir a Inventario' : 'Ir al resumen'),
+                style: FilledButton.styleFrom(
+                  backgroundColor: canProceed
+                      ? Theme.of(context).colorScheme.primary
+                      : Theme.of(context)
+                          .colorScheme
+                          .surfaceVariant
+                          .withValues(alpha: 0.8),
+                  foregroundColor: canProceed
+                      ? Theme.of(context).colorScheme.onPrimary
+                      : Theme.of(context)
+                          .colorScheme
+                          .onSurface
+                          .withValues(alpha: 0.65),
+                ),
               ),
             ),
             if (!canProceed) ...[
               const SizedBox(height: 8),
-              // Texto de ayuda cuando todavía no se desbloqueó el siguiente nivel.
               Text(
                 lockedMessage,
                 textAlign: TextAlign.center,
@@ -585,31 +595,16 @@ class _Level1GameScreenState extends State<Level1GameScreen>
         final cards = stats
             .map((entry) => _statCard(context, entry.key, entry.value))
             .toList();
-        if (constraints.maxWidth >= 640) {
-          return Row(
-            children: [
-              for (final card in cards)
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 6),
-                    child: card,
-                  ),
-                ),
-            ],
-          );
-        }
-
-        final double maxWidth = constraints.maxWidth;
-        final double base =
-            maxWidth >= 360 ? (maxWidth - 12) / 2 : maxWidth;
-        final double tileWidth = maxWidth < 160
-            ? maxWidth
-            : base.clamp(160.0, maxWidth).toDouble();
+        final spacing = 12.0;
+        final available = constraints.maxWidth;
+        final columns = available >= 640 ? 4 : 2;
+        final tileWidth =
+            ((available - spacing * (columns - 1)) / columns).clamp(140.0, available);
 
         return Wrap(
-          spacing: 12,
-          runSpacing: 12,
-          alignment: WrapAlignment.center,
+          spacing: spacing,
+          runSpacing: spacing,
+          alignment: WrapAlignment.start,
           children: cards
               .map((card) => SizedBox(width: tileWidth, child: card))
               .toList(),
@@ -695,10 +690,12 @@ class _Level1GameScreenState extends State<Level1GameScreen>
         cheese,
         style: TextStyle(fontWeight: FontWeight.w700, color: textColor),
       ),
-      avatar: Icon(
-        outOfStock ? Icons.remove_circle_outline : Icons.location_on,
-        size: 16,
-        color: iconColor,
+      avatar: Text(
+        '🧀',
+        style: TextStyle(
+          fontSize: 16,
+          color: iconColor,
+        ),
       ),
       onPressed: disabled ? null : () => _onPickCheese(context, cheese),
       backgroundColor: bgColor,
