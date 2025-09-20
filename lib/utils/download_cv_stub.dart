@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import '../utils/kawaii_toast.dart';
+import '../utils/game_popup.dart';
 
 Future<void> descargarCV(BuildContext context) async {
-  KawaiiToast.warn('Descarga no soportada en esta plataforma.');
+  GamePopup.show(context, 'Descarga no soportada en esta plataforma.',
+      color: Colors.orange, icon: Icons.warning_amber_rounded);
 }

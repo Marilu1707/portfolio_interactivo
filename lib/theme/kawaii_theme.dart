@@ -75,11 +75,11 @@ class KawaiiTheme {
       // Chips
       chipTheme: base.chipTheme.copyWith(
         backgroundColor: card,
-        side: BorderSide(color: Colors.brown.shade200.withOpacity(0.5)),
+        side: BorderSide(color: Colors.brown.shade200.withValues(alpha: 0.5)),
         selectedColor: accent,
         labelStyle: const TextStyle(color: Colors.brown, fontWeight: FontWeight.w600),
         shape: StadiumBorder(
-          side: BorderSide(color: Colors.brown.shade200.withOpacity(0.5)),
+          side: BorderSide(color: Colors.brown.shade200.withValues(alpha: 0.5)),
         ),
       ),
 
@@ -135,7 +135,7 @@ class KawaiiTheme {
   static double tScale(BuildContext c) {
     final w = MediaQuery.of(c).size.width;
     final s = (w / 375).clamp(0.9, 1.15);
-    return s is num ? s.toDouble() : 1.0;
+    return s.toDouble();
   }
 
   // Spacing tokens (adaptive)

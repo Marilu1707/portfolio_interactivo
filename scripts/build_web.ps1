@@ -40,12 +40,6 @@ if (Test-Path 'build/web/flutter_service_worker.js') {
   Remove-Item 'build/web/flutter_service_worker.js' -Force
 }
 
-# Ensure vercel.json is present inside build/web when using Root Directory = build/web
-if (Test-Path 'vercel.json') {
-  Write-Step 'Copying vercel.json into build/web'
-  Copy-Item 'vercel.json' 'build/web/vercel.json' -Force
-}
-
 Write-Info 'Done. Output in build/web'
 
 Write-Host "Note: On Windows, enable Developer Mode (Settings > Privacy & security > For developers) for symlink support required by Flutter plugins." -ForegroundColor DarkGray

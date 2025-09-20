@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+// import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-import '../utils/kawaii_toast.dart';
+import '../utils/game_popup.dart';
 
 import '../state/app_state.dart';
 import '../services/ml_service.dart';
@@ -17,14 +18,6 @@ class Level4MlPredictionScreen extends StatefulWidget {
 }
 
 class _Level4MlPredictionScreenState extends State<Level4MlPredictionScreen> {
-  static const ordenQuesos = <String>[
-    'Mozzarella',
-    'Cheddar',
-    'Parmesano',
-    'Gouda',
-    'Brie',
-    'Azul'
-  ];
 
   // Features controlados desde la UI
   double racha = 2;
@@ -36,6 +29,7 @@ class _Level4MlPredictionScreenState extends State<Level4MlPredictionScreen> {
   double? probPredicha;
   String? textoSugerencia;
   String? quesoSugerido;
+  Map<String, double> _lastContribs = const {};
 
   @override
   void initState() {
@@ -63,6 +57,29 @@ class _Level4MlPredictionScreenState extends State<Level4MlPredictionScreen> {
       probPredicha = p;
       textoSugerencia =
           'Sugerencia: ofrecé $sugerido (p≈${(p * 100).toStringAsFixed(1)}%).';
+      // Contribuciones explicativas simples (no afectan el modelo real)
+      const betas = <String, double>{
+        'bias': -0.2,
+        'racha': 0.15,
+        'tiempo': 0.02,
+        'hora': -0.03,
+        'stock': 0.25,
+        'mozzarella': 0.02,
+        'cheddar': 0.10,
+        'parmesano': 0.08,
+        'gouda': 0.05,
+        'brie': -0.04,
+        'azul': -0.06,
+      };
+      final cheeseKey = sugerido.toLowerCase();
+      _lastContribs = <String, double>{
+        'Sesgo (base)': betas['bias']!,
+        'Racha': (racha.toInt()).toDouble() * betas['racha']!,
+        'Tiempo de juego (ms)': tiempoMs * betas['tiempo']!,
+        'Hora del día': hora.toDouble() * betas['hora']!,
+        'Stock visible': stockProm * betas['stock']!,
+        'Queso: $sugerido': betas[cheeseKey] ?? 0.0,
+      };
     });
   }
 
@@ -95,6 +112,7 @@ class _Level4MlPredictionScreenState extends State<Level4MlPredictionScreen> {
         : _AprenderCard(
             texto: '¿Cómo salió la última sugerencia ($quesoSugerido)?',
             onAprender: (ok) async {
+              final ctx = context; // cache BuildContext for proper guard
               await MlService.instance.learn(
                 streak: racha.toInt(),
                 avgMs: tiempoMs,
@@ -104,19 +122,16 @@ class _Level4MlPredictionScreenState extends State<Level4MlPredictionScreen> {
                 converted: ok ? 1 : 0,
                 wastePenalty: !ok,
               );
-              if (!mounted) return;
+              if (!ctx.mounted) return;
               if (ok) {
-                KawaiiToast.success('🧀 Aprendido: conversión con $quesoSugerido');
+                GamePopup.show(ctx,
+                    '🧀 Aprendido: conversión con $quesoSugerido',
+                    color: Colors.green, icon: Icons.check_circle, success: true);
               } else {
-                KawaiiToast.warn('Aprendido: no convirtió con $quesoSugerido');
+                GamePopup.show(ctx,
+                    'Aprendido: no convirtió con $quesoSugerido',
+                    color: Colors.orange, icon: Icons.warning_amber_rounded, success: false);
               }
-              return;
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                    content: Text(ok
-                        ? '✓ Aprendido: conversión con $quesoSugerido'
-                        : '× Aprendido: no convirtió con $quesoSugerido')),
-              );
             },
           );
 
@@ -124,17 +139,39 @@ class _Level4MlPredictionScreenState extends State<Level4MlPredictionScreen> {
       appBar: AppBar(
         title: const Text('Nivel 4 — Predicción ML (online)'),
         centerTitle: true,
+        actions: [
+          IconButton(
+            tooltip: '¿Cómo funciona?',
+            icon: const Icon(Icons.help_outline),
+            onPressed: () => _showHowItWorks(context),
+          ),
+        ],
       ),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
           child: isMobile
               ? Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
+                    Text(
+                      'Ajustá los sliders y tocá “Predecir”. El modelo sugiere qué queso ofrecer ahora.',
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ),
+                    const SizedBox(height: 12),
                     params,
                     const SizedBox(height: 12),
                     result,
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: TextButton.icon(
+                        onPressed: (_lastContribs.isEmpty || probPredicha == null)
+                            ? null
+                            : () => _showReasons(context, _lastContribs, probPredicha ?? 0),
+                        icon: const Icon(Icons.insights_outlined),
+                        label: const Text('Motivos de esta predicción'),
+                      ),
+                    ),
                     const SizedBox(height: 12),
                     aprender
                   ],
@@ -149,6 +186,16 @@ class _Level4MlPredictionScreenState extends State<Level4MlPredictionScreen> {
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
                           result,
+                          Align(
+                            alignment: Alignment.centerLeft,
+                            child: TextButton.icon(
+                              onPressed: (_lastContribs.isEmpty || probPredicha == null)
+                                  ? null
+                                  : () => _showReasons(context, _lastContribs, probPredicha ?? 0),
+                              icon: const Icon(Icons.insights_outlined),
+                              label: const Text('Motivos de esta predicción'),
+                            ),
+                          ),
                           const SizedBox(height: 12),
                           aprender
                         ],
@@ -158,8 +205,8 @@ class _Level4MlPredictionScreenState extends State<Level4MlPredictionScreen> {
                 ),
         ),
       ),
-      bottomNavigationBar: Padding(
-        padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+      bottomNavigationBar: SafeArea(
+        minimum: const EdgeInsets.fromLTRB(16, 8, 16, 16),
         child: SizedBox(
           height: 54,
           child: FilledButton.icon(
@@ -186,14 +233,7 @@ class _ParametrosCard extends StatelessWidget {
   final ValueChanged<double> onStock;
   final VoidCallback onPredecir;
 
-  static const _quesos = <String>[
-    'Mozzarella',
-    'Cheddar',
-    'Parmesano',
-    'Gouda',
-    'Brie',
-    'Azul'
-  ];
+  // Lista de quesos removida por no usarse aquí (evita warnings).
 
   const _ParametrosCard({
     required this.racha,
@@ -277,7 +317,7 @@ class _ParametrosCard extends StatelessWidget {
 class _ResultadoCard extends StatelessWidget {
   final double? probPredicha;
   final String? sugerencia;
-
+ 
   const _ResultadoCard({
     required this.probPredicha,
     required this.sugerencia,
@@ -396,4 +436,171 @@ class _AprenderCard extends StatelessWidget {
       ),
     );
   }
+}
+
+// Bullets helper
+class _Bullet extends StatelessWidget {
+  final String text;
+  const _Bullet(this.text);
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 3),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text('•  '),
+          Expanded(child: Text(text)),
+        ],
+      ),
+    );
+  }
+}
+
+void _showHowItWorks(BuildContext context) {
+  showModalBottomSheet(
+    context: context,
+    showDragHandle: true,
+    isScrollControlled: true,
+    builder: (c) => SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: const [
+              Text('¿Qué hace este modelo?',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              SizedBox(height: 8),
+              Text(
+                'Predice la probabilidad de conversión ahora mismo y sugiere el queso con mayor probabilidad.',
+              ),
+              SizedBox(height: 12),
+              Text('Cómo funciona:', style: TextStyle(fontWeight: FontWeight.w600)),
+              _Bullet('Modelo: regresión logística online (aprende en tiempo real).'),
+              _Bullet('Features: racha, tiempo de juego, queso actual, hora del día, stock visible.'),
+              _Bullet('Salida: probabilidad entre 0–100% y recomendación del queso con p más alta.'),
+              _Bullet('Actualización: cada vez que marcás “Convirtió/No convirtió”, el modelo se recalibra.'),
+              SizedBox(height: 12),
+              Text('Interpretación:', style: TextStyle(fontWeight: FontWeight.w600)),
+              _Bullet('Si p≥50% no garantiza venta, solo indica mayor probabilidad que el azar.'),
+              _Bullet('Úsalo para priorizar — no reemplaza criterio humano.'),
+              SizedBox(height: 12),
+              Text('Limitaciones:', style: TextStyle(fontWeight: FontWeight.w600)),
+              _Bullet('Al inicio sabe poco: necesita feedback para mejorar.'),
+              _Bullet('Sesgos si los datos de entrada son poco variados.'),
+            ],
+          ),
+        ),
+      ),
+    ),
+  );
+}
+
+void _showReasons(BuildContext context, Map<String, double> contribs, double p) {
+  final absSum = contribs.values.map((e) => e.abs()).fold<double>(0, (a, b) => a + b);
+  final normalized = <String, double>{
+    for (final e in contribs.entries) e.key: (absSum == 0 ? 0 : (e.value / absSum) * 100),
+  };
+  final items = normalized.entries.toList()
+    ..sort((a, b) => b.value.abs().compareTo(a.value.abs()));
+
+  showModalBottomSheet(
+    context: context,
+    showDragHandle: true,
+    isScrollControlled: true,
+    builder: (c) {
+      final theme = Theme.of(c);
+      return SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('Motivos de esta predicción', style: theme.textTheme.titleLarge),
+              const SizedBox(height: 4),
+              Text('p ≈ ${(p * 100).toStringAsFixed(1)} % — aportes relativos por variable (positivos ayudan, negativos restan).'),
+              const SizedBox(height: 12),
+              Flexible(
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: items.map((e) {
+                      final sign = e.value >= 0 ? 1.0 : -1.0;
+                      final width = e.value.abs().clamp(0, 100);
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 6),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(e.key, style: theme.textTheme.bodyMedium),
+                                  const SizedBox(height: 6),
+                                  ClipRRect(
+                                    borderRadius: BorderRadius.circular(8),
+                                    child: Stack(
+                                      children: [
+                                        Container(height: 10, color: theme.colorScheme.surfaceContainerHighest),
+                                        LayoutBuilder(
+                                          builder: (ctx, cons) {
+                                            final half = cons.maxWidth / 2;
+                                            final barW = (width / 100.0) * half;
+                                            return Stack(children: [
+                                              Positioned(
+                                                left: sign > 0 ? half : (half - barW),
+                                                width: barW,
+                                                height: 10,
+                                                child: Container(
+                                                  decoration: BoxDecoration(
+                                                    color: sign > 0
+                                                        ? theme.colorScheme.primary.withValues(alpha: .75)
+                                                        : theme.colorScheme.error.withValues(alpha: .75),
+                                                  ),
+                                                ),
+                                              ),
+                                              Positioned(
+                                                left: half - 1,
+                                                right: half - 1,
+                                                height: 10,
+                                                child: Container(width: 2, color: theme.colorScheme.outlineVariant),
+                                              ),
+                                            ]);
+                                          },
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            SizedBox(
+                              width: 56,
+                              child: Text(
+                                '${e.value >= 0 ? '+' : '-'}${e.value.abs().toStringAsFixed(1)}%',
+                                textAlign: TextAlign.right,
+                                style: theme.textTheme.labelMedium,
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 12),
+              FilledButton.icon(
+                onPressed: () => Navigator.pop(c),
+                icon: const Icon(Icons.check),
+                label: const Text('Listo'),
+              ),
+            ],
+          ),
+        ),
+      );
+    },
+  );
 }

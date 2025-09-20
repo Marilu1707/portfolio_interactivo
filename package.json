@@ -1,0 +1,7 @@
+{
+  "name": "marilu_portfolio_web_deploy",
+  "private": true,
+  "scripts": {
+    "build": "flutter build web --release"
+  }
+}

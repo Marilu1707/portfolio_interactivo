@@ -8,7 +8,7 @@ Cada nivel es una metáfora de cómo aplico el ciclo completo de análisis de da
 ---
 
 ## 🌟 Demo
-👉 (acá podés poner el link cuando lo deployes en GitHub Pages, Vercel o Netlify)
+👉 [marilu-portfolio.vercel.app](https://marilu-portfolio.vercel.app/)
 
 ---
 
@@ -78,6 +78,62 @@ Para compilar la versión web:
 ```bash
 flutter build web
 ```
+
+---
+
+## 🚀 Deploy en Vercel
+
+> ✅ Requisitos previos: tener [Flutter](https://docs.flutter.dev/get-started/install) instalado localmente y una cuenta en [Vercel](https://vercel.com/).
+
+1. **Preparar el build estático local** (lo publicamos tal cual en Vercel):
+
+   ```bash
+   flutter clean
+   flutter pub get
+   flutter build web --release
+   ```
+
+   El build queda en `build/web` y respeta el `<base href="/">` necesario para que el routing funcione en cualquier host.
+
+2. **Configurar el proyecto para Vercel** (ya incluido en este repo):
+   - `vercel.json` publica todo `build/web/**` como archivos estáticos.
+   - Agregamos una regla de _rewrite_ `/(.*) -> /index.html` para que Flutter Web cargue aun si refrescás rutas internas.
+   - `.gitignore` permite versionar `build/web` (ideal si deployás desde GitHub, sin reconstruir en Vercel).
+
+3. **Conectar el repositorio desde el Dashboard de Vercel**:
+   1. `New Project → Import Git Repository`.
+   2. Elegí `marilu_portfolio`.
+   3. `Framework preset`: **Other** / **Static Files**.
+   4. `Build Command`: `flutter clean && flutter pub get && flutter build web --release` (o dejalo vacío si vas a subir el build generado localmente).
+   5. `Output Directory`: `build/web`.
+   6. `Install Command`: vacío o `echo "skip"`.
+   7. Deploy. Si Vercel no encuentra Flutter, pasá al punto siguiente.
+
+4. **Deploy con CLI (recomendado para entornos sin Flutter preinstalado)**:
+
+   ```bash
+   npm install -g vercel
+   rm -rf .vercel
+   vercel link
+   vercel pull --yes --environment=production
+
+   flutter clean
+   flutter pub get
+   flutter build web --release
+
+   vercel deploy build/web --prod --yes
+   ```
+
+   Este flujo genera el build en tu máquina y sube la carpeta lista a Vercel (evita pantallas en blanco por builds incompletos).
+
+5. **Automatizar con GitHub Actions (opcional)**: creá `.github/workflows/deploy-vercel.yml` y cargá los secrets `VERCEL_TOKEN`, `VERCEL_ORG_ID`, `VERCEL_PROJECT_ID`. El workflow compila con Flutter estable y publica `build/web` en cada push a `main`.
+
+📌 Si ves pantalla en blanco asegurate de:
+
+- Tener `vercel.json` en la raíz del repo.
+- Publicar la carpeta `build/web` correcta.
+- Mantener `<base href="/">` en `web/index.html`.
+- Limpiar configuraciones viejas: `rm -rf .vercel && vercel link && vercel pull`.
 
 ---
 

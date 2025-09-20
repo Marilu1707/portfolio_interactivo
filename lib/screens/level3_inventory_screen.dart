@@ -5,7 +5,7 @@ import '../widgets/inventory_mouse.dart';
 import '../models/inventory_item.dart';
 import '../theme/kawaii_theme.dart';
 import '../state/app_state.dart';
-import '../utils/kawaii_toast.dart';
+import '../utils/game_popup.dart';
 
 // Pantalla Nivel 3 (Inventario): muestra stock por queso y permite reponer.
 class Level3InventoryScreen extends StatefulWidget {
@@ -27,16 +27,12 @@ class _Level3InventoryScreenState extends State<Level3InventoryScreen> {
   void _addOneToast(AppState app, InventoryItem row, int qty) {
     app.restock(row.name, qty);
     final plural = qty > 1 ? 's' : '';
-    KawaiiToast.success('🧀 Se agregaron $qty unidad$plural de ${row.name} (stock: ${row.stock})');
+    GamePopup.show(context,
+        '🧀 +$qty unidad$plural de ${row.name} (stock: ${row.stock})',
+        color: Colors.green, icon: Icons.check_circle);
   }
 
-  // Suma unidades al stock del queso seleccionado y muestra SnackBar.
-  void _addOne(AppState app, InventoryItem row, int qty) {
-    app.restock(row.name, qty);
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Se agregó $qty unidad${qty > 1 ? 'es' : ''} de ${row.name} (stock: ${row.stock})')),
-    );
-  }
+  // (Método _addOne removido; se usa _addOneToast con GamePopup)
 
   void _scrollToFirstLow(List<InventoryItem> rows) {
     final low = rows.where((e) => e.stock <= 5).toList();
@@ -108,12 +104,17 @@ class _Level3InventoryScreenState extends State<Level3InventoryScreen> {
                   child: LayoutBuilder(
                     builder: (context, c) {
                       final isMobile = MediaQuery.of(context).size.width <= 600;
-                      final table = Container(
+                      final table = MediaQuery(
+                        data: MediaQuery.of(context).copyWith(
+                          // Evita que Android aplique escalado grande y rompa DataTable
+                          textScaler: const TextScaler.linear(1.0),
+                        ),
+                        child: Container(
                         decoration: BoxDecoration(
                           color: card,
                           borderRadius: BorderRadius.circular(18),
                           boxShadow: [
-                            BoxShadow(color: Colors.black.withOpacity(0.06), blurRadius: 10, offset: const Offset(0, 4)),
+                            BoxShadow(color: Colors.black.withValues(alpha: 0.06), blurRadius: 10, offset: const Offset(0, 4)),
                           ],
                         ),
                         padding: const EdgeInsets.fromLTRB(12, 6, 12, 12),
@@ -122,9 +123,8 @@ class _Level3InventoryScreenState extends State<Level3InventoryScreen> {
                             scrollDirection: Axis.horizontal,
                             child: DataTable(
                               headingRowHeight: 44,
-                              dataRowMinHeight: 56,
-                              dataRowMaxHeight: 64,
-                              headingTextStyle: const TextStyle(fontWeight: FontWeight.w800, color: Colors.black87),
+                              dataRowMinHeight: 60,
+                              dataRowMaxHeight: 68,
                               columns: const [
                                 DataColumn(label: Text('Nombre')),
                                 DataColumn(label: Text('Stock')),
@@ -134,7 +134,7 @@ class _Level3InventoryScreenState extends State<Level3InventoryScreen> {
                               ],
                               rows: rows.map((r) => DataRow(cells: [
                                 DataCell(SizedBox(width: 220, child: Text(r.name, softWrap: true, style: const TextStyle(fontWeight: FontWeight.w700)))),
-                                DataCell(Text(nf.format(r.stock))),
+                                DataCell(Align(alignment: Alignment.centerRight, child: _StockBadgeSmall(value: r.stock))),
                                 DataCell(Text(df.format(r.expiry))),
                                 DataCell(SizedBox(width: 32, child: Align(alignment: Alignment.centerLeft, child: StockStatusDot(stock: r.stock)))) ,
                                 DataCell(SizedBox(
@@ -142,22 +142,36 @@ class _Level3InventoryScreenState extends State<Level3InventoryScreen> {
                                   child: Row(
                                     mainAxisAlignment: MainAxisAlignment.end,
                                     children: [
-                                      OutlinedButton(
-                                        onPressed: () => _addOneToast(app, r, 1),
-                                        style: OutlinedButton.styleFrom(
-                                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                                          minimumSize: const Size(0, 40),
+                                      Tooltip(
+                                        message: 'Agregar 1',
+                                        child: Semantics(
+                                          button: true,
+                                          label: 'Agregar una unidad',
+                                          child: OutlinedButton(
+                                            onPressed: () => _addOneToast(app, r, 1),
+                                            style: OutlinedButton.styleFrom(
+                                              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                                              minimumSize: const Size(0, 48),
+                                            ),
+                                            child: const Text('Agregar'),
+                                          ),
                                         ),
-                                        child: const Text('Agregar'),
                                       ),
                                       const SizedBox(width: 8),
-                                      OutlinedButton(
-                                        onPressed: () => _addOneToast(app, r, 5),
-                                        style: OutlinedButton.styleFrom(
-                                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                                          minimumSize: const Size(0, 40),
+                                      Tooltip(
+                                        message: 'Agregar 5',
+                                        child: Semantics(
+                                          button: true,
+                                          label: 'Agregar cinco unidades',
+                                          child: OutlinedButton(
+                                            onPressed: () => _addOneToast(app, r, 5),
+                                            style: OutlinedButton.styleFrom(
+                                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                                              minimumSize: const Size(0, 48),
+                                            ),
+                                            child: const Text('+5'),
+                                          ),
                                         ),
-                                        child: const Text('+5'),
                                       ),
                                     ],
                                   ),
@@ -166,7 +180,8 @@ class _Level3InventoryScreenState extends State<Level3InventoryScreen> {
                             ),
                           ),
                         ),
-                      );
+                      ),
+                    );
                       if (!isMobile) return table;
 
                       // Mobile: list of row-cards
@@ -179,37 +194,87 @@ class _Level3InventoryScreenState extends State<Level3InventoryScreen> {
                           _rowKeys.putIfAbsent(r.name, () => GlobalKey());
                           return KeyedSubtree(
                             key: _rowKeys[r.name],
-                            child: Container(
-                              margin: const EdgeInsets.symmetric(vertical: 6),
-                              decoration: BoxDecoration(
-                                color: card,
-                                borderRadius: BorderRadius.circular(16),
-                                boxShadow: [
-                                  BoxShadow(color: Colors.black.withOpacity(0.06), blurRadius: 10, offset: const Offset(0, 4)),
-                                ],
-                              ),
-                              padding: const EdgeInsets.all(12),
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  Expanded(child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text(r.name, style: const TextStyle(fontWeight: FontWeight.w700)),
-                                      const SizedBox(height: 4),
-                                      Text('Caduca: ' + df.format(r.expiry), style: const TextStyle(fontSize: 12)),
+                            child: Stack(
+                              children: [
+                                // Card principal
+                                Container(
+                                  margin: const EdgeInsets.symmetric(vertical: 6),
+                                  decoration: BoxDecoration(
+                                    color: card,
+                                    borderRadius: BorderRadius.circular(16),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.black.withValues(alpha: 0.06),
+                                        blurRadius: 10,
+                                        offset: const Offset(0, 4),
+                                      ),
                                     ],
-                                  )),
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(horizontal: 8),
-                                    child: StockStatusDot(stock: r.stock),
                                   ),
-                                  Wrap(spacing: 8, children: [
-                                    OutlinedButton(onPressed: () => _addOneToast(app, r, 1), child: const Text('Agregar')),
-                                    OutlinedButton(onPressed: () => _addOneToast(app, r, 5), child: const Text('+5')),
-                                  ]),
-                                ],
-                              ),
+                                  padding: const EdgeInsets.all(12),
+                                  child: Row(
+                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                    children: [
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              r.name,
+                                              style: const TextStyle(fontWeight: FontWeight.w700),
+                                              maxLines: 2,
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                            const SizedBox(height: 4),
+                                            Text(
+                                              'Caduca: ${df.format(r.expiry)}',
+                                              style: const TextStyle(fontSize: 12),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      _buildTrailing(
+                                        stock: r.stock,
+                                        onAddOne: () => _addOneToast(app, r, 1),
+                                        onAddFive: () => _addOneToast(app, r, 5),
+                                        dotColor: _statusColor(r.stock),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                // Badge de stock siempre visible (accesible)
+                                Positioned(
+                                  top: 8,
+                                  right: 8,
+                                  child: Semantics(
+                                    label: 'Stock: ${r.stock} unidades',
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 10,
+                                        vertical: 6,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .primary
+                                            .withValues(alpha: 0.10),
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                      child: Text(
+                                        'Stock: ${r.stock}',
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .labelLarge
+                                            ?.copyWith(
+                                              color: Theme.of(context)
+                                                  .colorScheme
+                                                  .primary,
+                                              fontWeight: FontWeight.w700,
+                                            ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
                           );
                         },
@@ -284,5 +349,169 @@ class _LegendDot extends StatelessWidget {
     );
   }
 }
+
+
+class _StockDot extends StatelessWidget {
+  final Color color;
+  const _StockDot({required this.color});
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      label: 'Estado de stock',
+      child: Container(
+        width: 12,
+        height: 12,
+        decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+      ),
+    );
+  }
+}
+
+  // Color para estado de stock
+  Color _statusColor(int stock) {
+    if (stock <= 0) return Colors.red;
+    if (stock <= 5) return Colors.orange;
+    return Colors.green;
+  }
+
+  // Trailing responsive: muestra siempre stock y botones
+  Widget _buildTrailing({
+    required int stock,
+    required VoidCallback onAddOne,
+    required VoidCallback onAddFive,
+    required Color dotColor,
+  }) {
+    return LayoutBuilder(
+      builder: (context, cons) {
+        final isTight = cons.maxWidth < 180 || MediaQuery.of(context).size.width < 380;
+        if (isTight) {
+          return Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Tooltip(
+                    message: 'Agregar 1',
+                    child: Semantics(
+                      button: true,
+                      label: 'Agregar una unidad',
+                      child: OutlinedButton(
+                        onPressed: onAddOne,
+                        style: OutlinedButton.styleFrom(
+                          minimumSize: const Size(48, 48),
+                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                        ),
+                        child: const Text('Agregar'),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Tooltip(
+                    message: 'Agregar 5',
+                    child: Semantics(
+                      button: true,
+                      label: 'Agregar cinco unidades',
+                      child: OutlinedButton(
+                        onPressed: onAddFive,
+                        style: OutlinedButton.styleFrom(
+                          minimumSize: const Size(48, 48),
+                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                        ),
+                        child: const Text('+5'),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 6),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  _StockDot(color: dotColor),
+                  const SizedBox(width: 6),
+                  Text('Stock: $stock', style: Theme.of(context).textTheme.labelMedium),
+                ],
+              ),
+            ],
+          );
+        }
+
+        return Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _StockDot(color: dotColor),
+            const SizedBox(width: 8),
+            Text('Stock: $stock', style: Theme.of(context).textTheme.labelMedium),
+            const SizedBox(width: 12),
+            Tooltip(
+              message: 'Agregar 1',
+              child: Semantics(
+                button: true,
+                label: 'Agregar una unidad',
+                child: OutlinedButton(
+                  onPressed: onAddOne,
+                  style: OutlinedButton.styleFrom(
+                    minimumSize: const Size(48, 48),
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                  ),
+                  child: const Text('Agregar'),
+                ),
+              ),
+            ),
+            const SizedBox(width: 8),
+            Tooltip(
+              message: 'Agregar 5',
+              child: Semantics(
+                button: true,
+                label: 'Agregar cinco unidades',
+                child: OutlinedButton(
+                  onPressed: onAddFive,
+                  style: OutlinedButton.styleFrom(
+                    minimumSize: const Size(48, 48),
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                  ),
+                  child: const Text('+5'),
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+
+class _StockBadgeSmall extends StatelessWidget {
+  final int value;
+  const _StockBadgeSmall({required this.value});
+  Color get _color {
+    if (value <= 0) return Colors.red;
+    if (value <= 5) return Colors.orange;
+    return Colors.green;
+  }
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      decoration: BoxDecoration(
+        color: _color.withValues(alpha: .12),
+        borderRadius: BorderRadius.circular(999),
+        border: Border.all(color: _color.withValues(alpha: .5)),
+      ),
+      child: Text(
+        '$value',
+        style: TextStyle(
+          fontWeight: FontWeight.w800,
+          color: _color,
+          fontSize: 14,
+        ),
+      ),
+    );
+  }
+}
+
+// (removido: _StockBadgeLarge no se usa)
 
 

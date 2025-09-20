@@ -6,6 +6,7 @@ import '../services/data_service.dart';
 import '../models/cheese_stat.dart';
 import '../state/app_state.dart';
 import '../state/ab_result_state.dart';
+import '../state/orders_state.dart';
 
 class Level5DashboardScreen extends StatefulWidget {
   const Level5DashboardScreen({super.key});
@@ -75,7 +76,7 @@ class _Level5DashboardScreenState extends State<Level5DashboardScreen> {
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
                           // Header compacto
-                          KawaiiCard(
+                          kawaiiCard(
                             child: Row(
                               children: [
                                 const Expanded(
@@ -132,11 +133,24 @@ class _Level5DashboardScreenState extends State<Level5DashboardScreen> {
 
                           const SizedBox(height: 24),
 
+                          // Pedidos vs Servidos (cumplimiento)
+                          Builder(builder: (context) {
+                            final orders = context.watch<OrdersState>();
+                            return kawaiiCard(
+                              child: _DemandVsServed(
+                                requested: orders.requestedByCheese,
+                                served: orders.servedByCheese,
+                              ),
+                            );
+                          }),
+
+                          const SizedBox(height: 24),
+
                           // Último A/B (si hay)
                           Builder(builder: (context) {
                             final ab = context.watch<ABResultState?>()?.last;
                             if (ab == null) return const SizedBox.shrink();
-                            return KawaiiCard(
+                            return kawaiiCard(
                               child: ListTile(
                                 leading: const Icon(Icons.science),
                                 title: const Text('Último A/B Test'),
@@ -156,7 +170,7 @@ class _Level5DashboardScreenState extends State<Level5DashboardScreen> {
                             children: [
                               SizedBox(
                                 width: isWide ? (cons.maxWidth - 24) * .6 : cons.maxWidth,
-                                child: KawaiiCard(
+                                child: kawaiiCard(
                                   child: Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
@@ -170,7 +184,7 @@ class _Level5DashboardScreenState extends State<Level5DashboardScreen> {
                               ),
                               SizedBox(
                                 width: isWide ? (cons.maxWidth - 24) * .38 : cons.maxWidth,
-                                child: KawaiiCard(
+                                child: kawaiiCard(
                                   child: Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
@@ -188,7 +202,7 @@ class _Level5DashboardScreenState extends State<Level5DashboardScreen> {
                           const SizedBox(height: 24),
 
                           // Insights
-                          KawaiiCard(
+                          kawaiiCard(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
@@ -242,13 +256,13 @@ class _Level5DashboardScreenState extends State<Level5DashboardScreen> {
 }
 
 // Card base kawaii pro
-Widget KawaiiCard({required Widget child}) => Container(
+Widget kawaiiCard({required Widget child}) => Container(
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(.92),
+        color: Colors.white.withValues(alpha: .92),
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-              color: Colors.brown.withOpacity(.08),
+              color: Colors.brown.withValues(alpha: .08),
               blurRadius: 12,
               offset: const Offset(0, 6)),
         ],
@@ -266,7 +280,7 @@ class KpiTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return KawaiiCard(
+    return kawaiiCard(
       child: Row(
         children: [
           Container(
@@ -314,7 +328,7 @@ class _Bars extends StatelessWidget {
             : fallback
                 .firstWhere(
                   (e) => e.name == q,
-                  orElse: () => const CheeseStat(name: q, share: 0),
+                  orElse: () => CheeseStat(name: q, share: 0),
                 )
                 .share
                 .round())
@@ -335,7 +349,7 @@ class _Bars extends StatelessWidget {
             show: true,
             drawVerticalLine: false,
             getDrawingHorizontalLine: (v) => FlLine(
-              color: Theme.of(context).dividerColor.withOpacity(0.12),
+              color: Theme.of(context).dividerColor.withValues(alpha: 0.12),
               strokeWidth: 1,
             ),
           ),
@@ -397,72 +411,7 @@ class _Bars extends StatelessWidget {
   }
 }
 
-class _H3 extends StatelessWidget {
-  final String text;
-  const _H3(this.text);
-  @override
-  Widget build(BuildContext context) {
-    return Text(
-      text,
-      maxLines: 2,
-      softWrap: true,
-      overflow: TextOverflow.ellipsis,
-      style: const TextStyle(
-          fontSize: 20, fontWeight: FontWeight.w800, color: _Level5DashboardScreenState.textDark),
-    );
-  }
-}
-
-class _BarRow extends StatelessWidget {
-  final String label;
-  final double value; // 0..1
-  const _BarRow({required this.label, required this.value});
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 6),
-      child: Row(
-        children: [
-          SizedBox(
-            width: 110,
-            child: Text(label,
-                style: const TextStyle(
-                    fontWeight: FontWeight.w700, color: _Level5DashboardScreenState.textDark)),
-          ),
-          Expanded(
-            child: Stack(
-              children: [
-                Container(
-                  height: 16,
-                  decoration: BoxDecoration(
-                    color: Colors.brown.shade100.withOpacity(0.4),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                ),
-                FractionallySizedBox(
-                  widthFactor: value.clamp(0, 1),
-                  child: Container(
-                    height: 16,
-                    decoration: BoxDecoration(
-                      color: _Level5DashboardScreenState.brand,
-                      borderRadius: BorderRadius.circular(10),
-                      boxShadow: [
-                        BoxShadow(
-                            color: Colors.brown.shade200.withOpacity(0.35),
-                            blurRadius: 3,
-                            offset: const Offset(0, 1)),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
+// (Removed unused widgets: _H3 and _BarRow)
 
 class _PieCheese extends StatelessWidget {
   final AppState app;
@@ -530,5 +479,72 @@ class _PieCheese extends StatelessWidget {
       alignment: Alignment.center,
       child: const Text('Sin datos aún'),
     );
+  }
+}
+
+class _DemandVsServed extends StatelessWidget {
+  final Map<String, int> requested;
+  final Map<String, int> served;
+  const _DemandVsServed({required this.requested, required this.served});
+
+  static const labels = <String>['Mozzarella', 'Cheddar', 'Parmesano', 'Gouda', 'Brie', 'Azul'];
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text('Pedidos vs Servidos (cumplimiento)',
+            style: TextStyle(fontWeight: FontWeight.w700, color: _Level5DashboardScreenState.textDark)),
+        const SizedBox(height: 10),
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: DataTable(
+            headingRowHeight: 38,
+            dataRowMinHeight: 40,
+            columns: const [
+              DataColumn(label: Text('Queso')),
+              DataColumn(label: Text('Pedidos')),
+              DataColumn(label: Text('Servidos')),
+              DataColumn(label: Text('Cumpl.')),
+            ],
+            rows: [
+              for (final q in labels)
+                _row(
+                  q,
+                  requested[q] ?? 0,
+                  served[q] ?? 0,
+                )
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  DataRow _row(String q, int req, int srv) {
+    final hasReq = req > 0;
+    final ratio = hasReq ? (srv / req) : 0.0;
+    final pct = hasReq ? '${(ratio * 100).toStringAsFixed(0)}%' : '—';
+    final chipColor = _ratioColor(ratio, hasReq);
+    final textColor = Colors.white;
+    return DataRow(cells: [
+      DataCell(Text(q)),
+      DataCell(Text('$req')),
+      DataCell(Text('$srv')),
+      DataCell(Chip(
+        label: Text(pct, style: TextStyle(color: textColor, fontWeight: FontWeight.w700)),
+        backgroundColor: chipColor,
+        visualDensity: VisualDensity.compact,
+        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+      )),
+    ]);
+  }
+
+  Color _ratioColor(double ratio, bool hasReq) {
+    if (!hasReq) return Colors.grey.shade400;
+    if (ratio >= 1.0) return const Color(0xFF2E7D32); // verde
+    if (ratio >= 0.7) return const Color(0xFFF9A825); // ámbar
+    return const Color(0xFFC62828); // rojo
   }
 }

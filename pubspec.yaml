@@ -23,7 +23,8 @@ dependencies:
   shared_preferences: ^2.3.2
   flutter_web_plugins:
     sdk: flutter
-  overlay_support: ^2.1.0
+  pdf: ^3.10.7
+  printing: ^5.13.4
 
 dev_dependencies:
   flutter_test:
@@ -51,5 +52,3 @@ flutter_native_splash:
   android_12:
     color: "#FFF9E8"
     image: assets/img/raton_menu.png
-
-

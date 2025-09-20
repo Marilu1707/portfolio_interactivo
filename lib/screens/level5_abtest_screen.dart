@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../state/ab_result_state.dart';
 
@@ -19,7 +20,7 @@ class _Level5AbTestScreenState extends State<Level5AbTestScreen> {
   double? _z, _pTwo, _pA, _pB, _diff, _ciL, _ciH, _lift;
   bool _sig = false;
 
-  String _summary = 'IngresÃ¡ los valores y tocÃ¡ â€œCalcularâ€.';
+  String _summary = 'Ingresá los valores y tocá “Calcular”.';
 
   @override
   void dispose() {
@@ -43,12 +44,16 @@ class _Level5AbTestScreenState extends State<Level5AbTestScreen> {
         ),
         title: const Text('Nivel 5 — A/B Test'),
         actions: [
-          TextButton.icon(
-            onPressed: () => Navigator.pushNamed(context, '/dashboard'),
-            icon: const Icon(Icons.analytics),
-            label: const Text('Ir al Dashboard'),
-            style: TextButton.styleFrom(foregroundColor: Colors.brown),
-          ),
+          if (_pTwo != null)
+            TextButton.icon(
+              onPressed: () {
+                if (!mounted) return;
+                Navigator.pushNamed(context, '/dashboard');
+              },
+              icon: const Icon(Icons.analytics),
+              label: const Text('Ir al Dashboard'),
+              style: TextButton.styleFrom(foregroundColor: Colors.brown),
+            ),
           if (_pTwo != null)
             TextButton.icon(
               onPressed: () async {
@@ -70,16 +75,16 @@ class _Level5AbTestScreenState extends State<Level5AbTestScreen> {
                   'alpha': '0.05',
                   'note': 'Resultado guardado desde Nivel A/B',
                 };
-                await context.read<ABResultState>().save(result);
-                if (context.mounted) {
-                  Navigator.pushNamed(context, '/dashboard');
-                }
+                final ab = context.read<ABResultState>();
+                await ab.save(result);
+                if (!context.mounted) return;
+                Navigator.pushNamed(context, '/dashboard');
               },
               icon: const Icon(Icons.send),
               label: const Text('Enviar al Dashboard'),
             ),
           IconButton(
-            tooltip: 'Ayuda',
+            tooltip: '¿Cómo funciona?',
             icon: const Icon(Icons.help_outline),
             onPressed: () => _showHelp(context),
           ),
@@ -95,7 +100,7 @@ class _Level5AbTestScreenState extends State<Level5AbTestScreen> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Text(
-                  'ComparÃ¡ la tasa de conversiÃ³n de Control (A) vs Tratamiento (B) con Z para dos proporciones (prueba bilateral).',
+                  'Compará la tasa de conversión de Control (A) vs Tratamiento (B) con Z para dos proporciones (prueba bilateral).',
                   style: theme.textTheme.bodyMedium,
                 ),
                 const SizedBox(height: 16),
@@ -116,16 +121,20 @@ class _Level5AbTestScreenState extends State<Level5AbTestScreen> {
                 Align(
                   child: ElevatedButton(
                     onPressed: _onCalculate,
-                    child: const Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 18, vertical: 12),
-                      child: Text('Calcular Z y p-valor'),
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 16),
+                      minimumSize: const Size.fromHeight(56),
+                      backgroundColor: const Color(0xFFFFD54F),
+                      foregroundColor: Colors.brown,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                     ),
+                    child: const Text('Calcular Z y p-valor'),
                   ),
                 ),
                 const SizedBox(height: 16),
                 Card(
                   elevation: 0,
-                  color: theme.colorScheme.surfaceVariant.withOpacity(.5),
+                  color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: .5),
                   child: Padding(
                     padding: const EdgeInsets.all(16),
                     child: Column(crossAxisAlignment: CrossAxisAlignment.start, children:[Text(_summary, style: theme.textTheme.titleMedium), if(_pTwo!=null) const SizedBox(height:10), if(_pTwo!=null) Text("Detalle: pA=${( (_pA??0)*100).toStringAsFixed(1)}% · pB=${( (_pB??0)*100).toStringAsFixed(1)}% · Δ=${( (_diff??0)*100).toStringAsFixed(1)}% · Lift=${_lift==null?"—":"${((_lift??0)*100).toStringAsFixed(1)}%"} · IC95%=[${( (_ciL??0)*100).toStringAsFixed(1)}%, ${( (_ciH??0)*100).toStringAsFixed(1)}%] · p=${(_pTwo??0).toStringAsFixed(4)}")]),
@@ -155,8 +164,9 @@ class _Level5AbTestScreenState extends State<Level5AbTestScreen> {
                           'alpha': '0.05',
                           'note': 'Resultado guardado desde Nivel A/B',
                         };
-                        await context.read<ABResultState>().save(result);
-                        if (!mounted) return;
+                        final ab = context.read<ABResultState>();
+                        await ab.save(result);
+                        if (!context.mounted) return;
                         Navigator.pushNamed(context, '/dashboard');
                       },
                       icon: const Icon(Icons.arrow_forward),
@@ -179,6 +189,16 @@ class _Level5AbTestScreenState extends State<Level5AbTestScreen> {
   }
 
   List<Widget> _buildPanels(bool compact) {
+    InputDecoration dec(String label) => InputDecoration(
+          labelText: label,
+          border: const OutlineInputBorder(),
+          contentPadding:
+              const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+        );
+
+    final List<TextInputFormatter> digits =
+        <TextInputFormatter>[FilteringTextInputFormatter.digitsOnly];
+
     Widget card({
       required String title,
       required TextEditingController nCtrl,
@@ -196,19 +216,18 @@ class _Level5AbTestScreenState extends State<Level5AbTestScreen> {
               TextField(
                 controller: nCtrl,
                 keyboardType: TextInputType.number,
-                decoration: const InputDecoration(
-                  labelText: 'N usuarios',
-                  border: OutlineInputBorder(),
-                ),
+                inputFormatters: digits,
+                textInputAction: TextInputAction.next,
+                decoration: dec('N usuarios'),
               ),
               const SizedBox(height: 12),
               TextField(
                 controller: xCtrl,
                 keyboardType: TextInputType.number,
-                decoration: const InputDecoration(
-                  labelText: 'Conversiones',
-                  border: OutlineInputBorder(),
-                ),
+                inputFormatters: digits,
+                textInputAction: TextInputAction.done,
+                decoration: dec('Conversiones'),
+                onSubmitted: (_) => _onCalculate(),
               ),
             ],
           ),
@@ -222,12 +241,15 @@ class _Level5AbTestScreenState extends State<Level5AbTestScreen> {
   }
 
     void _onCalculate() {
+    // cerrar teclado en móvil
+    FocusScope.of(context).unfocus();
     final nC = int.tryParse(_cNController.text) ?? 0;
     final xC = int.tryParse(_cXController.text) ?? 0;
     final nT = int.tryParse(_tNController.text) ?? 0;
     final xT = int.tryParse(_tXController.text) ?? 0;
 
     if (nC <= 0 || nT <= 0 || xC < 0 || xT < 0 || xC > nC || xT > nT) {
+      if (!mounted) return;
       setState(() {
         _summary = 'Revisá los datos: N > 0 y 0 ≤ conversiones ≤ N.';
         _pTwo = null;
@@ -247,10 +269,15 @@ class _Level5AbTestScreenState extends State<Level5AbTestScreen> {
     final ciH = diff + z95 * se;
     final lift = pC == 0 ? null : diff / pC;
 
-    final gana = sig
-        ? (pT > pC ? '¡Gana Tratamiento (B)! 🎉' : '¡Gana Control (A)! 🎉')
-        : 'No significativo (p ≥ 0,05).';
+    // Supuestos (np >= 5 y n(1-p) >= 5) para aproximación normal
+    final m1 = nC * pC, m2 = nC * (1 - pC), m3 = nT * pT, m4 = nT * (1 - pT);
+    final normalOk = [m1, m2, m3, m4].every((v) => v >= 5);
 
+    final gana = sig
+        ? (pT > pC ? '✅ B gana' : '✅ A gana')
+        : 'ℹ️ No significativo';
+
+    if (!mounted) return;
     setState(() {
       _z = z;
       _pTwo = p;
@@ -261,11 +288,14 @@ class _Level5AbTestScreenState extends State<Level5AbTestScreen> {
       _ciH = ciH;
       _lift = lift;
       _sig = sig;
+      final notaSup = normalOk
+          ? ''
+          : '\nAtención: tamaños pequeños (np<5), el test Z puede no ser válido; considerá exacto de Fisher.';
       _summary =
           'Tasa A: ${(pC * 100).toStringAsFixed(1)}% · '
           'Tasa B: ${(pT * 100).toStringAsFixed(1)}%\n'
           'Z = ${z.toStringAsFixed(2)} · p-valor = ${p.toStringAsFixed(3)}\n'
-          '$gana';
+          '$gana$notaSup';
     });
   }// CDF aproximada Normal(0,1)
   double _phi(double z) {
@@ -303,13 +333,35 @@ class _Level5AbTestScreenState extends State<Level5AbTestScreen> {
           child: SingleChildScrollView(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: const [
-                Text(
-                  'Ayuda A/B (Z para dos proporciones)',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+              children: [
+                const Text('Cómo funciona la prueba A/B',
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+                const SizedBox(height: 12),
+                const Text('Usamos una Z para dos proporciones (bilateral, α = 0,05).'),
+                const SizedBox(height: 8),
+                const Text('Fórmulas:', style: TextStyle(fontWeight: FontWeight.w600)),
+                const SizedBox(height: 4),
+                SelectableText(
+                  'pA = xA / nA,   pB = xB / nB\n'
+                  'p̂ = (xA + xB) / (nA + nB)\n'
+                  'SE = sqrt( p̂(1−p̂)(1/nA + 1/nB) )\n'
+                  'Z = (pB − pA) / SE\n'
+                  'p-valor = 2 · (1 − Φ(|Z|))\n'
+                  'IC95%(pB−pA) = (pB−pA) ± 1.96·SE',
+                  style: Theme.of(context).textTheme.bodySmall,
                 ),
-                SizedBox(height: 12),
-                // El mini grÃ¡fico se agrega abajo (fuera de const)
+                const SizedBox(height: 12),
+                Text(
+                  'Con tus valores actuales: pA=${(pC * 100).toStringAsFixed(1)}%, '
+                  'pB=${(pT * 100).toStringAsFixed(1)}%. '
+                  'Tocá “Calcular” para ver Z, p-valor, IC y lift.',
+                ),
+                const SizedBox(height: 16),
+                const Text('Buenas prácticas:', style: TextStyle(fontWeight: FontWeight.w600)),
+                const SizedBox(height: 6),
+                const _Bullet('Definí la métrica antes de empezar.'),
+                const _Bullet('Evitá cortar la prueba por mirar el p-valor.'),
+                const _Bullet('Asegurá tamaño muestral suficiente.'),
               ],
             ),
           ),
@@ -319,16 +371,22 @@ class _Level5AbTestScreenState extends State<Level5AbTestScreen> {
   }
 }
 
-// Para que el mini grÃ¡fico se muestre con los valores actuales,
-// puedes llamar a _MiniBars dentro del bottom sheet (sin const):
-void showHelpContent(BuildContext context, double pC, double pT) {}
+// (removido: _MiniBars no se usa)
 
-
-
-
-
-
-
-
-
-
+class _Bullet extends StatelessWidget {
+  final String text;
+  const _Bullet(this.text);
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 2),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text('•  '),
+          Expanded(child: Text(text)),
+        ],
+      ),
+    );
+  }
+}

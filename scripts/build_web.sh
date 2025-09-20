@@ -24,8 +24,3 @@ echo "==> Done. Output in build/web"
 # Optional (older Flutter versions): canvaskit renderer
 # flutter build web --release --base-href "/" # --web-renderer canvaskit (deprecated in recent Flutter)
 
-# Ensure vercel.json is present inside build/web when using Root Directory = build/web
-if [ -f vercel.json ]; then
-  echo "==> Copying vercel.json into build/web"
-  cp vercel.json build/web/vercel.json
-fi

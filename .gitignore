@@ -30,7 +30,9 @@ migrate_working_dir/
 .flutter-plugins-dependencies
 .pub-cache/
 .pub/
-/build/
+/build/*
+!/build/web/
+!/build/web/**
 /coverage/
 
 # Ignore backup artifacts
@@ -48,5 +50,8 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 
-# Desplegamos con GitHub Pages; no versionar build/
-# (Si necesitás Vercel usando docs/, ajustá según corresponda)
+# Desplegamos usando la carpeta build/web para hosting estático (Vercel, GitHub Pages, etc.)
+.vercel
+
+# Ignore embedded Flutter SDK
+flutter/

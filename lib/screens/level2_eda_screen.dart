@@ -57,7 +57,9 @@ class Level2EdaScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final orders = context.watch<OrdersState>();
-    final counts = orders.counts;
+    // Usar DEMANDA (lo que pidió el ratón)
+    final counts = orders.requestedByCheese;
+    // Puntuación normalizada basada en DEMANDA
     final scores = orders.scores();
     final sorted = ordenarPorPedidos(counts);
     final isMobile = MediaQuery.of(context).size.width < 700;
@@ -147,7 +149,7 @@ class _TopQuesosCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -213,7 +215,7 @@ class _PedidosChartCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -298,7 +300,7 @@ class _PedidosChartCard extends StatelessWidget {
                     side: BorderSide(color: theme.colorScheme.outlineVariant),
                   ),
                   backgroundColor:
-                      theme.colorScheme.surfaceVariant.withOpacity(0.25),
+                      theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.25),
                 ),
             ],
           ),
@@ -369,7 +371,7 @@ class _RecomendacionCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),

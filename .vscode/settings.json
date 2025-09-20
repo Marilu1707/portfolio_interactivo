@@ -1,5 +1,10 @@
 {
   "dart.flutterDefaultDeviceId": "chrome",
   "files.encoding": "utf8",
-  "files.autoGuessEncoding": false
+  "files.autoGuessEncoding": false,
+  "dart.analysisExcludedFolders": [
+    "flutter",
+    "dev",
+    "a11y_assessments"
+  ]
 }

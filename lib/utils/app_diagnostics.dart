@@ -47,23 +47,24 @@ class AppDiagnostics {
     Map<String, WidgetBuilder>? routes,
   }) async {
     final List<CheckResult> out = [];
+    // Capture routes map before any async gaps to avoid using BuildContext afterwards
+    final routeMap = routes ?? _tryObtainRoutesFromContext(context);
 
     // 1) Assets
     for (final path in _assetsToCheck) {
       final ok = await _canLoadAsset(path);
       out.add(CheckResult(
-        name: 'Asset: ' + path,
+        name: 'Asset: $path',
         details: ok ? 'Cargó correctamente' : 'No se pudo cargar (404/pubspec)',
         ok: ok,
       ));
     }
 
     // 2) Rutas
-    final routeMap = routes ?? _tryObtainRoutesFromContext(context);
     for (final r in _routesToCheck) {
       final ok = routeMap.containsKey(r);
       out.add(CheckResult(
-        name: 'Ruta: ' + r,
+        name: 'Ruta: $r',
         details: ok ? 'Definida en routes' : 'No encontrada en routes',
         ok: ok,
       ));
@@ -91,7 +92,7 @@ class AppDiagnostics {
       final total = data.pedidosPorQueso.values.fold<int>(0, (a, b) => a + b);
       out.add(CheckResult(
         name: 'Datos de gráficos',
-        details: total > 0 ? 'Total de pedidos: ' + total.toString() : 'Pedidos en 0',
+        details: total > 0 ? 'Total de pedidos: $total' : 'Pedidos en 0',
         ok: total > 0,
         warning: total == 0,
       ));
@@ -111,7 +112,7 @@ class AppDiagnostics {
         name: 'Inventario',
         details: neg.isEmpty
             ? 'Stocks válidos (>=0)'
-            : 'Negativos: ' + neg.map((e) => e.key + ':' + e.value.toString()).join(', '),
+            : 'Negativos: ${neg.map((e) => '${e.key}:${e.value}').join(', ')}',
         ok: neg.isEmpty,
       ));
     } else {
@@ -127,7 +128,7 @@ class AppDiagnostics {
     if (kIsWeb) {
       out.add(const CheckResult(
         name: 'PWA / SPA',
-        details: 'Vercel debe reescribir /index.html para todas las rutas (ver vercel.json).',
+        details: 'El hosting debe redirigir todas las rutas a /index.html para la app de una sola página.',
         ok: true,
         warning: true,
       ));
@@ -137,17 +138,18 @@ class AppDiagnostics {
   }
 
   static Future<void> showDialogResults(BuildContext context, { DiagnosticData data = const DiagnosticData() }) async {
+    final nav = Navigator.of(context);
     final routes = _tryObtainRoutesFromContext(context);
     final results = await run(context: context, data: data, routes: routes);
     final oks = results.where((r) => r.ok && !r.warning).length;
     final warns = results.where((r) => r.warning).length;
     final fails = results.where((r) => !r.ok && !r.warning).length;
 
-    // ignore: use_build_context_synchronously
+    if (!nav.mounted) return;
     await showDialog(
-      context: context,
+      context: nav.context,
       builder: (_) => AlertDialog(
-        title: Text('Diagnóstico — OK:' + oks.toString() + '  ⚠️:' + warns.toString() + '  ❌:' + fails.toString()),
+        title: Text('Diagnóstico — OK:$oks  ⚠️:$warns  ❌:$fails'),
         content: SizedBox(
           width: 480,
           child: ListView.separated(
@@ -192,4 +194,3 @@ class AppDiagnostics {
     return widget?.routes ?? <String, WidgetBuilder>{};
   }
 }
-
