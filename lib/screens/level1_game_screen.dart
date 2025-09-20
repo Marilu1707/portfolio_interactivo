@@ -151,19 +151,51 @@ class _Level1GameScreenState extends State<Level1GameScreen>
   void _onPickCheese(BuildContext context, String cheese) {
     if (currentOrder == null) return;
     final app = context.read<AppState>();
+    final item = app.inventory[cheese];
+    if (item == null || item.stock <= 0) {
+      _handleNoStock(context, cheese);
+      return;
+    }
 
     final ok = app.tryServe(cheese);
     if (!ok) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Sin stock para ese queso. Reponé en Inventario (Nivel 3).'),
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
+      _handleNoStock(context, cheese);
       return; // no evalúes el pedido
     }
 
     unawaited(_serve(cheese));
+  }
+
+  void _handleNoStock(BuildContext context, String cheese) {
+    if (currentOrder == null) return;
+    final orderNow = currentOrder!;
+    final ordersState = context.read<OrdersState>();
+
+    setState(() {
+      score = score > 0 ? score - 1 : 0;
+      streak = 0;
+      feedback = 'Sin stock de $cheese... -1';
+      currentOrder = null;
+    });
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+            'Sin stock de $cheese. Se descuenta 1 punto y se pasa al siguiente pedido.'),
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+
+    unawaited(ordersState.addRequest(orderNow));
+
+    _orderCount++;
+    _miss++;
+
+    if (_orderCount >= _maxOrders) {
+      _finishLevel(reason: 'Completaste las $_maxOrders órdenes');
+    } else {
+      Future.delayed(const Duration(milliseconds: 900), _nextOrder);
+    }
   }
 
   // Registra el servicio, actualiza puntaje/racha y notifica al AppState
@@ -411,7 +443,7 @@ class _Level1GameScreenState extends State<Level1GameScreen>
                                 ),
                                 const SizedBox(height: 6),
                                 const Text(
-                                  'Restaurante Kawaii',
+                                  'Nido Mozzarella',
                                   style: TextStyle(
                                     fontSize: 28,
                                     fontWeight: FontWeight.w900,
@@ -469,6 +501,15 @@ class _Level1GameScreenState extends State<Level1GameScreen>
                           children: kCheeses
                               .map((c) => _cheeseChip(context, appState, c.nombre))
                               .toList(),
+                        ),
+                        const SizedBox(height: 16),
+                        Align(
+                          alignment: Alignment.centerRight,
+                          child: OutlinedButton.icon(
+                            icon: const Icon(Icons.inventory_2_outlined),
+                            label: const Text('No tenés más quesos → Ir a Inventario'),
+                            onPressed: () => Navigator.pushNamed(context, '/level3'),
+                          ),
                         ),
                         const SizedBox(height: 120),
                       ],

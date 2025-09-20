@@ -34,6 +34,7 @@ class _Level3InventoryScreenState extends State<Level3InventoryScreen> {
 
   // Variante toast (overlay) para notificaciones kawaii
   void _addOneToast(AppState app, InventoryItem row, int qty) {
+    final before = row.stock;
     final success = _tryRestock(
       context: context,
       app: app,
@@ -41,9 +42,12 @@ class _Level3InventoryScreenState extends State<Level3InventoryScreen> {
       qty: qty,
     );
     if (!success) return;
-    final plural = qty > 1 ? 's' : '';
+    final updated = app.inventory[row.name]?.stock ?? row.stock;
+    final added = updated - before;
+    final units = added > 0 ? added : 0;
+    final plural = units == 1 ? '' : 'es';
     GamePopup.show(context,
-        '🧀 +$qty unidad$plural de ${row.name} (stock: ${row.stock})',
+        '🧀 +$units unidad$plural de ${row.name} (stock: $updated)',
         color: Colors.green, icon: Icons.check_circle);
   }
 
@@ -58,31 +62,9 @@ class _Level3InventoryScreenState extends State<Level3InventoryScreen> {
       return false;
     }
 
-    final reorderPoint = row.reorderPoint > 0 ? row.reorderPoint : 5;
-
-    if (row.stock <= 0) {
-      _showInvSnack(
-        context,
-        'Sin stock actual: sumamos $qty unidad${qty > 1 ? 'es' : ''} para reiniciar inventario.',
-      );
-      app.restock(row.name, qty);
-      return true;
-    }
-
-    if (row.stock >= reorderPoint) {
-      _showInvSnack(
-        context,
-        'Ya estás en el stock seguro ($reorderPoint). Usá el inventario actual antes de reponer más.',
-      );
-      return false;
-    }
-
-    final nextStock = row.stock + qty;
-    if (nextStock > reorderPoint) {
-      _showInvSnack(
-        context,
-        'Con esta reposición superarías el stock seguro ($reorderPoint). Reponé menos unidades.',
-      );
+    final next = (row.stock + qty).clamp(0, AppState.maxStock).toInt();
+    if (next == row.stock) {
+      _showInvSnack(context, 'Ya estás al máximo (${AppState.maxStock}).');
       return false;
     }
 
@@ -142,6 +124,21 @@ class _Level3InventoryScreenState extends State<Level3InventoryScreen> {
           OutlinedButton(
             onPressed: () => _addOneToast(app, item, 5),
             child: const Text('+5'),
+          ),
+          const SizedBox(width: 8),
+          OutlinedButton(
+            onPressed: () {
+              final before = item.stock;
+              app.restockFull(item.name);
+              if (before < AppState.maxStock) {
+                _showInvSnack(context,
+                    'Llevamos ${item.name} al máximo (${AppState.maxStock}).');
+              } else {
+                _showInvSnack(
+                    context, '${item.name} ya estaba al máximo.');
+              }
+            },
+            child: const Text('100%'),
           ),
         ],
       )),
@@ -220,6 +217,23 @@ class _Level3InventoryScreenState extends State<Level3InventoryScreen> {
                 child: OutlinedButton(
                   onPressed: () => _addOneToast(app, item, 5),
                   child: const Text('+5'),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: OutlinedButton(
+                  onPressed: () {
+                    final before = item.stock;
+                    app.restockFull(item.name);
+                    if (before < AppState.maxStock) {
+                      _showInvSnack(context,
+                          'Llevamos ${item.name} al máximo (${AppState.maxStock}).');
+                    } else {
+                      _showInvSnack(
+                          context, '${item.name} ya estaba al máximo.');
+                    }
+                  },
+                  child: const Text('100%'),
                 ),
               ),
             ],
