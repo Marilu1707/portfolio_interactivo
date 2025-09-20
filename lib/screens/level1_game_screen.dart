@@ -133,7 +133,7 @@ class _Level1GameScreenState extends State<Level1GameScreen>
 
     // registrar demanda, reducir 1 unidad del pedido (desperdicio)
     unawaited(ordersState.addRequest(orderNow));
-    app.useCheese(orderNow, success: true); // -1 unidad
+    app.restock(orderNow, -1); // -1 unidad
 
     // popup centrado
     try {
@@ -146,6 +146,24 @@ class _Level1GameScreenState extends State<Level1GameScreen>
         message: 'Se desperdició 1 de $orderNow');
 
     Future.delayed(const Duration(milliseconds: 900), _nextOrder);
+  }
+
+  void _onPickCheese(BuildContext context, String cheese) {
+    if (currentOrder == null) return;
+    final app = context.read<AppState>();
+
+    final ok = app.tryServe(cheese);
+    if (!ok) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Sin stock para ese queso. Reponé en Inventario (Nivel 3).'),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      return; // no evalúes el pedido
+    }
+
+    unawaited(_serve(cheese));
   }
 
   // Registra el servicio, actualiza puntaje/racha y notifica al AppState
@@ -171,13 +189,15 @@ class _Level1GameScreenState extends State<Level1GameScreen>
     final app = context.read<AppState>();
     final ordersState = context.read<OrdersState>();
 
-    app.useCheese(chosen, success: isCorrect);
     app.recordServe(
       order: orderNow,
       chosen: chosen,
       isCorrect: isCorrect,
       bucketAB: _currentBucket ?? 'A',
     );
+    if (!isCorrect) {
+      app.restock(chosen, -1);
+    }
     // Registrar demanda real (lo que pidió el ratón) y lo servido
     await ordersState.addRequest(orderNow);
     await ordersState.addServe(chosen);
@@ -447,8 +467,7 @@ class _Level1GameScreenState extends State<Level1GameScreen>
                           runSpacing: 8,
                           alignment: WrapAlignment.center,
                           children: kCheeses
-                              .map((c) =>
-                                  _cheeseChip(c.nombre, () => _serve(c.nombre)))
+                              .map((c) => _cheeseChip(context, appState, c.nombre))
                               .toList(),
                         ),
                         const SizedBox(height: 120),
@@ -511,20 +530,21 @@ class _Level1GameScreenState extends State<Level1GameScreen>
 
   // (removido: _speech no se usa)
 
-  Widget _cheeseChip(String label, VoidCallback onTap) {
-    return OutlinedButton.icon(
-      onPressed: currentOrder == null ? null : onTap,
-      icon: const Icon(Icons.local_pizza),
-      label: Text(label),
-      style: OutlinedButton.styleFrom(
-        side: BorderSide(
-            color: Colors.brown.shade200.withValues(alpha: 0.6), width: 1.6),
-        foregroundColor: Colors.brown,
-        backgroundColor: const Color(0xFFFFF8E7),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
-        minimumSize: const Size(0, 44),
-        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
-      ),
+  Widget _cheeseChip(BuildContext context, AppState app, String cheese) {
+    final outOfStock = app.isOutOfStock(cheese);
+    final disabled = currentOrder == null || outOfStock;
+    final border = Colors.brown.shade200.withValues(alpha: 0.6);
+    return ActionChip(
+      label: Text(cheese,
+          style:
+              const TextStyle(fontWeight: FontWeight.w700, color: Colors.brown)),
+      avatar: Icon(Icons.location_on,
+          size: 16, color: outOfStock ? Colors.grey : Colors.brown),
+      onPressed:
+          disabled ? null : () => _onPickCheese(context, cheese),
+      backgroundColor: const Color(0xFFFFF8E7),
+      shape: StadiumBorder(side: BorderSide(color: border, width: 1.4)),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
     );
   }
 

@@ -46,6 +46,30 @@ class AppState extends ChangeNotifier {
   // Inventario en memoria (clave = nombre)
   final Map<String, InventoryItem> inventory = {};
 
+  // Helpers de inventario
+  bool isOutOfStock(String name) => (inventory[name]?.stock ?? 0) <= 0;
+
+  void restock(String name, [int amount = 1]) {
+    if (amount == 0) return;
+    final item = inventory[name];
+    if (item == null) return;
+
+    final next = item.stock + amount;
+    item.stock = next < 0 ? 0 : next;
+    notifyListeners();
+  }
+
+  /// Intenta servir un queso. Devuelve true si se pudo.
+  bool tryServe(String name) {
+    final item = inventory[name];
+    if (item == null || item.stock <= 0) return false;
+
+    item.stock -= 1;
+    servedByCheese[name] = (servedByCheese[name] ?? 0) + 1;
+    notifyListeners();
+    return true;
+  }
+
   // Resultado A/B para dashboard
   double? pC, pT, zScore, pValue;
   bool hasAb = false;
@@ -74,7 +98,6 @@ class AppState extends ChangeNotifier {
         isCorrect: isCorrect,
         ts: now));
     totalServed += 1;
-    servedByCheese.update(chosen, (v) => v + 1, ifAbsent: () => 1);
 
     if (isCorrect) {
       correct += 1;
@@ -154,28 +177,6 @@ class AppState extends ChangeNotifier {
       tiemposA.isEmpty ? 0 : tiemposA.reduce((a, b) => a + b) / tiemposA.length;
   double promedioMsB() =>
       tiemposB.isEmpty ? 0 : tiemposB.reduce((a, b) => a + b) / tiemposB.length;
-
-  /// Usa stock cuando sale un queso del inventario.
-  /// Si falló el pedido, contamos desperdicio y baja 2 unidades.
-  void useCheese(String cheese, {required bool success}) {
-    final item = inventory[cheese];
-    if (item == null) {
-      return;
-    }
-    final amount = success ? 1 : 2;
-    item.stock = (item.stock - amount).clamp(0, 1 << 31);
-    notifyListeners();
-  }
-
-  // Repone stock de un queso (si existe)
-  void restock(String cheese, int qty) {
-    if (qty == 0) return;
-    final item = inventory[cheese];
-    if (item != null) {
-      item.stock += qty;
-      notifyListeners();
-    }
-  }
 
   // Setea resultado del A/B para el dashboard
   void setAbTestResult(
