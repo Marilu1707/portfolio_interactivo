@@ -175,6 +175,22 @@ class HomeDesktop extends StatelessWidget {
                           ),
                           child: const Text('Ver más proyectos'),
                         ),
+                        FilledButton(
+                          onPressed: () =>
+                              Navigator.pushNamed(context, '/mindful'),
+                          style: FilledButton.styleFrom(
+                            backgroundColor: const Color(0xFFC4A9E7),
+                            foregroundColor: onAccent,
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 18,
+                              vertical: 14,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(14),
+                            ),
+                          ),
+                          child: const Text('Panel mindful'),
+                        ),
                       ],
                     ),
 
