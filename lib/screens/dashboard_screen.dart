@@ -277,12 +277,20 @@ class _Level5DashboardScreenState extends State<Level5DashboardScreen> {
   List<Widget> _lowStockInsights(AppState app) {
     final items = app.inventory.values.toList();
     if (items.isEmpty) return [];
-    final lows =
-        items.where((i) => i.stock <= (i.reorderPoint > 0 ? i.reorderPoint : 5)).toList();
+    final lows = items.where((i) => i.stock < 20).toList();
     if (lows.isEmpty) return [];
     lows.sort((a, b) => a.stock.compareTo(b.stock));
-    final top3 = lows.take(3).map((i) => '• Stock bajo en ${i.name} (${i.stock})');
+    final top3 = lows.take(3).map((i) {
+      final status = _statusText(i.stock);
+      return '• $status en ${i.name} (${i.stock})';
+    });
     return top3.map((t) => Text(t)).toList();
+  }
+
+  String _statusText(int stock) {
+    if (stock < 10) return 'Stock crítico';
+    if (stock < 20) return 'Stock medio';
+    return 'Stock ok';
   }
 }
 

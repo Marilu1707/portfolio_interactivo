@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 // import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-import '../utils/game_popup.dart';
+import '../utils/kawaii_toast.dart';
 
 import '../state/app_state.dart';
 import '../services/ml_service.dart';
@@ -121,13 +121,19 @@ class _Level4MlPredictionScreenState extends State<Level4MlPredictionScreen> {
               );
               if (!ctx.mounted) return;
               if (ok) {
-                GamePopup.show(ctx,
-                    '🧀 Aprendido: conversión con $quesoSugerido',
-                    color: Colors.green, icon: Icons.check_circle, success: true);
+                KawaiiToast.show(
+                  ctx,
+                  '🧀 Aprendido: conversión con $quesoSugerido',
+                  icon: Icons.check_circle,
+                );
               } else {
-                GamePopup.show(ctx,
-                    'Aprendido: no convirtió con $quesoSugerido',
-                    color: Colors.orange, icon: Icons.warning_amber_rounded, success: false);
+                KawaiiToast.show(
+                  ctx,
+                  'Aprendido: no convirtió con $quesoSugerido',
+                  color: Colors.orange,
+                  icon: Icons.warning_amber_rounded,
+                  success: false,
+                );
               }
             },
           );

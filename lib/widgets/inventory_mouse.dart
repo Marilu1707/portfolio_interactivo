@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../utils/game_popup.dart';
+import '../utils/kawaii_toast.dart';
 
 class InventoryMouseItem {
   final String name;
@@ -11,7 +11,7 @@ class InventoryMouse extends StatefulWidget {
   final List<InventoryMouseItem> items;
   final int lowThreshold;
   final VoidCallback? onTap;
-  const InventoryMouse({super.key, required this.items, this.lowThreshold = 3, this.onTap});
+  const InventoryMouse({super.key, required this.items, this.lowThreshold = 9, this.onTap});
 
   @override
   State<InventoryMouse> createState() => _InventoryMouseState();
@@ -56,13 +56,19 @@ class _InventoryMouseState extends State<InventoryMouse>
     final bajos = widget.items.where((e) => e.stock <= widget.lowThreshold).toList();
     final total = widget.items.length;
     final msg = bajos.isEmpty
-        ? 'Todo ok: stock suficiente en $total productos.'
-        : 'Stock bajo (${bajos.length}): ${bajos.map((e) => e.name).join(', ')}';
+        ? 'Todo ok: stock saludable en $total productos.'
+        : 'Stock crítico (${bajos.length}): ${bajos.map((e) => e.name).join(', ')}';
     if (mounted) {
       if (bajos.isEmpty) {
-        GamePopup.show(context, msg, color: Colors.green, icon: Icons.check_circle);
+        KawaiiToast.show(context, msg, icon: Icons.check_circle);
       } else {
-        GamePopup.show(context, msg, color: Colors.orange, icon: Icons.warning_amber_rounded);
+        KawaiiToast.show(
+          context,
+          msg,
+          color: Colors.orange,
+          icon: Icons.warning_amber_rounded,
+          success: false,
+        );
       }
     }
     widget.onTap?.call();
@@ -96,7 +102,7 @@ class _InventoryMouseState extends State<InventoryMouse>
                   const Text('Ratón de Depósito', style: TextStyle(fontWeight: FontWeight.w700, color: Color(0xFF5B4636))),
                   Text(
                     widget.items.any((e) => e.stock <= widget.lowThreshold)
-                        ? '¡Atención! Hay stock bajo'
+                        ? '¡Atención! Stock crítico (<10)'
                         : 'Todo en orden 🧀',
                     style: const TextStyle(color: Color(0xFF5B4636)),
                   ),

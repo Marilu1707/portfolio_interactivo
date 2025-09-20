@@ -1,6 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import '../utils/game_popup.dart';
+import '../utils/kawaii_toast.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:path_provider/path_provider.dart';
 import 'package:open_filex/open_filex.dart';
@@ -18,7 +18,12 @@ Future<void> descargarCV(BuildContext context) async {
     await OpenFilex.open(file.path);
   } catch (e) {
     if (!context.mounted) return;
-    GamePopup.show(context, 'No se pudo abrir el CV: $e',
-        color: Colors.redAccent, icon: Icons.error_outline);
+    KawaiiToast.show(
+      context,
+      'No se pudo abrir el CV: $e',
+      color: Colors.redAccent,
+      icon: Icons.error_outline,
+      success: false,
+    );
   }
 }
