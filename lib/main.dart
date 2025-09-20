@@ -12,6 +12,7 @@ import 'screens/level2_eda_screen.dart';
 import 'screens/level3_inventory_screen.dart';
 import 'screens/level4_mlprediction_screen.dart';
 import 'screens/level5_abtest_screen.dart';
+import 'screens/mindful_welcome_screen.dart';
 import 'services/data_service.dart';
 import 'state/ab_result_state.dart';
 import 'state/app_state.dart';
@@ -188,6 +189,7 @@ class MariluApp extends StatelessWidget {
         '/level4': (_) => const Level4MlPredictionScreen(),
         '/level5': (_) => const Level5AbTestScreen(),
         '/dashboard': (_) => const Level5DashboardScreen(),
+        '/mindful': (_) => const MindfulWelcomeScreen(),
       },
       onUnknownRoute: (settings) => MaterialPageRoute(
         builder: (_) => const HomeDesktop(),
