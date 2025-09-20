@@ -396,6 +396,7 @@ class _Level3InventoryScreenState extends State<Level3InventoryScreen> {
           ),
         ),
       ),
+    ),
     );
   }
 }
