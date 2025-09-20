@@ -1,95 +1,89 @@
-# 🧀 Nido Mozzarella — Portfolio Interactivo de Data Science
 
-Bienvenid@ a mi portfolio-app 🎮✨. Es un proyecto creado en **Flutter Web** que combina **gamificación** y **Data Science** para mostrar mis conocimientos de forma creativa y divertida.
+````markdown
+# 🧀 Nido Mozzarella — Portfolio Interactivo de Data Science  
 
-Cada nivel es una metáfora de cómo aplico el ciclo completo de análisis de datos: desde atender un “restaurante de quesos” hasta crear un dashboard con métricas finales.
+Bienvenid@ a mi **portfolio-app** 🎮✨.  
+Un proyecto creado en **Flutter Web** que combina **gamificación + Data Science** para mostrar mis conocimientos de forma creativa y divertida.  
 
----
-
-## 📋 Tabla de contenidos
-- [Demo](#-demo)
-- [Niveles del juego](#-niveles-del-juego)
-- [Dashboard ejecutivo](#-dashboard-ejecutivo)
-- [Screenshots](#-screenshots)
-- [Tecnologías](#-tecnologías)
-- [Requisitos previos](#-requisitos-previos)
-- [Cómo correrlo en tu máquina](#-cómo-correrlo-en-tu-máquina)
-- [Deploy en Vercel](#-deploy-en-vercel)
-- [Sobre mí](#-sobre-mí)
-- [Contacto](#-contacto)
-- [Créditos](#-créditos)
+Cada sección representa una parte del ciclo de análisis de datos: desde atender pedidos en un “restaurante de quesos” hasta comunicar insights en un dashboard final.  
 
 ---
 
-## 🌟 Demo
-👉 [marilu-portfolio.vercel.app](https://marilu-portfolio.vercel.app/)
+## 🌟 Demo online  
+👉 [marilu-portfolio.vercel.app](https://marilu-portfolio.vercel.app/)  
 
 ---
 
-## 🎮 Niveles del juego
+## 🎮 Secciones del juego  
 
-### 🐭 Nivel 1 — Juego (Restaurante kawaii)
-Atendé a los ratoncitos estilo kawaii que llegan al restaurante pidiendo quesos. Esta fase gamificada representa la **recolección de datos** (interacciones de clientes) y genera los eventos que alimentan al resto de los niveles.
-
----
-
-### 📊 Nivel 2 — EDA (Exploratory Data Analysis)
-Visualización de los quesos más pedidos con gráficos de barras y comentarios del ratón chef. Simula cómo realizo **análisis exploratorio de datos** para entender patrones de consumo.
+### 🐭 Nido Mozzarella (Juego)  
+Atendé ratoncitos kawaii que llegan pidiendo quesos 🧀.  
+Simboliza la **recolección de datos**: cada pedido genera eventos que se usan en el resto de las etapas.  
 
 ---
 
-### 📦 Nivel 3 — Inventario
-Control de stock de quesos con semáforos de estado (🟢 suficiente, 🟡 bajo, 🔴 reponer). Cada pedido impacta en el inventario. Esto representa la **gestión de datos y recursos**.
+### 📊 EDA Interactiva  
+Explorá con gráficos la participación de cada queso y patrones de consumo.  
+Representa mi forma de aplicar **análisis exploratorio de datos (EDA)** para detectar tendencias y anomalías.  
 
 ---
 
-### 🤖 Nivel 4 — Predicción ML (online)
-Un recomendador en vivo entrena un modelo de **Machine Learning** con gradiente descendente estocástico. Ajustá las variables del contexto (racha, hora, stock, tiempo promedio) y obtené sugerencias de qué queso ofrecer con probabilidades explicadas.
+### 📦 Inventario  
+Gestión de stock con semáforos visuales (🟢 ok, 🟡 bajo, 🔴 crítico).  
+Cada pedido impacta en la disponibilidad. Refleja la **gestión de datos y recursos**.  
 
 ---
 
-### 🧪 Nivel 5 — A/B Test
-Calculadora interactiva para comparar Control (A) vs Tratamiento (B). Carga resultados al estado global, calcula **Z-score**, **p-valor**, intervalos de confianza y permite enviar los hallazgos al panel final.
+### 🤖 Predicción ML (online)  
+Un recomendador en tiempo real entrena un modelo de **Machine Learning**.  
+Ajustá variables (racha, hora, stock, tiempo promedio) y obtené sugerencias de qué queso ofrecer, con explicación de la probabilidad calculada.  
 
 ---
 
-## 📈 Dashboard ejecutivo
-
-Un panel separado consolida todo el recorrido:
-- Quesos más pedidos y cumplimiento del inventario.
-- Evolución de pedidos vs. atendidos y tasa de acierto global.
-- Resultados resumidos del test A/B (conversiones, lift, significancia).
-
-El ratón “analista” presenta las métricas en estilo kawaii, pensado para mostrar cómo comunico insights a stakeholders.
+### 🧪 A/B Testing  
+Comparador interactivo entre Control (A) y Tratamiento (B).  
+Calcula **Z-score, p-valor e intervalos de confianza** para evaluar significancia estadística y priorizar decisiones.  
 
 ---
 
-## 🖼️ Screenshots
+## 📈 Dashboard ejecutivo  
 
-_Agregá imágenes de cada nivel si querés compartir capturas reales o mockups. Guardalas en `assets/` y linkealas acá para que se visualicen en GitHub._
+Un panel que consolida todo:  
+- Quesos más pedidos e inventario.  
+- Evolución de pedidos vs. atendidos.  
+- Tasa global de aciertos.  
+- Resultados de A/B test.  
 
----
-
-## ⚙️ Tecnologías
-
-- [Flutter](https://flutter.dev/) + Dart 🐦
-- `fl_chart` para gráficos 📊
-- `provider` para manejo de estado
-- Estética personalizada kawaii 🎨
+El ratón “analista” presenta métricas kawaii pensadas para **contar historias con datos a stakeholders**.  
 
 ---
 
-## 🛠️ Requisitos previos
+## 🖼️ Screenshots  
 
-- [Flutter](https://docs.flutter.dev/get-started/install) 3.16 o superior.
-- Chrome, Edge o Safari para probar la app en modo web.
-- (Opcional) [Node.js](https://nodejs.org/) si vas a publicar con la CLI de Vercel.
-
-Ejecutá `flutter doctor` para chequear que tu entorno esté listo.
+📌 Podés agregar capturas reales en `assets/` y linkearlas acá para que se vean en GitHub.  
 
 ---
 
-## 📥 Cómo correrlo en tu máquina
+## ⚙️ Tecnologías usadas  
+
+- [Flutter](https://flutter.dev/) + Dart 🐦  
+- `fl_chart` → visualizaciones interactivas 📊  
+- `provider` → manejo de estado  
+- Estética kawaii propia 🎨  
+
+---
+
+## 🛠️ Requisitos  
+
+- [Flutter](https://docs.flutter.dev/get-started/install) 3.16+  
+- Navegador moderno (Chrome, Edge, Safari).  
+- (Opcional) [Node.js](https://nodejs.org/) para publicar con la CLI de Vercel.  
+
+Ejecutá `flutter doctor` para validar tu entorno.  
+
+---
+
+## 📥 Cómo correrlo en tu máquina  
 
 ```bash
 git clone https://github.com/Marilu1707/marilu_portfolio.git
@@ -97,7 +91,7 @@ cd marilu_portfolio
 flutter clean
 flutter pub get
 flutter run -d chrome
-```
+````
 
 Para compilar la versión web lista para producción:
 
@@ -107,74 +101,60 @@ flutter pub get
 flutter build web --release
 ```
 
-El build final queda en `build/web`.
+El build queda en `build/web`.
 
 ---
 
 ## 🚀 Deploy en Vercel
 
-> ✅ Requisitos previos: tener Flutter instalado localmente y una cuenta en [Vercel](https://vercel.com/).
+1. **Generar build estático**
 
-1. **Generar el build estático**:
    ```bash
    flutter clean
    flutter pub get
    flutter build web --release
    ```
-   El build respeta el `<base href="/">` necesario para que el routing de Flutter Web funcione en cualquier host.
 
-2. **Configurar el proyecto en Vercel** (ya incluido en este repo):
-   - `vercel.json` publica `build/web/**` como archivos estáticos.
-   - Incluye una regla de _rewrite_ `/(.*) -> /index.html` para que Flutter Web cargue aun si refrescás rutas internas.
-   - `.gitignore` permite versionar `build/web` (ideal si deployás desde GitHub, sin reconstruir en Vercel).
+2. **Configurar proyecto**
 
-3. **Deploy desde el Dashboard**:
-   1. `New Project → Import Git Repository`.
-   2. Elegí `marilu_portfolio`.
-   3. `Framework preset`: **Other** / **Static Files**.
-   4. `Build Command`: `flutter clean && flutter pub get && flutter build web --release` (o dejalo vacío si vas a subir el build generado localmente).
-   5. `Output Directory`: `build/web`.
-   6. `Install Command`: vacío o `echo "skip"`.
-   7. Deploy.
+   * `vercel.json` ya incluye rewrites necesarios (`/(.*) -> /index.html`).
+   * `.gitignore` permite versionar `build/web` para deploy directo.
 
-4. **Deploy con CLI (ideal si Vercel no tiene Flutter preinstalado)**:
+3. **Deploy desde GitHub**
+
+   * Importá el repo en Vercel.
+   * `Framework preset`: **Other / Static Files**.
+   * `Output Directory`: `build/web`.
+
+4. **Deploy con CLI**
+
    ```bash
    npm install -g vercel
-   rm -rf .vercel
-   vercel link
-   vercel pull --yes --environment=production
-
-   flutter clean
-   flutter pub get
    flutter build web --release
-
-   vercel deploy build/web --prod --yes
+   vercel deploy build/web --prod
    ```
-   Este flujo genera el build en tu máquina y sube la carpeta lista a Vercel (evita pantallas en blanco por builds incompletos).
-
-5. **Automatizar con GitHub Actions (opcional)**: creá `.github/workflows/deploy-vercel.yml` y cargá los secrets `VERCEL_TOKEN`, `VERCEL_ORG_ID`, `VERCEL_PROJECT_ID`. El workflow compila con Flutter estable y publica `build/web` en cada push a `main`.
-
-📌 Si ves pantalla en blanco asegurate de:
-- Tener `vercel.json` en la raíz del repo.
-- Publicar la carpeta `build/web` correcta.
-- Mantener `<base href="/">` en `web/index.html`.
-- Limpiar configuraciones viejas: `rm -rf .vercel && vercel link && vercel pull`.
 
 ---
 
 ## 👩‍💻 Sobre mí
 
-Soy estudiante de **Negocios Digitales en UADE**, con formación en **análisis de datos, marketing y desarrollo web**. Tengo capacitaciones en **IT** y me apasiona unir **estrategia, tecnología y creatividad** para generar soluciones simples e innovadoras.
+Soy estudiante de **Negocios Digitales en UADE**, con formación en **Data Science, marketing y desarrollo web**.
+Me apasiona unir **estrategia + tecnología + creatividad** para generar soluciones simples e innovadoras.
+
+---
 
 ## 📬 Contacto
 
-- ✉️ Email: [mlujanmassironi@gmail.com](mailto:mlujanmassironi@gmail.com)
-- 💼 LinkedIn: [Maria Luján Massironi](https://www.linkedin.com/in/maria-lujan-massironi/)
-- 🐙 GitHub: [Marilu1707](https://github.com/Marilu1707)
-- 📄 [Descargar CV](assets/data/CV_MASSIRONI_MARIA_LUJAN.pdf)
+* ✉️ [mlujanmassironi@gmail.com](mailto:mlujanmassironi@gmail.com)
+* 💼 [LinkedIn](https://www.linkedin.com/in/maria-lujan-massironi/)
+* 🐙 [GitHub](https://github.com/Marilu1707)
+* 📄 [Descargar CV](assets/data/CV_MASSIRONI_MARIA_LUJAN.pdf)
 
 ---
 
 ### ✨ Créditos
 
-Diseño y desarrollo: **Maria Lujan Massironi**. Estilo kawaii inspirado en Tsuki y la idea de un restaurante de quesos interactivo.
+Diseño y desarrollo: **María Luján Massironi**
+Estilo kawaii inspirado en Tsuki 🌙 y la idea de un **restaurante de quesos interactivo**.
+
+```
