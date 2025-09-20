@@ -108,9 +108,51 @@ class _Level1GameScreenState extends State<Level1GameScreen>
 
   // Selecciona el próximo pedido (ponderado por share) y bucket A/B
   void _nextOrder() {
-    if (stats.isEmpty) return;
+    if (!mounted || stats.isEmpty) return;
+
+    _orderTimer
+      ..stop()
+      ..reset();
+
+    final orderName = _weightedOrder();
+    final app = context.read<AppState>();
+    final ordersState = context.read<OrdersState>();
+
+    if (app.isOutOfStock(orderName)) {
+      setState(() {
+        score = score > 0 ? score - 1 : 0;
+        streak = 0;
+        feedback = 'Sin stock de $orderName… -1';
+        currentOrder = null;
+      });
+
+      unawaited(ordersState.addRequest(orderName));
+      _orderCount++;
+      _miss++;
+
+      KawaiiToast.show(
+        context,
+        'No queda $orderName. -1 punto y pasamos al siguiente pedido.',
+        color: Colors.orange,
+        icon: Icons.info_outline,
+        duration: const Duration(seconds: 2),
+        alignment: Alignment.bottomCenter,
+        margin: const EdgeInsets.only(left: 16, right: 16, bottom: 120),
+        success: false,
+      );
+
+      if (_orderCount >= _maxOrders) {
+        _finishLevel(reason: 'Se completaron las $_maxOrders órdenes (sin stock disponible)');
+      } else {
+        Future.delayed(const Duration(milliseconds: 750), () {
+          if (mounted) _nextOrder();
+        });
+      }
+      return;
+    }
+
     setState(() {
-      currentOrder = _weightedOrder();
+      currentOrder = orderName;
       _currentBucket = _rng.nextBool() ? 'A' : 'B';
       feedback = null;
       _orderStart = DateTime.now();

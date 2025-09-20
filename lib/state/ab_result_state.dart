@@ -2,14 +2,16 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../models/ab_test_result.dart';
+
 class ABResultState extends ChangeNotifier {
   static const _k = 'ab_last_result_v1_json';
-  Map<String, dynamic>? last;
+  AbTestResult? last;
 
-  Future<void> save(Map<String, dynamic> r) async {
+  Future<void> save(AbTestResult r) async {
     last = r;
     final p = await SharedPreferences.getInstance();
-    await p.setString(_k, jsonEncode(r));
+    await p.setString(_k, r.encode());
     notifyListeners();
   }
 
@@ -18,7 +20,10 @@ class ABResultState extends ChangeNotifier {
     final s = p.getString(_k);
     if (s == null || s.isEmpty) return;
     try {
-      last = jsonDecode(s) as Map<String, dynamic>;
+      final decoded = jsonDecode(s);
+      if (decoded is Map<String, dynamic>) {
+        last = AbTestResult.fromJson(decoded);
+      }
       notifyListeners();
     } catch (_) {
       // ignore malformed

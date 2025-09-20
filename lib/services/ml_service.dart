@@ -49,7 +49,7 @@ class MlService {
   static final MlService instance = MlService._();
   static const _key = 'ml_events_v1';
 
-  final OnlineLogReg model = OnlineLogReg(14, lr: 0.05, l2: 1e-4);
+  final OnlineLogReg model = OnlineLogReg(Features.dimension, lr: 0.05, l2: 1e-4);
   final List<EventRow> _events = [];
 
   Future<void> init() async {
@@ -96,10 +96,10 @@ class MlService {
     const cheeses = [
       'Mozzarella',
       'Cheddar',
-      'Parmesano',
+      'Provolone',
       'Gouda',
       'Brie',
-      'Provolone'
+      'Azul',
     ];
     double best = -1;
     String bestC = cheeses.first;

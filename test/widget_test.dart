@@ -8,11 +8,11 @@
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:flutter_portfolio/main.dart';
-import 'package:flutter_portfolio/home_screen.dart';
+import 'package:flutter_portfolio/screens/home/home_screen.dart';
 
 void main() {
   testWidgets('App renders Home', (WidgetTester tester) async {
     await tester.pumpWidget(const MariluApp());
-    expect(find.byType(HomeDesktop), findsOneWidget);
+    expect(find.byType(HomeScreen), findsOneWidget);
   });
 }

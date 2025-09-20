@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'utils/download_cv.dart';
+import 'package:flutter_portfolio/utils/download_cv.dart';
 
 /// Home: hero + CTA “Jugar ahora”, secciones de Juego (arriba),
 /// Datos del juego (abajo), Sobre mí y Contacto.
@@ -8,8 +8,8 @@ import 'utils/download_cv.dart';
 /// - Sin “panel mindful”.
 /// - Sin bloque “Yo / …” viejo.
 /// - Cards con emoji de queso 🧀 (sin assets binarios).
-class HomeDesktop extends StatelessWidget {
-  const HomeDesktop({super.key});
+class HomeScreen extends StatelessWidget {
+  const HomeScreen({super.key});
 
   // Paleta kawaii
   static const bg = Color(0xFFFFF9E8);
@@ -351,7 +351,7 @@ class _HomeCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: HomeDesktop.card,
+        color: HomeScreen.card,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 8, offset: const Offset(0, 4))],
       ),
@@ -389,7 +389,7 @@ class _H3 extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Text(text, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: HomeDesktop.onAccent));
+    return Text(text, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: HomeScreen.onAccent));
   }
 }
 
@@ -489,7 +489,7 @@ class _LevelCard extends StatelessWidget {
             children: [
               leading,
               const SizedBox(height: 8),
-              Text(title, style: const TextStyle(fontWeight: FontWeight.w900, color: HomeDesktop.onAccent)),
+              Text(title, style: const TextStyle(fontWeight: FontWeight.w900, color: HomeScreen.onAccent)),
               Text(subtitle),
             ],
           ),

@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import '../models/inventory_item.dart';
 import '../data/cheese_country_es.dart';
+import '../data/cheese_catalog.dart';
+import '../utils/constants.dart';
 
 // Estado global de la app: puntajes del juego, inventario y resultados de A/B.
 
 class AppState extends ChangeNotifier {
-  // Tope global de stock
-  static const int maxStock = 30;
 
   // Rondas y conteos
   final List<GameRound> rounds = [];
@@ -24,12 +24,12 @@ class AppState extends ChangeNotifier {
   // Puntajes base por queso para EDA (Nivel 2)
   // Nota: si tenés una fuente CSV, podés popular esto en el init.
   final Map<String, double> puntajeBase = const {
-    'Parmesano': 4.6,
+    'Provolone': 4.6,
     'Brie': 3.9,
     'Gouda': 3.3,
     'Mozzarella': 3.8,
     'Cheddar': 3.5,
-    'Provolone': 3.2,
+    'Azul': 3.5,
   };
 
   // A/B buckets (contadores de muestra y conversiones)
@@ -50,37 +50,43 @@ class AppState extends ChangeNotifier {
   final Map<String, InventoryItem> inventory = {};
 
   // Helpers de inventario
-  bool isOutOfStock(String name) => (inventory[name]?.stock ?? 0) <= 0;
+  bool isOutOfStock(String name) {
+    final key = _resolveName(name);
+    return (inventory[key]?.stock ?? 0) <= 0;
+  }
 
   void restock(String name, int amount) {
     if (amount == 0) return;
-    final item = inventory[name];
+    final key = _resolveName(name);
+    final item = inventory[key];
     if (item == null) return;
 
-    final cap = item.reorderPoint > 0 ? item.reorderPoint : maxStock;
+    final cap = item.reorderPoint > 0 ? item.reorderPoint : kStockMax;
     final next = (item.stock + amount).clamp(0, cap).toInt();
     if (next == item.stock) return;
-    inventory[name] = item.copyWith(stock: next);
+    inventory[key] = item.copyWith(stock: next);
     notifyListeners();
   }
 
   void restockFull(String name) {
-    final item = inventory[name];
+    final key = _resolveName(name);
+    final item = inventory[key];
     if (item == null) return;
-    final target = item.reorderPoint > 0 ? item.reorderPoint : maxStock;
+    final target = item.reorderPoint > 0 ? item.reorderPoint : kStockMax;
     final diff = target - item.stock;
     if (diff <= 0) return;
-    restock(name, diff);
+    restock(key, diff);
   }
 
   /// Intenta servir un queso. Devuelve true si se pudo.
   bool tryServe(String name) {
-    final item = inventory[name];
+    final key = _resolveName(name);
+    final item = inventory[key];
     if (item == null || item.stock <= 0) return false;
 
-    final next = (item.stock - 1).clamp(0, maxStock).toInt();
-    inventory[name] = item.copyWith(stock: next);
-    servedByCheese[name] = (servedByCheese[name] ?? 0) + 1;
+    final next = (item.stock - 1).clamp(0, kStockMax).toInt();
+    inventory[key] = item.copyWith(stock: next);
+    servedByCheese[key] = (servedByCheese[key] ?? 0) + 1;
     notifyListeners();
     return true;
   }
@@ -94,8 +100,8 @@ class AppState extends ChangeNotifier {
     inventory.clear();
     for (final it in seed) {
       inventory[it.name] = it.copyWith(
-        stock: maxStock,
-        reorderPoint: maxStock,
+        stock: kStockMax,
+        reorderPoint: kStockMax,
       );
     }
     notifyListeners();
@@ -108,10 +114,12 @@ class AppState extends ChangeNotifier {
     required bool isCorrect,
     required String bucketAB, // "A" o "B"
   }) {
+    final orderName = _resolveName(order);
+    final chosenName = _resolveName(chosen);
     final now = DateTime.now();
     rounds.add(GameRound(
-        order: order,
-        chosen: chosen,
+        order: orderName,
+        chosen: chosenName,
         bucket: bucketAB,
         isCorrect: isCorrect,
         ts: now));
@@ -119,7 +127,7 @@ class AppState extends ChangeNotifier {
 
     if (isCorrect) {
       correct += 1;
-      final country = kCheeseCountryEs[chosen] ?? 'Otro';
+      final country = kCheeseCountryEs[chosenName] ?? 'Otro';
       servedByCountry.update(country, (v) => v + 1, ifAbsent: () => 1);
     } else {
       wrong += 1;
@@ -152,6 +160,13 @@ class AppState extends ChangeNotifier {
   void clearLastLevelCompleted() {
     _lastLevelCompleted = null;
     notifyListeners();
+  }
+
+  String _resolveName(String raw) {
+    final id = normalizeCheese(raw);
+    if (id.isEmpty) return raw;
+    final cheese = cheeseById(id);
+    return cheese?.nombre ?? raw;
   }
 
   // ----- API alternativa para A/B solicitada en el brief -----

@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-// import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../state/app_state.dart';
 import '../services/ml_service.dart';
+import '../utils/help_sheet.dart';
+import '../widgets/kawaii_card.dart';
 
 /// Nivel 4 — Predicción ML (online)
 /// Muestra un recomendador que aprende en vivo (LR online + SGD)
@@ -65,10 +66,10 @@ class _Level4MlPredictionScreenState extends State<Level4MlPredictionScreen> {
         'stock': 0.25,
         'mozzarella': 0.02,
         'cheddar': 0.10,
-        'provolone': 0.08,
+        'provolone': 0.12,
         'gouda': 0.05,
         'brie': -0.04,
-        'Provolone': -0.06,
+        'azul': -0.02,
       };
       final cheeseKey = sugerido.toLowerCase();
       _lastContribs = <String, double>{
@@ -160,15 +161,12 @@ class _Level4MlPredictionScreenState extends State<Level4MlPredictionScreen> {
         title: const Text('Predicción ML'),
         centerTitle: true,
         actions: [
-          TextButton(
-            onPressed: () => _showHowItWorks(context),
-            style: TextButton.styleFrom(
-              foregroundColor: Theme.of(context).colorScheme.onPrimary,
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-            ),
-            child: const Text(
-              '¿?',
-              style: TextStyle(fontWeight: FontWeight.w800),
+          IconButton(
+            tooltip: 'Ver ayuda',
+            icon: const Icon(Icons.help_outline),
+            onPressed: () => showHelpSheet(
+              context,
+              child: const _MlHelpContent(),
             ),
           ),
         ],
@@ -285,12 +283,8 @@ class _ParametrosCard extends StatelessWidget {
       );
     }
 
-    return Card(
-      elevation: 0,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
+    return KawaiiCard(
+      child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text('Racha de aciertos'),
@@ -378,14 +372,10 @@ class _ResultadoCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final hasResult = probPredicha != null;
 
-    return Card(
-      elevation: 0,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: AnimatedSize(
-        duration: const Duration(milliseconds: 200),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: hasResult
+    return AnimatedSize(
+      duration: const Duration(milliseconds: 200),
+      child: KawaiiCard(
+        child: hasResult
               ? Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -423,8 +413,8 @@ class _ResultadoCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 8),
                     const Text(
-                      'Ajustá los parámetros y tocá “Predecir” para estimar la probabilidad '
-                      'de acierto del próximo pedido.',
+                      'Necesito feedback para aprender: ajustá los parámetros y tocá “Predecir” '
+                      'para estimar la probabilidad de acierto del próximo pedido.',
                       softWrap: true,
                     ),
                     const SizedBox(height: 16),
@@ -487,12 +477,8 @@ class _AprenderCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      elevation: 0,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
+    return KawaiiCard(
+      child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
@@ -566,63 +552,43 @@ class _AprenderCard extends StatelessWidget {
   }
 }
 
-// Bullets helper
-class _Bullet extends StatelessWidget {
-  final String text;
-  const _Bullet(this.text);
+class _MlHelpContent extends StatelessWidget {
+  const _MlHelpContent();
+
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 3),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text('•  '),
-          Expanded(child: Text(text)),
-        ],
-      ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: const [
+        Text(
+          'Cómo funciona la predicción',
+          style: TextStyle(fontWeight: FontWeight.w800, fontSize: 18),
+        ),
+        SizedBox(height: 12),
+        Text('• Modelo: regresión logística online entrenada con cada pedido del juego.'),
+        Text('• Features: racha, tiempo de respuesta, hora del día, stock promedio visible y el queso ofrecido.'),
+        Text('• Aprendizaje: cada feedback (“Convirtió/No convirtió”) ajusta los pesos en tiempo real.'),
+        SizedBox(height: 16),
+        Text(
+          'Interpretación',
+          style: TextStyle(fontWeight: FontWeight.w700),
+        ),
+        SizedBox(height: 8),
+        Text('• La probabilidad indica qué tan probable es que el queso sugerido convierta en este turno.'),
+        Text('• "Motivos" resume el aporte estimado de cada feature (peso × valor normalizado).'),
+        Text('• Si recién empezaste, el modelo se mantendrá prudente cerca de 50% hasta aprender más.'),
+        SizedBox(height: 16),
+        Text(
+          'Limitaciones y buenas prácticas',
+          style: TextStyle(fontWeight: FontWeight.w700),
+        ),
+        SizedBox(height: 8),
+        Text('• No captura variables externas como clima o campañas; complementalo con análisis cualitativo.'),
+        Text('• Los pesos viven en tu dispositivo: borrar datos reinicia el entrenamiento.'),
+        Text('• Usalo como brújula rápida y combiná con experimentos A/B para validar decisiones.'),
+      ],
     );
   }
-}
-
-void _showHowItWorks(BuildContext context) {
-  showModalBottomSheet(
-    context: context,
-    showDragHandle: true,
-    isScrollControlled: true,
-    builder: (c) => SafeArea(
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: const [
-              Text('¿Qué hace este modelo?',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-              SizedBox(height: 8),
-              Text(
-                'Predice la probabilidad de conversión ahora mismo y sugiere el queso con mayor probabilidad.',
-              ),
-              SizedBox(height: 12),
-              Text('Cómo funciona:', style: TextStyle(fontWeight: FontWeight.w600)),
-              _Bullet('Modelo: regresión logística online (aprende en tiempo real).'),
-              _Bullet('Features: racha, tiempo de juego, queso actual, hora del día, stock visible.'),
-              _Bullet('Salida: probabilidad entre 0–100% y recomendación del queso con p más alta.'),
-              _Bullet('Actualización: cada vez que marcás “Convirtió/No convirtió”, el modelo se recalibra.'),
-              SizedBox(height: 12),
-              Text('Interpretación:', style: TextStyle(fontWeight: FontWeight.w600)),
-              _Bullet('Si p≥50% no garantiza venta, solo indica mayor probabilidad que el azar.'),
-              _Bullet('Úsalo para priorizar — no reemplaza criterio humano.'),
-              SizedBox(height: 12),
-              Text('Limitaciones:', style: TextStyle(fontWeight: FontWeight.w600)),
-              _Bullet('Al inicio sabe poco: necesita feedback para mejorar.'),
-              _Bullet('Sesgos si los datos de entrada son poco variados.'),
-            ],
-          ),
-        ),
-      ),
-    ),
-  );
 }
 
 void _showReasons(BuildContext context, Map<String, double> contribs, double p) {

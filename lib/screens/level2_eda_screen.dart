@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 
 import '../state/app_state.dart';
 import '../state/orders_state.dart';
+import '../widgets/kawaii_card.dart';
 
 /// Nivel 2 — Exploración de datos (mobile-first)
 /// Lee pedidos reales persistidos y muestra:
@@ -17,10 +18,10 @@ class Level2EdaScreen extends StatelessWidget {
   static const List<String> ordenQuesos = [
     'Mozzarella',
     'Cheddar',
-    'Parmesano',
+    'Provolone',
     'Gouda',
     'Brie',
-    'Provolone',
+    'Azul',
   ];
 
   /// Ordena los quesos por cantidad de pedidos (descendente).
@@ -166,19 +167,7 @@ class _TopQuesosCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final hasData = sorted.any((entry) => entry.value > 0);
-    return Container(
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surface,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+    return KawaiiCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -201,6 +190,7 @@ class _TopQuesosCard extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(vertical: 6.0),
                 child: Row(
                   children: [
+                    const Text('🧀 '),
                     Expanded(child: Text(entry.key, softWrap: true)),
                     Text(
                       '${entry.value} pedidos · ${(scores[entry.key] ?? 0).toStringAsFixed(1)}⭐',
@@ -234,19 +224,7 @@ class _PedidosChartCard extends StatelessWidget {
     final interval = safeMax <= 5 ? 1.0 : (safeMax / 5).ceilToDouble();
     final chartMaxY = hasData ? safeMax + interval : safeMax;
 
-    return Container(
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surface,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
+    return KawaiiCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -322,7 +300,7 @@ class _PedidosChartCard extends StatelessWidget {
                                 toY: series[i].toDouble(),
                                 width: 18,
                                 borderRadius: BorderRadius.circular(6),
-                                color: theme.colorScheme.primary,
+                                color: const Color(0xFFFFB74D),
                               ),
                             ],
                           ),
@@ -378,12 +356,12 @@ class _ParticipacionCard extends StatelessWidget {
   final Map<String, int> counts;
 
   static const _palette = <Color>[
-    Color(0xFFFFD166),
-    Color(0xFFFFA8A8),
-    Color(0xFFA0CED9),
-    Color(0xFF98D8AA),
-    Color(0xFFE0BBE4),
-    Color(0xFFFFC4D6),
+    Color(0xFFFFC75F),
+    Color(0xFFFFA45B),
+    Color(0xFFFF6F91),
+    Color(0xFFBA90C6),
+    Color(0xFF85CFD8),
+    Color(0xFFFFE6A7),
   ];
 
   @override
@@ -436,9 +414,7 @@ class _ParticipacionCard extends StatelessWidget {
       ],
     );
 
-    return Container(
-      decoration: cardDecoration,
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
+    return KawaiiCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -477,30 +453,34 @@ class _ParticipacionCard extends StatelessWidget {
                   ),
           ),
           const SizedBox(height: 8),
-          if (hasData)
-            Wrap(
-              spacing: 6,
-              runSpacing: 6,
-              children: entries
-                  .where((entry) => entry.value > 0)
-                  .map((entry) {
-                final percent = (entry.value / total) * 100;
-                final label = percent >= 10
-                    ? '${percent.toStringAsFixed(0)}%'
-                    : '${percent.toStringAsFixed(1)}%';
-                return Chip(
-                  label: Text('🧀 ${entry.key}: $label'),
-                  backgroundColor: theme.colorScheme.surfaceContainerHighest
-                      .withValues(alpha: 0.25),
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                );
-              }).toList(),
-            )
-          else
-            Text(
-              'Jugá al menos una partida para habilitar este gráfico.',
-              style: theme.textTheme.bodySmall,
+          Wrap(
+            spacing: 6,
+            runSpacing: 6,
+            children: entries.map((entry) {
+              final percent = total == 0
+                  ? 0
+                  : ((entry.value / total) * 100).clamp(0, 100);
+              final label = total == 0
+                  ? '0%'
+                  : (percent >= 10
+                      ? '${percent.toStringAsFixed(0)}%'
+                      : '${percent.toStringAsFixed(1)}%');
+              return Chip(
+                label: Text('🧀 ${entry.key}: $label'),
+                backgroundColor: theme.colorScheme.surfaceContainerHighest
+                    .withValues(alpha: 0.25),
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              );
+            }).toList(),
+          ),
+          if (!hasData)
+            Padding(
+              padding: const EdgeInsets.only(top: 8.0),
+              child: Text(
+                'Jugá al menos una partida para habilitar datos reales en este gráfico.',
+                style: theme.textTheme.bodySmall,
+              ),
             ),
         ],
       ),
@@ -563,19 +543,8 @@ class _RecomendacionCard extends StatelessWidget {
             ],
           );
 
-    return Container(
-      decoration: BoxDecoration(
-        color: const Color(0xFFFCE9A8),
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      padding: const EdgeInsets.all(16),
+    return KawaiiCard(
+      backgroundColor: const Color(0xFFFCE9A8),
       child: content,
     );
   }

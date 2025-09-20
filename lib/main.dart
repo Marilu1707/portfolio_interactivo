@@ -5,7 +5,7 @@ import 'package:flutter_web_plugins/url_strategy.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
-import 'home_screen.dart';
+import 'screens/home/home_screen.dart';
 import 'screens/dashboard_screen.dart';
 import 'screens/level1_game_screen.dart';
 import 'screens/level2_eda_screen.dart';
@@ -175,13 +175,13 @@ class MariluApp extends StatelessWidget {
           child: child!,
         );
       },
-      title: 'Marilu - Ciencia de Datos',
+      title: 'María Luján Massironi — Nido Mozzarella',
       // Evita el efecto glow de scroll en web/desktop.
       scrollBehavior: const _NoGlowScrollBehavior(),
       theme: KawaiiTheme.materialTheme(),
       initialRoute: '/',
       routes: {
-        '/': (_) => const HomeDesktop(),
+        '/': (_) => const HomeScreen(),
         '/level1': (_) => const Level1GameScreen(),
         '/level2': (_) => const Level2EdaScreen(),
         '/level3': (_) => const Level3InventoryScreen(),
@@ -190,7 +190,7 @@ class MariluApp extends StatelessWidget {
         '/dashboard': (_) => const Level5DashboardScreen(),
       },
       onUnknownRoute: (settings) => MaterialPageRoute(
-        builder: (_) => const HomeDesktop(),
+        builder: (_) => const HomeScreen(),
       ),
     );
   }

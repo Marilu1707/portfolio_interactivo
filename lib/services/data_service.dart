@@ -4,6 +4,7 @@ import '../models/cheese_stat.dart';
 import '../models/cheese_rating.dart';
 import '../models/inventory_item.dart';
 import '../data/cheese_catalog.dart';
+import '../utils/constants.dart';
 
 // Servicio de datos: carga archivos CSV desde assets.
 
@@ -80,9 +81,9 @@ class DataService {
       out.add(InventoryItem(
         id: id++,
         name: c.nombre,
-        stock: 30,
+        stock: kStockMax,
         expiry: expiry,
-        reorderPoint: 30,
+        reorderPoint: kStockMax,
       ));
     }
     return out;

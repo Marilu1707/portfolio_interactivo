@@ -7,12 +7,12 @@ class OrdersState extends ChangeNotifier {
   static const _kLegacyKey = 'orders_counts';
 
   static const List<String> _defaultCheeses = [
-    'Parmesano',
+    'Provolone',
     'Brie',
     'Mozzarella',
     'Cheddar',
     'Gouda',
-    'Provolone',
+    'Azul',
   ];
 
   final Map<String, int> _requested = {
@@ -34,6 +34,28 @@ class OrdersState extends ChangeNotifier {
     for (final cheese in _defaultCheeses) {
       _requested[cheese] = prefs.getInt('$_kKeyReq:$cheese') ?? 0;
       _served[cheese] = prefs.getInt('$_kKeySrv:$cheese') ?? 0;
+    }
+
+    // Migrar datos legacy (Parmesano → Provolone, Blue → Azul)
+    final legacyParmesanoReq = prefs.getInt('$_kKeyReq:Parmesano') ?? 0;
+    final legacyParmesanoSrv = prefs.getInt('$_kKeySrv:Parmesano') ?? 0;
+    if (legacyParmesanoReq > 0) {
+      _requested['Provolone'] = (_requested['Provolone'] ?? 0) + legacyParmesanoReq;
+      await prefs.remove('$_kKeyReq:Parmesano');
+    }
+    if (legacyParmesanoSrv > 0) {
+      _served['Provolone'] = (_served['Provolone'] ?? 0) + legacyParmesanoSrv;
+      await prefs.remove('$_kKeySrv:Parmesano');
+    }
+    final legacyBlueReq = prefs.getInt('$_kKeyReq:Blue') ?? 0;
+    final legacyBlueSrv = prefs.getInt('$_kKeySrv:Blue') ?? 0;
+    if (legacyBlueReq > 0) {
+      _requested['Azul'] = (_requested['Azul'] ?? 0) + legacyBlueReq;
+      await prefs.remove('$_kKeyReq:Blue');
+    }
+    if (legacyBlueSrv > 0) {
+      _served['Azul'] = (_served['Azul'] ?? 0) + legacyBlueSrv;
+      await prefs.remove('$_kKeySrv:Blue');
     }
     // Migrate legacy `_counts` (served) if both maps are empty
     final legacySum = _defaultCheeses

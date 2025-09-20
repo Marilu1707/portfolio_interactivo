@@ -4,11 +4,13 @@ class Features {
   static const _cheeses = [
     'Mozzarella',
     'Cheddar',
-    'Parmesano',
+    'Provolone',
     'Gouda',
     'Brie',
-    'Provolone',
+    'Azul',
   ];
+
+  static int get dimension => 8 + _cheeses.length;
 
   /// Build the 14-dim feature vector described in the brief.
   static List<double> build({
