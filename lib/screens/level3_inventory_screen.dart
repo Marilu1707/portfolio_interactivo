@@ -429,8 +429,8 @@ class _StockBadge extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20),
-        color: color.withOpacity(.12),
-        border: Border.all(color: color.withOpacity(.35)),
+        color: color.withValues(alpha: 0.12),
+        border: Border.all(color: color.withValues(alpha: 0.35)),
       ),
       child: Text('$value',
           style: TextStyle(fontWeight: FontWeight.w700, color: color)),
@@ -455,8 +455,8 @@ class _StatePill extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20),
-        color: color.withOpacity(.12),
-        border: Border.all(color: color.withOpacity(.35)),
+        color: color.withValues(alpha: 0.12),
+        border: Border.all(color: color.withValues(alpha: 0.35)),
       ),
       child: Text(text,
           style: TextStyle(fontWeight: FontWeight.w700, color: color)),
