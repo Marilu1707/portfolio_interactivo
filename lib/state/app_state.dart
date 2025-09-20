@@ -5,6 +5,9 @@ import '../data/cheese_country_es.dart';
 // Estado global de la app: puntajes del juego, inventario y resultados de A/B.
 
 class AppState extends ChangeNotifier {
+  // Tope global de stock
+  static const int maxStock = 30;
+
   // Rondas y conteos
   final List<GameRound> rounds = [];
   final Map<String, int> servedByCheese = {};
@@ -54,8 +57,17 @@ class AppState extends ChangeNotifier {
     final item = inventory[name];
     if (item == null) return;
 
-    final next = item.stock + amount;
-    item.stock = next < 0 ? 0 : next;
+    final next = (item.stock + amount).clamp(0, maxStock).toInt();
+    item.stock = next;
+    notifyListeners();
+  }
+
+  void restockFull(String name) {
+    final item = inventory[name];
+    if (item == null) return;
+    if (item.stock >= maxStock) return;
+
+    item.stock = maxStock;
     notifyListeners();
   }
 
@@ -64,7 +76,7 @@ class AppState extends ChangeNotifier {
     final item = inventory[name];
     if (item == null || item.stock <= 0) return false;
 
-    item.stock -= 1;
+    item.stock = (item.stock - 1).clamp(0, maxStock).toInt();
     servedByCheese[name] = (servedByCheese[name] ?? 0) + 1;
     notifyListeners();
     return true;
