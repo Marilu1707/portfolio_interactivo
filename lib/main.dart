@@ -1,5 +1,3 @@
-﻿import 'dart:async';
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -20,9 +18,8 @@ import 'state/app_state.dart';
 import 'state/orders_state.dart';
 import 'theme/kawaii_theme.dart';
 
-Future<void> main() async {
+void main() {
   WidgetsFlutterBinding.ensureInitialized();
-
   FlutterError.onError = (details) {
     FlutterError.presentError(details);
     debugPrint('FLUTTER ERROR: ${details.exceptionAsString()}');
@@ -30,67 +27,103 @@ Future<void> main() async {
       debugPrint(details.stack.toString());
     }
   };
-
-  runApp(const _BootstrapApp());
-
   if (kIsWeb) {
     setUrlStrategy(const HashUrlStrategy());
   }
+  runApp(const MyApp());
+}
 
-  try {
+class MyApp extends StatefulWidget {
+  const MyApp({super.key});
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  late final Future<_AppDependencies> _initFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _initFuture = _loadDependencies();
+  }
+
+  Future<_AppDependencies> _loadDependencies() async {
     Intl.defaultLocale = 'es_AR';
     final seed = await DataService.loadInventory();
 
     final appState = AppState()..initInventory(seed);
     final ordersState = OrdersState();
     await ordersState.load();
+    final abState = ABResultState();
+    await abState.load();
 
-    runApp(
-      MultiProvider(
-        providers: [
-          ChangeNotifierProvider.value(value: appState),
-          ChangeNotifierProvider.value(value: ordersState),
-          ChangeNotifierProvider(create: (_) => ABResultState()..load()),
-        ],
-        child: const MariluApp(),
-      ),
+    return _AppDependencies(
+      appState: appState,
+      ordersState: ordersState,
+      abState: abState,
     );
-  } catch (error, stack) {
-    debugPrint('UNCAUGHT INIT ERROR: $error');
-    debugPrint(stack.toString());
-    runApp(
-      MaterialApp(
-        debugShowCheckedModeBanner: false,
-        home: Scaffold(
-          backgroundColor: const Color(0xFFFFF6E5),
-          body: Center(
-            child: Padding(
-              padding: const EdgeInsets.all(24),
-              child: Text(
-                'Ups... ocurrió un error al iniciar.\n$error',
-                textAlign: TextAlign.center,
-                style: const TextStyle(color: Colors.brown, fontSize: 16),
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<_AppDependencies>(
+      future: _initFuture,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState != ConnectionState.done) {
+          return const MaterialApp(
+            debugShowCheckedModeBanner: false,
+            home: Scaffold(
+              backgroundColor: Color(0xFFFFF9E8),
+              body: Center(child: CircularProgressIndicator()),
+            ),
+          );
+        }
+
+        if (snapshot.hasError) {
+          return MaterialApp(
+            debugShowCheckedModeBanner: false,
+            home: Scaffold(
+              backgroundColor: const Color(0xFFFFF6E5),
+              body: Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(24),
+                  child: Text(
+                    'Ups... ocurrió un error al iniciar.\n${snapshot.error}',
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(color: Colors.brown, fontSize: 16),
+                  ),
+                ),
               ),
             ),
-          ),
-        ),
-      ),
+          );
+        }
+
+        final deps = snapshot.data!;
+        return MultiProvider(
+          providers: [
+            ChangeNotifierProvider.value(value: deps.appState),
+            ChangeNotifierProvider.value(value: deps.ordersState),
+            ChangeNotifierProvider.value(value: deps.abState),
+          ],
+          child: const MariluApp(),
+        );
+      },
     );
   }
 }
 
-class _BootstrapApp extends StatelessWidget {
-  const _BootstrapApp({super.key});
+class _AppDependencies {
+  final AppState appState;
+  final OrdersState ordersState;
+  final ABResultState abState;
 
-  @override
-  Widget build(BuildContext context) {
-    return const MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: Scaffold(
-        body: Center(child: Text('Cargando app...')),
-      ),
-    );
-  }
+  const _AppDependencies({
+    required this.appState,
+    required this.ordersState,
+    required this.abState,
+  });
 }
 
 class MariluApp extends StatelessWidget {

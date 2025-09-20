@@ -238,6 +238,11 @@ class _Level1GameScreenState extends State<Level1GameScreen>
     _orderTimer.stop();
     _levelTimer?.cancel();
     if (!mounted) return;
+    final app = context.read<AppState>();
+    final goalReached = _orderCount >= _maxOrders;
+    if (goalReached) {
+      app.markLevel1Cleared();
+    }
     final total = _orderCount == 0 ? 1 : _orderCount;
     final acc = (_hits * 100 / total).toStringAsFixed(1);
     showDialog(
@@ -299,6 +304,13 @@ class _Level1GameScreenState extends State<Level1GameScreen>
 
   @override
   Widget build(BuildContext context) {
+    final appState = context.watch<AppState>();
+    final canProceed = appState.level1Cleared;
+    final remainingOrders = (_maxOrders - _orderCount).clamp(0, _maxOrders);
+    final String lockedMessage = remainingOrders > 0
+        ? 'Te faltan ${remainingOrders == 1 ? '1 pedido' : '$remainingOrders pedidos'} para desbloquear el Nivel 2.'
+        : 'Completá las $_maxOrders órdenes para desbloquear el Nivel 2.';
+
     return Scaffold(
       backgroundColor: bg,
       appBar: AppBar(
@@ -314,8 +326,9 @@ class _Level1GameScreenState extends State<Level1GameScreen>
                 child: ConstrainedBox(
                   constraints: const BoxConstraints(maxWidth: 900),
                   child: SingleChildScrollView(
-                    padding: const EdgeInsets.all(24),
+                    padding: const EdgeInsets.all(16),
                     child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         Align(
                           alignment: Alignment.centerLeft,
@@ -332,28 +345,24 @@ class _Level1GameScreenState extends State<Level1GameScreen>
                                     fontSize: 20,
                                     fontWeight: FontWeight.w900,
                                     color: Colors.brown),
+                            softWrap: true,
                           ),
                         ),
                         const SizedBox(height: 12),
-                        Row(
+                        Wrap(
+                          spacing: 12,
+                          runSpacing: 12,
+                          crossAxisAlignment: WrapCrossAlignment.center,
                           children: [
-                            _pill('Pedido  ${_orderCount + (currentOrder != null ? 1 : 0)}/$_maxOrders'),
-                            const SizedBox(width: 12),
-                            _pill('Tiempo  ${(_secondsLeft ~/ 60).toString().padLeft(2, '0')}:${(_secondsLeft % 60).toString().padLeft(2, '0')}'),
-                            const SizedBox(width: 12),
+                            _pill(
+                                'Pedido  ${_orderCount + (currentOrder != null ? 1 : 0)}/$_maxOrders'),
+                            _pill(
+                                'Tiempo  ${(_secondsLeft ~/ 60).toString().padLeft(2, '0')}:${(_secondsLeft % 60).toString().padLeft(2, '0')}'),
                             _pill('Puntaje  $score'),
-                            const SizedBox(width: 12),
                             _pill('Racha  $streak'),
-                            const Spacer(),
-                            ElevatedButton.icon(
-                              onPressed: () =>
-                                  Navigator.pushNamed(context, '/level2'),
-                              icon: const Icon(Icons.arrow_forward),
-                              label: const Text('Siguiente nivel'),
-                            ),
                           ],
                         ),
-                        const SizedBox(height: 8),
+                        const SizedBox(height: 16),
                         LinearProgressIndicator(
                           value: _orderCount / _maxOrders,
                           backgroundColor: Colors.brown.withValues(alpha: .1),
@@ -441,11 +450,40 @@ class _Level1GameScreenState extends State<Level1GameScreen>
                                   _cheeseChip(c.nombre, () => _serve(c.nombre)))
                               .toList(),
                         ),
+                        const SizedBox(height: 120),
                       ],
                     ),
                   ),
                 ),
               ),
+      ),
+      bottomNavigationBar: SafeArea(
+        minimum: const EdgeInsets.fromLTRB(16, 12, 16, 16),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            SizedBox(
+              height: 56,
+              child: FilledButton.icon(
+                onPressed: canProceed
+                    ? () => Navigator.pushNamed(context, '/level2')
+                    : null,
+                icon: const Icon(Icons.arrow_forward),
+                label: const Text('Siguiente nivel'),
+              ),
+            ),
+            if (!canProceed) ...[
+              const SizedBox(height: 8),
+              Text(
+                lockedMessage,
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.bodySmall,
+                softWrap: true,
+              ),
+            ],
+          ],
+        ),
       ),
     );
   }

@@ -25,6 +25,7 @@ class _Level3InventoryScreenState extends State<Level3InventoryScreen> {
 
   // Variante toast (overlay) para notificaciones kawaii
   void _addOneToast(AppState app, InventoryItem row, int qty) {
+    if (qty <= 0) return;
     app.restock(row.name, qty);
     final plural = qty > 1 ? 's' : '';
     GamePopup.show(context,
@@ -63,12 +64,13 @@ class _Level3InventoryScreenState extends State<Level3InventoryScreen> {
         centerTitle: true,
         title: const Text('Nivel 3 – Inventario'),
       ),
-      body: Center(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 1100),
-          child: Padding(
-            padding: const EdgeInsets.all(20),
-            child: Column(
+      body: SafeArea(
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 1100),
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Builder(builder: (context) {
@@ -132,57 +134,81 @@ class _Level3InventoryScreenState extends State<Level3InventoryScreen> {
                                 DataColumn(label: Text('Estado')),
                                 DataColumn(label: Text('Acciones')),
                               ],
-                              rows: rows.map((r) => DataRow(cells: [
-                                DataCell(SizedBox(width: 220, child: Text(r.name, softWrap: true, style: const TextStyle(fontWeight: FontWeight.w700)))),
-                                DataCell(Align(alignment: Alignment.centerRight, child: _StockBadgeSmall(value: r.stock))),
-                                DataCell(Text(df.format(r.expiry))),
-                                DataCell(SizedBox(width: 32, child: Align(alignment: Alignment.centerLeft, child: StockStatusDot(stock: r.stock)))) ,
-                                DataCell(SizedBox(
-                                  width: 220, // mantiene una sola línea para acciones
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.end,
-                                    children: [
-                                      Tooltip(
-                                        message: 'Agregar 1',
-                                        child: Semantics(
-                                          button: true,
-                                          label: 'Agregar una unidad',
-                                          child: OutlinedButton(
-                                            onPressed: () => _addOneToast(app, r, 1),
-                                            style: OutlinedButton.styleFrom(
-                                              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                                              minimumSize: const Size(0, 48),
+                              rows: rows.map((r) {
+                                final isOut = r.stock <= 0;
+                                final reorderPoint = r.reorderPoint > 0 ? r.reorderPoint : 5;
+                                final isLow = !isOut && r.stock <= reorderPoint;
+                                return DataRow(cells: [
+                                  DataCell(SizedBox(
+                                      width: 220,
+                                      child: Text(r.name,
+                                          softWrap: true,
+                                          style: const TextStyle(fontWeight: FontWeight.w700)))),
+                                  DataCell(Align(
+                                      alignment: Alignment.centerRight,
+                                      child: _StockBadgeSmall(value: r.stock))),
+                                  DataCell(Text(df.format(r.expiry))),
+                                  DataCell(Align(
+                                    alignment: Alignment.centerLeft,
+                                    child: _InventoryStatusBadge(
+                                      isOut: isOut,
+                                      isLow: isLow,
+                                      dense: true,
+                                    ),
+                                  )),
+                                  DataCell(SizedBox(
+                                    width: 220,
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.end,
+                                      children: [
+                                        Tooltip(
+                                          message: 'Agregar 1',
+                                          child: Semantics(
+                                            button: true,
+                                            label: 'Agregar una unidad',
+                                            child: OutlinedButton(
+                                              onPressed: isOut
+                                                  ? null
+                                                  : () => _addOneToast(app, r, 1),
+                                              style: OutlinedButton.styleFrom(
+                                                padding: const EdgeInsets.symmetric(
+                                                    horizontal: 14, vertical: 12),
+                                                minimumSize: const Size(0, 48),
+                                              ),
+                                              child: const Text('Agregar'),
                                             ),
-                                            child: const Text('Agregar'),
                                           ),
                                         ),
-                                      ),
-                                      const SizedBox(width: 8),
-                                      Tooltip(
-                                        message: 'Agregar 5',
-                                        child: Semantics(
-                                          button: true,
-                                          label: 'Agregar cinco unidades',
-                                          child: OutlinedButton(
-                                            onPressed: () => _addOneToast(app, r, 5),
-                                            style: OutlinedButton.styleFrom(
-                                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-                                              minimumSize: const Size(0, 48),
+                                        const SizedBox(width: 8),
+                                        Tooltip(
+                                          message: 'Agregar 5',
+                                          child: Semantics(
+                                            button: true,
+                                            label: 'Agregar cinco unidades',
+                                            child: OutlinedButton(
+                                              onPressed: isOut
+                                                  ? null
+                                                  : () => _addOneToast(app, r, 5),
+                                              style: OutlinedButton.styleFrom(
+                                                padding: const EdgeInsets.symmetric(
+                                                    horizontal: 12, vertical: 12),
+                                                minimumSize: const Size(0, 48),
+                                              ),
+                                              child: const Text('+5'),
                                             ),
-                                            child: const Text('+5'),
                                           ),
                                         ),
-                                      ),
-                                    ],
-                                  ),
-                                )),
-                              ])).toList(),
+                                      ],
+                                    ),
+                                  )),
+                                ]);
+                              }).toList(),
                             ),
                           ),
                         ),
                       ),
                     );
-                      if (!isMobile) return table;
+                    if (!isMobile) return table;
 
                       // Mobile: list of row-cards
                       return ListView.builder(
@@ -191,6 +217,9 @@ class _Level3InventoryScreenState extends State<Level3InventoryScreen> {
                         padding: const EdgeInsets.only(bottom: 12),
                         itemBuilder: (context, i) {
                           final r = rows[i];
+                          final isOut = r.stock <= 0;
+                          final reorderPoint = r.reorderPoint > 0 ? r.reorderPoint : 5;
+                          final isLow = !isOut && r.stock <= reorderPoint;
                           _rowKeys.putIfAbsent(r.name, () => GlobalKey());
                           return KeyedSubtree(
                             key: _rowKeys[r.name],
@@ -211,66 +240,100 @@ class _Level3InventoryScreenState extends State<Level3InventoryScreen> {
                                     ],
                                   ),
                                   padding: const EdgeInsets.all(12),
-                                  child: Row(
-                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
-                                      Expanded(
-                                        child: Column(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
-                                          children: [
-                                            Text(
-                                              r.name,
-                                              style: const TextStyle(fontWeight: FontWeight.w700),
-                                              maxLines: 2,
-                                              overflow: TextOverflow.ellipsis,
+                                      Row(
+                                        crossAxisAlignment: CrossAxisAlignment.center,
+                                        children: [
+                                          Expanded(
+                                            child: Column(
+                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              children: [
+                                                Text(
+                                                  r.name,
+                                                  style: const TextStyle(fontWeight: FontWeight.w700),
+                                                  maxLines: 2,
+                                                  overflow: TextOverflow.ellipsis,
+                                                ),
+                                                const SizedBox(height: 4),
+                                                Text(
+                                                  'Caduca: ${df.format(r.expiry)}',
+                                                  style: const TextStyle(fontSize: 12),
+                                                ),
+                                              ],
                                             ),
-                                            const SizedBox(height: 4),
-                                            Text(
-                                              'Caduca: ${df.format(r.expiry)}',
-                                              style: const TextStyle(fontSize: 12),
-                                            ),
-                                          ],
+                                          ),
+                                          _buildTrailing(
+                                            stock: r.stock,
+                                            isOut: isOut,
+                                            onAddOne: () => _addOneToast(app, r, 1),
+                                            onAddFive: () => _addOneToast(app, r, 5),
+                                            dotColor: _statusColor(r.stock),
+                                          ),
+                                        ],
+                                      ),
+                                      if (isOut)
+                                        Padding(
+                                          padding: const EdgeInsets.only(top: 8),
+                                          child: Text(
+                                            'No quedan unidades. Reabastecé para continuar.',
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .bodySmall
+                                                ?.copyWith(
+                                                  color: Theme.of(context)
+                                                      .colorScheme
+                                                      .error,
+                                                  fontWeight: FontWeight.w600,
+                                                ),
+                                            softWrap: true,
+                                          ),
                                         ),
-                                      ),
-                                      _buildTrailing(
-                                        stock: r.stock,
-                                        onAddOne: () => _addOneToast(app, r, 1),
-                                        onAddFive: () => _addOneToast(app, r, 5),
-                                        dotColor: _statusColor(r.stock),
-                                      ),
                                     ],
                                   ),
                                 ),
-                                // Badge de stock siempre visible (accesible)
+                                // Badge de stock y estado accesible
                                 Positioned(
                                   top: 8,
                                   right: 8,
                                   child: Semantics(
-                                    label: 'Stock: ${r.stock} unidades',
-                                    child: Container(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 10,
-                                        vertical: 6,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .primary
-                                            .withValues(alpha: 0.10),
-                                        borderRadius: BorderRadius.circular(12),
-                                      ),
-                                      child: Text(
-                                        'Stock: ${r.stock}',
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .labelLarge
-                                            ?.copyWith(
-                                              color: Theme.of(context)
-                                                  .colorScheme
-                                                  .primary,
-                                              fontWeight: FontWeight.w700,
-                                            ),
-                                      ),
+                                    label:
+                                        '${isOut ? 'Sin stock' : isLow ? 'Stock bajo' : 'Stock disponible'} — ${r.stock} unidades',
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.end,
+                                      children: [
+                                        _InventoryStatusBadge(
+                                          isOut: isOut,
+                                          isLow: isLow,
+                                        ),
+                                        const SizedBox(height: 6),
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 10,
+                                            vertical: 6,
+                                          ),
+                                          decoration: BoxDecoration(
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .primary
+                                                .withValues(alpha: 0.10),
+                                            borderRadius: BorderRadius.circular(12),
+                                          ),
+                                          child: Text(
+                                            'Stock: ${r.stock}',
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .labelLarge
+                                                ?.copyWith(
+                                                  color: Theme.of(context)
+                                                      .colorScheme
+                                                      .primary,
+                                                  fontWeight: FontWeight.w700,
+                                                ),
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                   ),
                                 ),
@@ -305,46 +368,39 @@ class _Level3InventoryScreenState extends State<Level3InventoryScreen> {
   }
 }
 
-class StockStatusDot extends StatelessWidget {
-  final int stock;
-  const StockStatusDot({super.key, required this.stock});
-  Color get color {
-    if (stock <= 0) return Colors.red;
-    if (stock <= 5) return Colors.orange;
-    return Colors.green;
-  }
-  @override
-  Widget build(BuildContext context) {
-    return Icon(Icons.circle, color: color, size: 16);
-  }
-}
-
 class _Legend extends StatelessWidget {
   const _Legend();
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      children: const [
-        _LegendDot(color: Colors.green, text: 'Stock suficiente'),
-        _LegendDot(color: Colors.orange, text: 'Stock bajo'),
-        _LegendDot(color: Colors.red, text: 'Sin stock'),
-      ],
-    );
-  }
-}
+    final textStyle = Theme.of(context)
+        .textTheme
+        .labelSmall
+        ?.copyWith(fontWeight: FontWeight.w600) ??
+        const TextStyle(fontSize: 12, fontWeight: FontWeight.w600);
 
-class _LegendDot extends StatelessWidget {
-  final Color color;
-  final String text;
-  const _LegendDot({required this.color, required this.text});
-  @override
-  Widget build(BuildContext context) {
-    return Row(
+    Widget legendItem({
+      required bool isOut,
+      required bool isLow,
+      required String label,
+    }) {
+      return Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _InventoryStatusBadge(isOut: isOut, isLow: isLow, dense: true),
+          const SizedBox(height: 4),
+          Text(label, style: textStyle),
+        ],
+      );
+    }
+
+    return Wrap(
+      alignment: WrapAlignment.center,
+      spacing: 16,
+      runSpacing: 12,
       children: [
-        Icon(Icons.circle, color: color, size: 14),
-        const SizedBox(width: 4),
-        Text(text, style: const TextStyle(fontSize: 12)),
+        legendItem(isOut: false, isLow: false, label: 'Stock suficiente'),
+        legendItem(isOut: false, isLow: true, label: 'Stock bajo'),
+        legendItem(isOut: true, isLow: false, label: 'Sin stock'),
       ],
     );
   }
@@ -367,6 +423,64 @@ class _StockDot extends StatelessWidget {
   }
 }
 
+class _InventoryStatusBadge extends StatelessWidget {
+  final bool isOut;
+  final bool isLow;
+  final bool dense;
+
+  const _InventoryStatusBadge({
+    required this.isOut,
+    required this.isLow,
+    this.dense = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    late final Color fg;
+    late final Color bg;
+    late final String label;
+
+    if (isOut) {
+      label = 'Sin stock';
+      fg = theme.colorScheme.error;
+      bg = fg.withValues(alpha: 0.12);
+    } else if (isLow) {
+      label = 'Stock bajo';
+      fg = const Color(0xFFFF8F00);
+      bg = const Color(0xFFFFECB3);
+    } else {
+      label = 'Stock ok';
+      fg = const Color(0xFF2E7D32);
+      bg = const Color(0xFFE8F5E9);
+    }
+
+    final border = fg.withValues(alpha: 0.35);
+    final padding = dense
+        ? const EdgeInsets.symmetric(horizontal: 10, vertical: 4)
+        : const EdgeInsets.symmetric(horizontal: 12, vertical: 6);
+
+    final textStyle = theme.textTheme.labelSmall?.copyWith(
+          color: fg,
+          fontWeight: FontWeight.w700,
+        ) ??
+        TextStyle(color: fg, fontWeight: FontWeight.w700, fontSize: 12);
+
+    return Semantics(
+      label: 'Estado: $label',
+      child: Container(
+        padding: padding,
+        decoration: BoxDecoration(
+          color: bg,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: border),
+        ),
+        child: Text(label, style: textStyle),
+      ),
+    );
+  }
+}
+
   // Color para estado de stock
   Color _statusColor(int stock) {
     if (stock <= 0) return Colors.red;
@@ -377,6 +491,7 @@ class _StockDot extends StatelessWidget {
   // Trailing responsive: muestra siempre stock y botones
   Widget _buildTrailing({
     required int stock,
+    required bool isOut,
     required VoidCallback onAddOne,
     required VoidCallback onAddFive,
     required Color dotColor,
@@ -398,7 +513,7 @@ class _StockDot extends StatelessWidget {
                       button: true,
                       label: 'Agregar una unidad',
                       child: OutlinedButton(
-                        onPressed: onAddOne,
+                        onPressed: isOut ? null : onAddOne,
                         style: OutlinedButton.styleFrom(
                           minimumSize: const Size(48, 48),
                           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
@@ -414,7 +529,7 @@ class _StockDot extends StatelessWidget {
                       button: true,
                       label: 'Agregar cinco unidades',
                       child: OutlinedButton(
-                        onPressed: onAddFive,
+                        onPressed: isOut ? null : onAddFive,
                         style: OutlinedButton.styleFrom(
                           minimumSize: const Size(48, 48),
                           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
@@ -451,7 +566,7 @@ class _StockDot extends StatelessWidget {
                 button: true,
                 label: 'Agregar una unidad',
                 child: OutlinedButton(
-                  onPressed: onAddOne,
+                  onPressed: isOut ? null : onAddOne,
                   style: OutlinedButton.styleFrom(
                     minimumSize: const Size(48, 48),
                     padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
@@ -467,7 +582,7 @@ class _StockDot extends StatelessWidget {
                 button: true,
                 label: 'Agregar cinco unidades',
                 child: OutlinedButton(
-                  onPressed: onAddFive,
+                  onPressed: isOut ? null : onAddFive,
                   style: OutlinedButton.styleFrom(
                     minimumSize: const Size(48, 48),
                     padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
