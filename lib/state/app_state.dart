@@ -57,7 +57,8 @@ class AppState extends ChangeNotifier {
     final item = inventory[name];
     if (item == null) return;
 
-    final next = (item.stock + amount).clamp(0, maxStock).toInt();
+    final cap = item.reorderPoint > 0 ? item.reorderPoint : maxStock;
+    final next = (item.stock + amount).clamp(0, cap).toInt();
     if (next == item.stock) return;
     inventory[name] = item.copyWith(stock: next);
     notifyListeners();
@@ -66,7 +67,8 @@ class AppState extends ChangeNotifier {
   void restockFull(String name) {
     final item = inventory[name];
     if (item == null) return;
-    final diff = maxStock - item.stock;
+    final target = item.reorderPoint > 0 ? item.reorderPoint : maxStock;
+    final diff = target - item.stock;
     if (diff <= 0) return;
     restock(name, diff);
   }
@@ -91,7 +93,10 @@ class AppState extends ChangeNotifier {
   void initInventory(List<InventoryItem> seed) {
     inventory.clear();
     for (final it in seed) {
-      inventory[it.name] = it;
+      inventory[it.name] = it.copyWith(
+        stock: maxStock,
+        reorderPoint: maxStock,
+      );
     }
     notifyListeners();
   }

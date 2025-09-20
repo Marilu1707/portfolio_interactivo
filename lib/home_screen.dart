@@ -24,50 +24,6 @@ class HomeDesktop extends StatelessWidget {
     }
   }
 
-  void _openDashboardModal(BuildContext context) {
-    showModalBottomSheet<void>(
-      context: context,
-      useSafeArea: true,
-      builder: (ctx) => Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Elegí qué querés analizar',
-              style: TextStyle(
-                fontWeight: FontWeight.w800,
-                color: onAccent,
-              ),
-            ),
-            const SizedBox(height: 12),
-            ListTile(
-              leading: const Icon(Icons.space_dashboard_rounded,
-                  color: onAccent),
-              title: const Text('Ver Dashboard'),
-              subtitle: const Text('KPIs, participación y evolución del juego'),
-              onTap: () {
-                Navigator.pop(ctx);
-                Navigator.pushNamed(context, '/dashboard');
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.science, color: onAccent),
-              title: const Text('Experimento A/B'),
-              subtitle:
-                  const Text('Calculá la prueba Z y guardá los resultados'),
-              onTap: () {
-                Navigator.pop(ctx);
-                Navigator.pushNamed(context, '/level5');
-              },
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
   Widget _playButton(BuildContext context, {bool expanded = false}) {
     final button = FilledButton(
       onPressed: () => Navigator.pushNamed(context, '/level1'),
@@ -187,58 +143,78 @@ class HomeDesktop extends StatelessWidget {
                       }),
                     ),
                     const SizedBox(height: 14),
-                    // Acciones principales debajo del hero.
-                    Wrap(
-                      spacing: 12,
-                      runSpacing: 12,
+                    const SizedBox(height: 20),
+
+                    _HomeCard(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const _H3('🎮 Jugar ahora'),
+                          const SizedBox(height: 8),
+                          const Text(
+                            'Entrá a “Nido Mozzarella” y atendé pedidos en un juego kawaii. '
+                            'Cada partida genera datos reales que luego analizamos en vivo.',
+                          ),
+                          const SizedBox(height: 8),
+                          const Text(
+                            'Jugá desde el celu o la compu: es mobile first y registra métricas '
+                            'para los tableros de datos.',
+                          ),
+                          const SizedBox(height: 16),
+                          _playButton(context, expanded: true),
+                        ],
+                      ),
+                    ),
+
+                    const SizedBox(height: 24),
+                    const _H3('📊 Datos del juego'),
+                    const SizedBox(height: 10),
+                    _CardsSection(
+                      isMobile: isMobile,
                       children: [
-                        ElevatedButton(
-                          onPressed: () =>
-                              Navigator.pushNamed(context, '/level1'),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFFFFD76B),
-                            foregroundColor: onAccent,
-                            elevation: 0,
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 18, vertical: 14),
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(14)),
-                          ),
-                          child: const Text('Empezar nivel 1',
-                              style: TextStyle(fontWeight: FontWeight.w800)),
+                        _LevelCard(
+                          title: 'EDA interactiva',
+                          subtitle: 'Explorá participación y KPIs clave',
+                          icon: Icons.bar_chart_rounded,
+                          onTap: () => Navigator.pushNamed(context, '/level2'),
                         ),
-                        OutlinedButton(
-                          onPressed: () => _open(githubUrl),
-                          style: OutlinedButton.styleFrom(
-                            side: const BorderSide(color: onAccent),
-                            foregroundColor: onAccent,
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 18, vertical: 14),
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(14)),
-                          ),
-                          child: const Text('Ver más proyectos'),
+                        _LevelCard(
+                          title: 'Predicción ML',
+                          subtitle: 'Modelo online que aprende en vivo',
+                          icon: Icons.auto_graph,
+                          onTap: () => Navigator.pushNamed(context, '/level4'),
                         ),
-                        FilledButton(
-                          onPressed: () =>
-                              Navigator.pushNamed(context, '/mindful'),
-                          style: FilledButton.styleFrom(
-                            backgroundColor: const Color(0xFFC4A9E7),
-                            foregroundColor: onAccent,
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 18,
-                              vertical: 14,
-                            ),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(14),
-                            ),
-                          ),
-                          child: const Text('Panel mindful'),
+                        _LevelCard(
+                          title: 'Dashboard & A/B',
+                          subtitle: 'KPIs + experimento con Z-test',
+                          icon: Icons.space_dashboard_rounded,
+                          onTap: () => Navigator.pushNamed(context, '/dashboard'),
                         ),
                       ],
                     ),
 
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 24),
+                    const _H3('🕹️ Jugar'),
+                    const SizedBox(height: 10),
+                    _CardsSection(
+                      isMobile: isMobile,
+                      children: [
+                        _LevelCard(
+                          title: 'Nido Mozzarella',
+                          subtitle: 'Atendé pedidos y sumá puntos',
+                          icon: Icons.restaurant_menu,
+                          onTap: () => Navigator.pushNamed(context, '/level1'),
+                        ),
+                        _LevelCard(
+                          title: 'Inventario',
+                          subtitle: 'Gestioná y reponé quesos',
+                          icon: Icons.inventory_2_rounded,
+                          onTap: () => Navigator.pushNamed(context, '/level3'),
+                        ),
+                      ],
+                    ),
+
+                    const SizedBox(height: 24),
 
                     // Sobre mí / Skills / Educación
                     Flex(
@@ -340,56 +316,6 @@ class HomeDesktop extends StatelessWidget {
                       ],
                     ),
 
-                    const SizedBox(height: 20),
-                    const _H3('📊 Datos del juego'),
-                    const SizedBox(height: 10),
-                    Wrap(
-                      spacing: 14,
-                      runSpacing: 14,
-                      children: [
-                        _LevelCard(
-                          title: 'EDA interactiva',
-                          subtitle: 'Explorá participación por queso',
-                          icon: Icons.bar_chart_rounded,
-                          onTap: () => Navigator.pushNamed(context, '/level2'),
-                        ),
-                        _LevelCard(
-                          title: 'Predicción ML',
-                          subtitle: 'Modelo online y aprendizaje',
-                          icon: Icons.auto_graph,
-                          onTap: () => Navigator.pushNamed(context, '/level4'),
-                        ),
-                        _LevelCard(
-                          title: 'Dashboard & A/B',
-                          subtitle: 'Panel con insights y experimento',
-                          icon: Icons.space_dashboard_rounded,
-                          onTap: () => _openDashboardModal(context),
-                        ),
-                      ],
-                    ),
-
-                    const SizedBox(height: 20),
-                    const _H3('🎮 Jugar'),
-                    const SizedBox(height: 10),
-                    Wrap(
-                      spacing: 14,
-                      runSpacing: 14,
-                      children: [
-                        _LevelCard(
-                          title: 'Nido Mozzarella',
-                          subtitle: 'Atendé pedidos y sumá puntos',
-                          icon: Icons.restaurant_menu,
-                          onTap: () => Navigator.pushNamed(context, '/level1'),
-                        ),
-                        _LevelCard(
-                          title: 'Inventario',
-                          subtitle: 'Gestioná y reponé quesos',
-                          icon: Icons.inventory_2_rounded,
-                          onTap: () => Navigator.pushNamed(context, '/level3'),
-                        ),
-                      ],
-                    ),
-
                     const SizedBox(height: 22),
                     const _H3('📬 Contacto'),
                     const SizedBox(height: 10),
@@ -472,6 +398,33 @@ class _HomeCard extends StatelessWidget {
       ),
       padding: const EdgeInsets.all(16),
       child: child,
+    );
+  }
+}
+
+class _CardsSection extends StatelessWidget {
+  final List<Widget> children;
+  final bool isMobile;
+  const _CardsSection({required this.children, required this.isMobile});
+
+  @override
+  Widget build(BuildContext context) {
+    if (isMobile) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          for (var i = 0; i < children.length; i++) ...[
+            children[i],
+            if (i != children.length - 1) const SizedBox(height: 12),
+          ],
+        ],
+      );
+    }
+
+    return Wrap(
+      spacing: 14,
+      runSpacing: 14,
+      children: children,
     );
   }
 }

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 // import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-import '../utils/kawaii_toast.dart';
 
 import '../state/app_state.dart';
 import '../services/ml_service.dart';
@@ -120,25 +119,22 @@ class _Level4MlPredictionScreenState extends State<Level4MlPredictionScreen> {
                 wastePenalty: !ok,
               );
               if (!ctx.mounted) return;
-              if (ok) {
-                KawaiiToast.show(
-                  ctx,
-                  '🧀 Aprendido: conversión con $quesoSugerido',
-                  icon: Icons.check_circle,
+              final messenger = ScaffoldMessenger.of(ctx);
+              messenger.hideCurrentSnackBar();
+              messenger.showSnackBar(
+                SnackBar(
+                  content: Text(
+                    ok
+                        ? '🧀 Aprendido: conversión con $quesoSugerido'
+                        : 'Aprendido: no convirtió con $quesoSugerido',
+                  ),
+                  backgroundColor:
+                      ok ? Colors.green.shade400 : Colors.orange.shade400,
+                  behavior: SnackBarBehavior.floating,
                   duration: const Duration(seconds: 2),
-                  margin: const EdgeInsets.only(left: 16, right: 16, bottom: 120),
-                );
-              } else {
-                KawaiiToast.show(
-                  ctx,
-                  'Aprendido: no convirtió con $quesoSugerido',
-                  color: Colors.orange,
-                  icon: Icons.warning_amber_rounded,
-                  success: false,
-                  duration: const Duration(seconds: 2),
-                  margin: const EdgeInsets.only(left: 16, right: 16, bottom: 120),
-                );
-              }
+                  margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                ),
+              );
             },
           );
 
@@ -161,7 +157,7 @@ class _Level4MlPredictionScreenState extends State<Level4MlPredictionScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Nivel 4 — Predicción ML (online)'),
+        title: const Text('Predicción ML (online)'),
         centerTitle: true,
         actions: [
           IconButton(
@@ -440,12 +436,18 @@ class _HowCalculatedTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bodyStyle = Theme.of(context).textTheme.bodyMedium;
+    final theme = Theme.of(context);
+    final bodyStyle = theme.textTheme.bodyMedium;
+    final iconColor = theme.colorScheme.onSurface.withValues(alpha: 0.75);
     return ExpansionTile(
       tilePadding: EdgeInsets.zero,
       childrenPadding: const EdgeInsets.only(bottom: 8),
       collapsedShape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+      iconColor: iconColor,
+      collapsedIconColor: iconColor,
+      textColor: theme.colorScheme.onSurface,
+      collapsedTextColor: theme.colorScheme.onSurface,
       title: const Text('Cómo se calculó (tocar para ver)'),
       children: [
         Padding(

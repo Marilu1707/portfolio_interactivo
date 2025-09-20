@@ -148,7 +148,7 @@ class _Level3InventoryScreenState extends State<Level3InventoryScreen> {
         children: [
           OutlinedButton(
             onPressed: () => _addOneToast(app, item, 1),
-            child: const Text('Agregar'),
+            child: const Text('Agregar (+1)'),
           ),
           const SizedBox(width: 8),
           OutlinedButton(
@@ -255,7 +255,7 @@ class _Level3InventoryScreenState extends State<Level3InventoryScreen> {
               Expanded(
                 child: OutlinedButton(
                   onPressed: () => _addOneToast(app, item, 1),
-                  child: const Text('Agregar'),
+                  child: const Text('Agregar (+1)'),
                 ),
               ),
               const SizedBox(width: 8),
@@ -308,7 +308,7 @@ class _Level3InventoryScreenState extends State<Level3InventoryScreen> {
         backgroundColor: bg,
         elevation: 0,
         centerTitle: true,
-        title: const Text('Nivel 3 – Inventario'),
+        title: const Text('Inventario'),
       ),
       body: SafeArea(
         child: Center(
@@ -339,13 +339,15 @@ class _Level3InventoryScreenState extends State<Level3InventoryScreen> {
                 Wrap(
                   spacing: 8,
                   runSpacing: 8,
-                  children: app.topCheeses(3)
-                      .map((c) => Chip(
-                            label: Text('${c.name} (${nf.format(c.count)})'),
-                            backgroundColor: const Color(0xFFFFF4DA),
-                            shape: StadiumBorder(side: BorderSide(color: Colors.brown)),
-                          ))
-                      .toList(),
+                  children: app.topCheeses(3).map((c) {
+                    return Chip(
+                      avatar: const Text('🧀', style: TextStyle(fontSize: 16)),
+                      label: Text('${c.name} (${nf.format(c.count)})'),
+                      backgroundColor: const Color(0xFFFFF4DA),
+                      shape:
+                          const StadiumBorder(side: BorderSide(color: Colors.brown)),
+                    );
+                  }).toList(),
                 ),
                 const SizedBox(height: 18),
                 Expanded(

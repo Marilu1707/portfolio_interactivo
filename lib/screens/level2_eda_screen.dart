@@ -71,12 +71,15 @@ class Level2EdaScreen extends StatelessWidget {
       counts: counts,
     );
     final recoCard = _RecomendacionCard(texto: buildRecomendacion(counts));
+    final donutCard = _ParticipacionCard(counts: counts);
 
     final mainContent = isMobile
         ? Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               topCard,
+              const SizedBox(height: 12),
+              donutCard,
               const SizedBox(height: 12),
               chartCard,
               const SizedBox(height: 12),
@@ -86,11 +89,27 @@ class Level2EdaScreen extends StatelessWidget {
         : Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Expanded(child: topCard),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    topCard,
+                    const SizedBox(height: 12),
+                    donutCard,
+                  ],
+                ),
+              ),
               const SizedBox(width: 16),
-              Expanded(child: chartCard),
-              const SizedBox(width: 16),
-              Expanded(child: recoCard),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    chartCard,
+                    const SizedBox(height: 12),
+                    recoCard,
+                  ],
+                ),
+              ),
             ],
           );
 
@@ -98,7 +117,7 @@ class Level2EdaScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Nivel 2 — Exploración de datos'),
+        title: const Text('EDA interactiva'),
         centerTitle: true,
       ),
       body: SafeArea(
@@ -117,7 +136,7 @@ class Level2EdaScreen extends StatelessWidget {
                     Navigator.pushNamed(context, '/level3');
                   },
                   icon: const Icon(Icons.arrow_forward),
-                  label: const Text('Ir al Nivel 3'),
+                  label: const Text('Ir al Inventario'),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFFFFE082),
                     foregroundColor: const Color(0xFF5B4E2F),
@@ -327,23 +346,162 @@ class _PedidosChartCard extends StatelessWidget {
                   ),
           ),
           const SizedBox(height: 10),
+          const SizedBox(height: 8),
           Wrap(
             spacing: 8,
             runSpacing: 8,
             children: [
               for (final label in labels)
                 ActionChip(
-                  avatar: const Icon(Icons.local_pizza_outlined, size: 18),
+                  avatar: const Text('🧀'),
                   label: Text('$label: ${counts[label] ?? 0}'),
                   onPressed: () => Navigator.pushNamed(context, '/level3'),
                   shape: StadiumBorder(
                     side: BorderSide(color: theme.colorScheme.outlineVariant),
                   ),
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                   backgroundColor:
                       theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.25),
+                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                 ),
             ],
           ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ParticipacionCard extends StatelessWidget {
+  const _ParticipacionCard({required this.counts});
+
+  final Map<String, int> counts;
+
+  static const _palette = <Color>[
+    Color(0xFFFFD166),
+    Color(0xFFFFA8A8),
+    Color(0xFFA0CED9),
+    Color(0xFF98D8AA),
+    Color(0xFFE0BBE4),
+    Color(0xFFFFC4D6),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final entries = Level2EdaScreen.ordenQuesos
+        .map((name) => MapEntry(name, counts[name] ?? 0))
+        .toList();
+    final total = entries.fold<int>(0, (sum, e) => sum + e.value);
+    final hasData = total > 0;
+    final isMobile = MediaQuery.of(context).size.width < 700;
+    final sections = <PieChartSectionData>[];
+
+    if (hasData) {
+      for (var i = 0; i < entries.length; i++) {
+        final value = entries[i].value;
+        if (value <= 0) continue;
+        final percent = (value / total) * 100;
+        sections.add(
+          PieChartSectionData(
+            color: _palette[i % _palette.length],
+            value: value.toDouble(),
+            title: percent >= 10
+                ? '${percent.toStringAsFixed(0)}%'
+                : '${percent.toStringAsFixed(1)}%',
+            titleStyle: theme.textTheme.labelSmall?.copyWith(
+                  fontWeight: FontWeight.w700,
+                  color: Colors.brown.shade800,
+                ) ??
+                TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w700,
+                  color: Colors.brown.shade800,
+                ),
+            radius: isMobile ? 54 : 64,
+          ),
+        );
+      }
+    }
+
+    final cardDecoration = BoxDecoration(
+      color: theme.colorScheme.surface,
+      borderRadius: BorderRadius.circular(16),
+      boxShadow: [
+        BoxShadow(
+          color: Colors.black.withValues(alpha: 0.05),
+          blurRadius: 10,
+          offset: const Offset(0, 4),
+        ),
+      ],
+    );
+
+    return Container(
+      decoration: cardDecoration,
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Participación por queso',
+            style:
+                theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800),
+          ),
+          const SizedBox(height: 12),
+          SizedBox(
+            height: isMobile ? 180 : 200,
+            child: hasData
+                ? PieChart(
+                    PieChartData(
+                      sectionsSpace: 2,
+                      centerSpaceRadius: isMobile ? 34 : 42,
+                      startDegreeOffset: -90,
+                      borderData: FlBorderData(show: false),
+                      sections: sections,
+                    ),
+                  )
+                : Container(
+                    decoration: BoxDecoration(
+                      color: theme.colorScheme.surfaceContainerHighest
+                          .withValues(alpha: 0.35),
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    padding: const EdgeInsets.all(16),
+                    child: Center(
+                      child: Text(
+                        'Sin datos aún — jugá el juego para ver participación.',
+                        textAlign: TextAlign.center,
+                        style: theme.textTheme.bodyMedium,
+                      ),
+                    ),
+                  ),
+          ),
+          const SizedBox(height: 8),
+          if (hasData)
+            Wrap(
+              spacing: 6,
+              runSpacing: 6,
+              children: entries
+                  .where((entry) => entry.value > 0)
+                  .map((entry) {
+                final percent = (entry.value / total) * 100;
+                final label = percent >= 10
+                    ? '${percent.toStringAsFixed(0)}%'
+                    : '${percent.toStringAsFixed(1)}%';
+                return Chip(
+                  label: Text('🧀 ${entry.key}: $label'),
+                  backgroundColor: theme.colorScheme.surfaceContainerHighest
+                      .withValues(alpha: 0.25),
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                );
+              }).toList(),
+            )
+          else
+            Text(
+              'Jugá al menos una partida para habilitar este gráfico.',
+              style: theme.textTheme.bodySmall,
+            ),
         ],
       ),
     );

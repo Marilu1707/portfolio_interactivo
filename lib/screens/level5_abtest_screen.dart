@@ -43,7 +43,7 @@ class _Level5AbTestScreenState extends State<Level5AbTestScreen> {
           icon: const Icon(Icons.arrow_back),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text('Nivel 5 — A/B Test'),
+        title: const Text('Experimento A/B'),
         actions: [
           if (_pTwo != null)
             TextButton.icon(
@@ -456,11 +456,17 @@ class _AbTestExplanationTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final iconColor = theme.colorScheme.onSurface.withValues(alpha: 0.75);
     return ExpansionTile(
       tilePadding: EdgeInsets.zero,
       childrenPadding: const EdgeInsets.only(bottom: 12),
       collapsedShape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+      iconColor: iconColor,
+      collapsedIconColor: iconColor,
+      textColor: theme.colorScheme.onSurface,
+      collapsedTextColor: theme.colorScheme.onSurface,
       title: const Text('Cómo se calculó (tocar para ver)'),
       children: const [
         Padding(
