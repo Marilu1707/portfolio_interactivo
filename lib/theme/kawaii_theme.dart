@@ -39,8 +39,6 @@ class KawaiiTheme {
     );
 
     return base.copyWith(
-      fontFamily: GoogleFonts.notoSans().fontFamily,
-
       // AppBar
       appBarTheme: AppBarTheme(
         elevation: 0,
