@@ -345,7 +345,8 @@ class HomeDesktop extends StatelessWidget {
               ),
             ),
           );
-        },
+          },
+        ),
       ),
     );
   }
