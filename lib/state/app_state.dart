@@ -96,8 +96,10 @@ class AppState extends ChangeNotifier {
   }
 
   void markLevel1Cleared() {
-    if (level1Cleared) return;
-    level1Cleared = true;
+    if (!level1Cleared) {
+      level1Cleared = true;
+    }
+    _lastLevelCompleted = 1;
     notifyListeners();
   }
 

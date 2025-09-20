@@ -38,7 +38,7 @@ class _Level4MlPredictionScreenState extends State<Level4MlPredictionScreen> {
     MlService.instance.init();
   }
 
-  Future<void> _predecir(AppState? app) async {
+  Future<void> _predecir() async {
     final sugerido = MlService.instance.suggest(
       streak: racha.toInt(),
       avgMs: tiempoMs,
@@ -85,21 +85,18 @@ class _Level4MlPredictionScreenState extends State<Level4MlPredictionScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final app = context.mounted ? context.read<AppState?>() : null;
     final isMobile = MediaQuery.of(context).size.width < 700;
 
     final params = _ParametrosCard(
       racha: racha.toInt(),
       tiempoMs: tiempoMs,
-      quesoIdx: 0,
       hora: hora,
       stockProm: stockProm,
       onRacha: (v) => setState(() => racha = v.toDouble()),
       onTiempo: (v) => setState(() => tiempoMs = v),
-      onQueso: (_) {},
       onHora: (v) => setState(() => hora = v),
       onStock: (v) => setState(() => stockProm = v),
-      onPredecir: () => _predecir(app),
+      onPredecir: _predecir,
     );
 
     final result = _ResultadoCard(
@@ -212,7 +209,10 @@ class _Level4MlPredictionScreenState extends State<Level4MlPredictionScreen> {
         child: SizedBox(
           height: 54,
           child: FilledButton.icon(
-            onPressed: () => Navigator.pushNamed(context, '/level5'),
+            onPressed: () {
+              context.read<AppState>().setLevelCompleted(4);
+              Navigator.pushNamed(context, '/level5');
+            },
             icon: const Icon(Icons.arrow_right_alt_rounded),
             label: const Text('Siguiente nivel'),
           ),
@@ -225,27 +225,21 @@ class _Level4MlPredictionScreenState extends State<Level4MlPredictionScreen> {
 class _ParametrosCard extends StatelessWidget {
   final int racha;
   final double tiempoMs;
-  final int quesoIdx; // mantenemos la API original (no se usa aquí)
   final int hora;
   final double stockProm;
   final ValueChanged<int> onRacha;
   final ValueChanged<double> onTiempo;
-  final ValueChanged<int> onQueso;
   final ValueChanged<int> onHora;
   final ValueChanged<double> onStock;
   final VoidCallback onPredecir;
 
-  // Lista de quesos removida por no usarse aquí (evita warnings).
-
   const _ParametrosCard({
     required this.racha,
     required this.tiempoMs,
-    required this.quesoIdx,
     required this.hora,
     required this.stockProm,
     required this.onRacha,
     required this.onTiempo,
-    required this.onQueso,
     required this.onHora,
     required this.onStock,
     required this.onPredecir,
@@ -486,36 +480,61 @@ class _AprenderCard extends StatelessWidget {
                   ?.copyWith(fontWeight: FontWeight.w700),
             ),
             const SizedBox(height: 12),
-            Row(
-              children: [
-                ElevatedButton.icon(
-                  onPressed: () => onAprender(true),
-                  icon: const Icon(Icons.check_circle_outline),
-                  label: const Text('Convirtió'),
-                  style: ElevatedButton.styleFrom(
-                    minimumSize: const Size(140, 48),
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 20, vertical: 14),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                OutlinedButton.icon(
-                  onPressed: () => onAprender(false),
-                  icon: const Icon(Icons.cancel_outlined),
-                  label: const Text('No convirtió'),
-                  style: OutlinedButton.styleFrom(
-                    minimumSize: const Size(140, 48),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-                  ),
-                ),
-              ],
+            LayoutBuilder(
+              builder: (context, constraints) {
+                Widget buildSuccess({double? width}) => SizedBox(
+                      width: width,
+                      child: ElevatedButton.icon(
+                        onPressed: () => onAprender(true),
+                        icon: const Icon(Icons.check_circle_outline),
+                        label: const Text('Convirtió'),
+                        style: ElevatedButton.styleFrom(
+                          minimumSize: const Size(140, 48),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 20, vertical: 14),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                      ),
+                    );
+                Widget buildFail({double? width}) => SizedBox(
+                      width: width,
+                      child: OutlinedButton.icon(
+                        onPressed: () => onAprender(false),
+                        icon: const Icon(Icons.cancel_outlined),
+                        label: const Text('No convirtió'),
+                        style: OutlinedButton.styleFrom(
+                          minimumSize: const Size(140, 48),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 20, vertical: 14),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                      ),
+                    );
+
+                if (constraints.maxWidth < 360) {
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      buildSuccess(width: double.infinity),
+                      const SizedBox(height: 8),
+                      buildFail(width: double.infinity),
+                    ],
+                  );
+                }
+
+                return Wrap(
+                  spacing: 12,
+                  runSpacing: 8,
+                  children: [
+                    buildSuccess(width: 180),
+                    buildFail(width: 180),
+                  ],
+                );
+              },
             ),
           ],
         ),
@@ -597,6 +616,12 @@ void _showReasons(BuildContext context, Map<String, double> contribs, double p) 
     isScrollControlled: true,
     builder: (c) {
       final theme = Theme.of(c);
+      final media = MediaQuery.of(c);
+      final scrollHeightNum = (media.size.height * 0.55).clamp(240.0, 420.0);
+      final scrollHeight = scrollHeightNum is double
+          ? scrollHeightNum
+          : scrollHeightNum.toDouble();
+
       return SafeArea(
         child: Padding(
           padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
@@ -608,7 +633,8 @@ void _showReasons(BuildContext context, Map<String, double> contribs, double p) 
               const SizedBox(height: 4),
               Text('p ≈ ${(p * 100).toStringAsFixed(1)} % — aportes relativos por variable (positivos ayudan, negativos restan).'),
               const SizedBox(height: 12),
-              Flexible(
+              SizedBox(
+                height: scrollHeight,
                 child: SingleChildScrollView(
                   child: Column(
                     children: items.map((e) {
