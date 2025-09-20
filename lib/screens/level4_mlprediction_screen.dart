@@ -125,6 +125,8 @@ class _Level4MlPredictionScreenState extends State<Level4MlPredictionScreen> {
                   ctx,
                   '🧀 Aprendido: conversión con $quesoSugerido',
                   icon: Icons.check_circle,
+                  duration: const Duration(seconds: 2),
+                  margin: const EdgeInsets.only(left: 16, right: 16, bottom: 120),
                 );
               } else {
                 KawaiiToast.show(
@@ -133,6 +135,8 @@ class _Level4MlPredictionScreenState extends State<Level4MlPredictionScreen> {
                   color: Colors.orange,
                   icon: Icons.warning_amber_rounded,
                   success: false,
+                  duration: const Duration(seconds: 2),
+                  margin: const EdgeInsets.only(left: 16, right: 16, bottom: 120),
                 );
               }
             },
@@ -168,45 +172,50 @@ class _Level4MlPredictionScreenState extends State<Level4MlPredictionScreen> {
         ],
       ),
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Text(
-                'Ajustá los sliders y tocá “Predecir”. El modelo sugiere qué queso ofrecer ahora.',
-                style: Theme.of(context).textTheme.bodyMedium,
-                softWrap: true,
-              ),
-              const SizedBox(height: 12),
-              if (isMobile) ...[
-                params,
-                const SizedBox(height: 12),
-                result,
-                reasonsButton,
-                const SizedBox(height: 12),
-                aprender,
-              ] else
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(child: params),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          result,
-                          reasonsButton,
-                          const SizedBox(height: 12),
-                          aprender,
-                        ],
-                      ),
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 1100),
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Text(
+                    'Ajustá los sliders y tocá “Predecir”. El modelo sugiere qué queso ofrecer ahora.',
+                    style: Theme.of(context).textTheme.bodyMedium,
+                    softWrap: true,
+                  ),
+                  const SizedBox(height: 12),
+                  if (isMobile) ...[
+                    params,
+                    const SizedBox(height: 12),
+                    result,
+                    reasonsButton,
+                    const SizedBox(height: 12),
+                    aprender,
+                  ] else
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(child: params),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              result,
+                              reasonsButton,
+                              const SizedBox(height: 12),
+                              aprender,
+                            ],
+                          ),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
-              const SizedBox(height: 120),
-            ],
+                  const SizedBox(height: 120),
+                ],
+              ),
+            ),
           ),
         ),
       ),

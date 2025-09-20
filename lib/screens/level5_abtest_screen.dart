@@ -94,125 +94,130 @@ class _Level5AbTestScreenState extends State<Level5AbTestScreen> {
         ],
       ),
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(16),
-          child: LayoutBuilder(
-            builder: (context, c) {
-              final isNarrow = c.maxWidth < 760;
-              final form = _buildPanels();
-              return Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Text(
-                    'Compará la tasa de conversión de Control (A) vs Tratamiento (B) con Z para dos proporciones (prueba bilateral).',
-                    style: theme.textTheme.bodyMedium,
-                    softWrap: true,
-                  ),
-                  const SizedBox(height: 12),
-                  const _AbTestExplanationTile(),
-                  const SizedBox(height: 16),
-                  if (isNarrow) ...[
-                    form[0],
-                    const SizedBox(height: 12),
-                    form[1],
-                  ] else
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Expanded(child: form[0]),
-                        const SizedBox(width: 16),
-                        Expanded(child: form[1]),
-                      ],
-                    ),
-                  const SizedBox(height: 16),
-                  Align(
-                    child: ElevatedButton(
-                      onPressed: _onCalculate,
-                      style: ElevatedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 16),
-                        minimumSize: const Size.fromHeight(56),
-                        backgroundColor: const Color(0xFFFFD54F),
-                        foregroundColor: Colors.brown,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 1100),
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(16),
+              child: LayoutBuilder(
+                builder: (context, c) {
+                  final isNarrow = c.maxWidth < 760;
+                  final form = _buildPanels();
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Text(
+                        'Compará la tasa de conversión de Control (A) vs Tratamiento (B) con Z para dos proporciones (prueba bilateral).',
+                        style: theme.textTheme.bodyMedium,
+                        softWrap: true,
                       ),
-                      child: const Text('Calcular Z y p-valor'),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  Card(
-                    elevation: 0,
-                    color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: .5),
-                    child: Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            _summary,
-                            style: theme.textTheme.titleMedium,
-                            softWrap: true,
-                          ),
-                          if (_pTwo != null) ...[
-                            const SizedBox(height: 10),
-                            Text(
-                              'Detalle: pA=${((_pA ?? 0) * 100).toStringAsFixed(1)}% · pB=${((_pB ?? 0) * 100).toStringAsFixed(1)}% · Δ=${((_diff ?? 0) * 100).toStringAsFixed(1)}% · Lift=${_lift == null ? '—' : '${((_lift ?? 0) * 100).toStringAsFixed(1)}%'} · IC95%=[${((_ciL ?? 0) * 100).toStringAsFixed(1)}%, ${((_ciH ?? 0) * 100).toStringAsFixed(1)}%] · p=${(_pTwo ?? 0).toStringAsFixed(4)}',
-                              softWrap: true,
-                            ),
-                            const SizedBox(height: 8),
-                            const Text(
-                              'Tip: p < 0.05 ⇒ diferencia significativa (bilateral, α = 0.05).',
-                              style: TextStyle(fontSize: 13, fontStyle: FontStyle.italic),
-                            ),
+                      const SizedBox(height: 12),
+                      const _AbTestExplanationTile(),
+                      const SizedBox(height: 16),
+                      if (isNarrow) ...[
+                        form[0],
+                        const SizedBox(height: 12),
+                        form[1],
+                      ] else
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Expanded(child: form[0]),
+                            const SizedBox(width: 16),
+                            Expanded(child: form[1]),
                           ],
-                        ],
-                      ),
-                    ),
-                  ),
-                  if (_pTwo != null) ...[
-                    const SizedBox(height: 12),
-                    Align(
-                      alignment: Alignment.centerRight,
-                      child: ElevatedButton.icon(
-                        onPressed: () async {
-                          final result = {
-                            'nA': _cNController.text,
-                            'cA': _cXController.text,
-                            'pA': _pA?.toStringAsFixed(4),
-                            'nB': _tNController.text,
-                            'cB': _tXController.text,
-                            'pB': _pB?.toStringAsFixed(4),
-                            'diff': _diff?.toStringAsFixed(4),
-                            'lift': _lift == null ? '—' : '${(_lift! * 100).toStringAsFixed(1)}%',
-                            'z': _z?.toStringAsFixed(3),
-                            'p': _pTwo?.toStringAsFixed(4),
-                            'ci': _ciL == null || _ciH == null
-                                ? '—'
-                                : '[${(_ciL! * 100).toStringAsFixed(1)}%, ${(_ciH!*100).toStringAsFixed(1)}%]',
-                            'sig': _sig ? 'Sí' : 'No',
-                            'alpha': '0.05',
-                            'note': 'Resultado guardado desde Nivel A/B',
-                          };
-                          final ab = context.read<ABResultState>();
-                          await ab.save(result);
-                          if (!context.mounted) return;
-                          context.read<AppState>().setLevelCompleted(5);
-                          Navigator.pushNamed(context, '/dashboard');
-                        },
-                        icon: const Icon(Icons.arrow_forward),
-                        label: const Text('Ir al Dashboard'),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFFFFE082),
-                          foregroundColor: Colors.brown,
-                          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        ),
+                      const SizedBox(height: 16),
+                      Align(
+                        child: ElevatedButton(
+                          onPressed: _onCalculate,
+                          style: ElevatedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 16),
+                            minimumSize: const Size.fromHeight(56),
+                            backgroundColor: const Color(0xFFFFD54F),
+                            foregroundColor: Colors.brown,
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          ),
+                          child: const Text('Calcular Z y p-valor'),
                         ),
                       ),
-                    ),
-                  ],
-                  const SizedBox(height: 120),
-                ],
-              );
-            },
+                      const SizedBox(height: 16),
+                      Card(
+                        elevation: 0,
+                        color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: .5),
+                        child: Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                _summary,
+                                style: theme.textTheme.titleMedium,
+                                softWrap: true,
+                              ),
+                              if (_pTwo != null) ...[
+                                const SizedBox(height: 10),
+                                Text(
+                                  'Detalle: pA=${((_pA ?? 0) * 100).toStringAsFixed(1)}% · pB=${((_pB ?? 0) * 100).toStringAsFixed(1)}% · Δ=${((_diff ?? 0) * 100).toStringAsFixed(1)}% · Lift=${_lift == null ? '—' : '${((_lift ?? 0) * 100).toStringAsFixed(1)}%'} · IC95%=[${((_ciL ?? 0) * 100).toStringAsFixed(1)}%, ${((_ciH ?? 0) * 100).toStringAsFixed(1)}%] · p=${(_pTwo ?? 0).toStringAsFixed(4)}',
+                                  softWrap: true,
+                                ),
+                                const SizedBox(height: 8),
+                                const Text(
+                                  'Tip: p < 0.05 ⇒ diferencia significativa (bilateral, α = 0.05).',
+                                  style: TextStyle(fontSize: 13, fontStyle: FontStyle.italic),
+                                ),
+                              ],
+                            ],
+                          ),
+                        ),
+                      ),
+                      if (_pTwo != null) ...[
+                        const SizedBox(height: 12),
+                        Align(
+                          alignment: Alignment.centerRight,
+                          child: ElevatedButton.icon(
+                            onPressed: () async {
+                              final result = {
+                                'nA': _cNController.text,
+                                'cA': _cXController.text,
+                                'pA': _pA?.toStringAsFixed(4),
+                                'nB': _tNController.text,
+                                'cB': _tXController.text,
+                                'pB': _pB?.toStringAsFixed(4),
+                                'diff': _diff?.toStringAsFixed(4),
+                                'lift': _lift == null ? '—' : '${(_lift! * 100).toStringAsFixed(1)}%',
+                                'z': _z?.toStringAsFixed(3),
+                                'p': _pTwo?.toStringAsFixed(4),
+                                'ci': _ciL == null || _ciH == null
+                                    ? '—'
+                                    : '[${(_ciL! * 100).toStringAsFixed(1)}%, ${(_ciH!*100).toStringAsFixed(1)}%]',
+                                'sig': _sig ? 'Sí' : 'No',
+                                'alpha': '0.05',
+                                'note': 'Resultado guardado desde Nivel A/B',
+                              };
+                              final ab = context.read<ABResultState>();
+                              await ab.save(result);
+                              if (!context.mounted) return;
+                              context.read<AppState>().setLevelCompleted(5);
+                              Navigator.pushNamed(context, '/dashboard');
+                            },
+                            icon: const Icon(Icons.arrow_forward),
+                            label: const Text('Ir al Dashboard'),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFFFFE082),
+                              foregroundColor: Colors.brown,
+                              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                            ),
+                          ),
+                        ),
+                      ],
+                      const SizedBox(height: 120),
+                    ],
+                  );
+                },
+              ),
+            ),
           ),
         ),
       ),

@@ -11,6 +11,7 @@ import '../state/app_state.dart';
 import '../state/orders_state.dart';
 import '../services/ml_service.dart';
 import '../utils/popup.dart';
+import '../utils/kawaii_toast.dart';
 
 // Pantalla Nivel 1 (Juego): simula pedidos y mide aciertos por queso.
 class Level1GameScreen extends StatefulWidget {
@@ -187,12 +188,15 @@ class _Level1GameScreenState extends State<Level1GameScreen>
       currentOrder = null;
     });
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-            'Sin stock de $cheese. Se descuenta 1 punto y se pasa al siguiente pedido.'),
-        behavior: SnackBarBehavior.floating,
-      ),
+    KawaiiToast.show(
+      context,
+      'Ups... no queda $cheese. -1 punto y seguimos con el próximo pedido.',
+      color: Colors.orange,
+      icon: Icons.info_outline,
+      duration: const Duration(seconds: 2),
+      alignment: Alignment.bottomCenter,
+      margin: const EdgeInsets.only(left: 16, right: 16, bottom: 120),
+      success: false,
     );
 
     unawaited(ordersState.addRequest(orderNow));
@@ -338,9 +342,9 @@ class _Level1GameScreenState extends State<Level1GameScreen>
             onPressed: () {
               Navigator.pop(context);
               context.read<AppState>().setLevelCompleted(1);
-              Navigator.pushNamed(context, '/level2');
+              Navigator.pushNamed(context, '/level3');
             },
-            child: const Text('Ir al Nivel 2'),
+            child: const Text('Ir al Inventario'),
           ),
         ],
       ),
@@ -374,8 +378,20 @@ class _Level1GameScreenState extends State<Level1GameScreen>
     final canProceed = appState.level1Cleared;
     final remainingOrders = (_maxOrders - _orderCount).clamp(0, _maxOrders);
     final String lockedMessage = remainingOrders > 0
-        ? 'Te faltan ${remainingOrders == 1 ? '1 pedido' : '$remainingOrders pedidos'} para desbloquear el Nivel 2.'
-        : 'Completá las $_maxOrders órdenes para desbloquear el Nivel 2.';
+        ? 'Te faltan ${remainingOrders == 1 ? '1 pedido' : '$remainingOrders pedidos'} para desbloquear el Inventario.'
+        : 'Completá las $_maxOrders órdenes para desbloquear el Inventario.';
+    final orderDisplay = _orderCount + (currentOrder != null ? 1 : 0);
+    final timeDisplay =
+        '${(_secondsLeft ~/ 60).toString().padLeft(2, '0')}:${(_secondsLeft % 60).toString().padLeft(2, '0')}';
+    final statsEntries = [
+      MapEntry('Pedido', '$orderDisplay/$_maxOrders'),
+      MapEntry('Tiempo', timeDisplay),
+      MapEntry('Puntaje', '$score'),
+      MapEntry('Racha', '$streak'),
+    ];
+    final inventoryValues = appState.inventory.values;
+    final allOutOfStock =
+        inventoryValues.isNotEmpty && inventoryValues.every((e) => e.stock <= 0);
 
     // Contenedor principal del nivel con tablero, pedidos y acciones.
     return Scaffold(
@@ -417,19 +433,7 @@ class _Level1GameScreenState extends State<Level1GameScreen>
                         ),
                         const SizedBox(height: 12),
                         // Estado rápido del nivel: orden actual, tiempo, score.
-                        Wrap(
-                          spacing: 12,
-                          runSpacing: 12,
-                          crossAxisAlignment: WrapCrossAlignment.center,
-                          children: [
-                            _pill(
-                                'Pedido  ${_orderCount + (currentOrder != null ? 1 : 0)}/$_maxOrders'),
-                            _pill(
-                                'Tiempo  ${(_secondsLeft ~/ 60).toString().padLeft(2, '0')}:${(_secondsLeft % 60).toString().padLeft(2, '0')}'),
-                            _pill('Puntaje  $score'),
-                            _pill('Racha  $streak'),
-                          ],
-                        ),
+                        _buildStatsOverview(context, statsEntries),
                         const SizedBox(height: 16),
                         // Muestra progreso global respecto a las 20 órdenes.
                         LinearProgressIndicator(
@@ -520,15 +524,18 @@ class _Level1GameScreenState extends State<Level1GameScreen>
                               .map((c) => _cheeseChip(context, appState, c.nombre))
                               .toList(),
                         ),
-                        const SizedBox(height: 16),
-                        Align(
-                          alignment: Alignment.centerRight,
-                          child: OutlinedButton.icon(
-                            icon: const Icon(Icons.inventory_2_outlined),
-                            label: const Text('No tenés más quesos → Ir a Inventario'),
-                            onPressed: () => Navigator.pushNamed(context, '/level3'),
+                        if (allOutOfStock) ...[
+                          const SizedBox(height: 16),
+                          Center(
+                            child: OutlinedButton.icon(
+                              icon: const Icon(Icons.inventory_2_outlined),
+                              label: const Text(
+                                  'No tenés más quesos → Ir a Inventario'),
+                              onPressed: () => Navigator.pushNamed(context, '/level3'),
+                            ),
                           ),
-                        ),
+                        ],
+                        const SizedBox(height: 16),
                         const SizedBox(height: 120),
                       ],
                     ),
@@ -548,11 +555,11 @@ class _Level1GameScreenState extends State<Level1GameScreen>
                 onPressed: canProceed
                     ? () {
                         context.read<AppState>().setLevelCompleted(1);
-                        Navigator.pushNamed(context, '/level2');
+                        Navigator.pushNamed(context, '/level3');
                       }
                     : null,
-                icon: const Icon(Icons.arrow_forward),
-                label: const Text('Siguiente nivel'),
+                icon: const Icon(Icons.inventory_2_outlined),
+                label: const Text('Ir a Inventario'),
               ),
             ),
             if (!canProceed) ...[
@@ -571,21 +578,97 @@ class _Level1GameScreenState extends State<Level1GameScreen>
     );
   }
 
-  Widget _pill(String text) {
-    // Ficha visual reutilizable para mostrar métricas rápidas.
+  Widget _buildStatsOverview(
+      BuildContext context, List<MapEntry<String, String>> stats) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final cards = stats
+            .map((entry) => _statCard(context, entry.key, entry.value))
+            .toList();
+        if (constraints.maxWidth >= 640) {
+          return Row(
+            children: [
+              for (final card in cards)
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 6),
+                    child: card,
+                  ),
+                ),
+            ],
+          );
+        }
+
+        final double maxWidth = constraints.maxWidth;
+        final double base =
+            maxWidth >= 360 ? (maxWidth - 12) / 2 : maxWidth;
+        final double tileWidth = maxWidth < 160
+            ? maxWidth
+            : base.clamp(160.0, maxWidth).toDouble();
+
+        return Wrap(
+          spacing: 12,
+          runSpacing: 12,
+          alignment: WrapAlignment.center,
+          children: cards
+              .map((card) => SizedBox(width: tileWidth, child: card))
+              .toList(),
+        );
+      },
+    );
+  }
+
+  Widget _statCard(BuildContext context, String label, String value) {
+    final theme = Theme.of(context);
+    final accent = Colors.brown;
+    final baseColor = theme.colorScheme.surface;
+    final cardColor = Color.lerp(baseColor, Colors.white, 0.2) ?? baseColor;
+
     return Container(
-      height: 40,
-      padding: const EdgeInsets.symmetric(horizontal: 14),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: cardColor,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-            color: Colors.brown.shade200.withValues(alpha: 0.6), width: 2),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 8,
+            offset: const Offset(0, 3),
+          ),
+        ],
       ),
-      alignment: Alignment.center,
-      child: Text(text,
-          style: const TextStyle(
-              fontWeight: FontWeight.w800, color: Colors.brown)),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            label,
+            textAlign: TextAlign.center,
+            style: theme.textTheme.labelSmall?.copyWith(
+                  fontWeight: FontWeight.w600,
+                  color: accent,
+                ) ??
+                TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: accent,
+                ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            value,
+            textAlign: TextAlign.center,
+            style: theme.textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.w900,
+                  color: accent,
+                ) ??
+                TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w900,
+                  color: accent,
+                ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -593,18 +676,32 @@ class _Level1GameScreenState extends State<Level1GameScreen>
 
   Widget _cheeseChip(BuildContext context, AppState app, String cheese) {
     final outOfStock = app.isOutOfStock(cheese);
-    final disabled = currentOrder == null || outOfStock;
-    final border = Colors.brown.shade200.withValues(alpha: 0.6);
+    final disabled = currentOrder == null;
+    final border = Colors.brown.shade200
+        .withValues(alpha: outOfStock ? 0.3 : 0.6);
+    final textColor = outOfStock
+        ? Colors.brown.withValues(alpha: 0.55)
+        : Colors.brown;
+    final iconColor = outOfStock
+        ? Colors.brown.withValues(alpha: 0.45)
+        : Colors.brown;
+    final bgColor = outOfStock
+        ? const Color(0xFFF4E6D8)
+        : const Color(0xFFFFF8E7);
+
     // Cada chip representa un queso servible desde el inventario.
     return ActionChip(
-      label: Text(cheese,
-          style:
-              const TextStyle(fontWeight: FontWeight.w700, color: Colors.brown)),
-      avatar: Icon(Icons.location_on,
-          size: 16, color: outOfStock ? Colors.grey : Colors.brown),
-      onPressed:
-          disabled ? null : () => _onPickCheese(context, cheese),
-      backgroundColor: const Color(0xFFFFF8E7),
+      label: Text(
+        cheese,
+        style: TextStyle(fontWeight: FontWeight.w700, color: textColor),
+      ),
+      avatar: Icon(
+        outOfStock ? Icons.remove_circle_outline : Icons.location_on,
+        size: 16,
+        color: iconColor,
+      ),
+      onPressed: disabled ? null : () => _onPickCheese(context, cheese),
+      backgroundColor: bgColor,
       shape: StadiumBorder(side: BorderSide(color: border, width: 1.4)),
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
     );

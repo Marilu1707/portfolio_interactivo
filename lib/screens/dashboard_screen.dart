@@ -22,32 +22,6 @@ class _Level5DashboardScreenState extends State<Level5DashboardScreen> {
   static const textDark = Color(0xFF6B4E16);
 
   @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted) return;
-      final app = context.read<AppState>();
-      final level = app.lastLevelCompleted;
-      if (level != null) {
-        showDialog<void>(
-          context: context,
-          builder: (context) => AlertDialog(
-            title: const Text('Nivel completado'),
-            content: Text('Completaste el Nivel $level. ¡Bien hecho!'),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(),
-                child: const Text('Aceptar'),
-              ),
-            ],
-          ),
-        );
-        app.clearLastLevelCompleted();
-      }
-    });
-  }
-
-  @override
   Widget build(BuildContext context) {
     final app = context.watch<AppState>();
     final today = DateFormat('dd MMM yyyy', 'es_AR').format(DateTime.now());
@@ -462,7 +436,7 @@ class _PieCheese extends StatelessWidget {
         message: 'Sin datos aún — jugá un nivel para ver participación por queso.',
         labels: _kCheeseLabels,
         valueSuffix: '%',
-        height: 180,
+        height: 220,
       );
     }
 
@@ -472,7 +446,7 @@ class _PieCheese extends StatelessWidget {
         message: 'Sin datos aún — jugá un nivel para ver participación por queso.',
         labels: _kCheeseLabels,
         valueSuffix: '%',
-        height: 180,
+        height: 220,
       );
     }
 
