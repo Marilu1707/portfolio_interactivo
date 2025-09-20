@@ -1,45 +1,70 @@
 import 'package:flutter/material.dart';
-import 'popup.dart';
 
-/// KawaiiToast — pop-ups centrados y accesibles (mobile-first)
-///
-/// Reemplaza notificaciones tipo barra superior por una tarjeta
-/// centrada con blur/sombra suave, icono y auto-cierre.
-/// Usa Material 3 y cumple tamaños táctiles y Semantics.
+import 'sound.dart' as sound;
+
 class KawaiiToast {
-  static void info(BuildContext context, String message) {
-    Popup.show(
-      context,
-      type: PopupType.info,
-      title: message,
-      duration: const Duration(milliseconds: 2500),
-    );
-  }
+  static void show(
+    BuildContext context,
+    String text, {
+    IconData icon = Icons.check_circle,
+    Color color = const Color(0xFF34A853),
+    Duration duration = const Duration(milliseconds: 1600),
+    bool success = true,
+  }) {
+    final overlay = Overlay.of(context);
+    if (overlay == null) return;
 
-  static void success(BuildContext context, String message) {
-    Popup.show(
-      context,
-      type: PopupType.success,
-      title: message,
-      duration: const Duration(milliseconds: 2500),
+    final entry = OverlayEntry(
+      builder: (ctx) => SafeArea(
+        child: Align(
+          alignment: Alignment.bottomCenter,
+          child: Padding(
+            padding: const EdgeInsets.only(bottom: 16),
+            child: Material(
+              color: Colors.transparent,
+              child: Container(
+                constraints: const BoxConstraints(maxWidth: 520),
+                margin: const EdgeInsets.symmetric(horizontal: 16),
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                decoration: BoxDecoration(
+                  color: color,
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(.12),
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(icon, color: Colors.white),
+                    const SizedBox(width: 8),
+                    Flexible(
+                      child: Text(
+                        text,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
     );
-  }
 
-  static void warn(BuildContext context, String message) {
-    Popup.show(
-      context,
-      type: PopupType.warning,
-      title: message,
-      duration: const Duration(milliseconds: 2800),
-    );
-  }
-
-  static void error(BuildContext context, String message) {
-    Popup.show(
-      context,
-      type: PopupType.error,
-      title: message,
-      duration: const Duration(milliseconds: 3000),
-    );
+    overlay.insert(entry);
+    sound.playPopupSound(success: success);
+    Future.delayed(duration, () {
+      if (entry.mounted) entry.remove();
+    });
   }
 }
+

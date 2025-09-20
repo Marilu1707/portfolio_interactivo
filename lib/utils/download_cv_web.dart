@@ -1,6 +1,6 @@
 // ignore_for_file: deprecated_member_use
 import 'package:flutter/material.dart';
-import '../utils/game_popup.dart';
+import '../utils/kawaii_toast.dart';
 // ignore: avoid_web_libraries_in_flutter
 import 'dart:html' as html;
 
@@ -13,6 +13,10 @@ Future<void> descargarCV(BuildContext context) async {
   a.click();
   a.remove();
   if (!context.mounted) return;
-  GamePopup.show(context, 'Descargando CV...',
-      color: Colors.brown, icon: Icons.download);
+  KawaiiToast.show(
+    context,
+    'Descargando CV...',
+    color: Colors.brown,
+    icon: Icons.download,
+  );
 }

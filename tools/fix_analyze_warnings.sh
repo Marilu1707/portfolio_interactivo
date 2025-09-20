@@ -20,7 +20,7 @@ set +e
 git apply -p0 <<'PATCHES'
 diff --git a/lib/screens/level1_game_screen.dart b/lib/screens/level1_game_screen.dart
 @@
--// import '../utils/game_popup.dart'; // reemplazado por Popup centrado
+-// import '../utils/kawaii_toast.dart'; // reemplazado por toast kawaii
 diff --git a/lib/screens/level1_game_screen.dart b/lib/screens/level1_game_screen.dart
 @@
 -  Widget _speech(String text) {

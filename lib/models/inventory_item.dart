@@ -25,4 +25,18 @@ class InventoryItem {
       expiry: DateTime.tryParse(row[3].toString()) ?? DateTime.now().add(const Duration(days: 365)),
     );
   }
+
+  InventoryItem copyWith({
+    int? stock,
+    DateTime? expiry,
+    int? reorderPoint,
+  }) {
+    return InventoryItem(
+      id: id,
+      name: name,
+      stock: stock ?? this.stock,
+      expiry: expiry ?? this.expiry,
+      reorderPoint: reorderPoint ?? this.reorderPoint,
+    );
+  }
 }

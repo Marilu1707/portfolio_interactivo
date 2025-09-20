@@ -5,7 +5,7 @@ import '../widgets/inventory_mouse.dart';
 import '../models/inventory_item.dart';
 import '../theme/kawaii_theme.dart';
 import '../state/app_state.dart';
-import '../utils/game_popup.dart';
+import '../utils/kawaii_toast.dart';
 
 void _showInvSnack(BuildContext context, String message) {
   ScaffoldMessenger.of(context).showSnackBar(
@@ -46,9 +46,11 @@ class _Level3InventoryScreenState extends State<Level3InventoryScreen> {
     final added = updated - before;
     final units = added > 0 ? added : 0;
     final plural = units == 1 ? '' : 'es';
-    GamePopup.show(context,
-        '🧀 +$units unidad$plural de ${row.name} (stock: $updated)',
-        color: Colors.green, icon: Icons.check_circle);
+    KawaiiToast.show(
+      context,
+      '🧀 +$units unidad$plural de ${row.name} (stock: $updated)',
+      icon: Icons.check_circle,
+    );
   }
 
   bool _tryRestock({
@@ -72,10 +74,10 @@ class _Level3InventoryScreenState extends State<Level3InventoryScreen> {
     return true;
   }
 
-  // (Método _addOne removido; se usa _addOneToast con GamePopup)
+  // (Método _addOne removido; se usa _addOneToast con toasts kawaii)
 
   void _scrollToFirstLow(List<InventoryItem> rows) {
-    final low = rows.where((e) => e.stock <= 5).toList();
+    final low = rows.where((e) => e.stock < 10).toList();
     if (low.isEmpty) return;
     final key = _rowKeys[low.first.name];
     final ctx = key?.currentContext;
@@ -91,15 +93,21 @@ class _Level3InventoryScreenState extends State<Level3InventoryScreen> {
 
   String _fmtDate(DateTime date) => df.format(date);
 
+  String _statusText(int stock) {
+    if (stock < 10) return 'Stock crítico';
+    if (stock < 20) return 'Stock medio';
+    return 'Stock ok';
+  }
+
+  Color _statusColor(int stock) {
+    if (stock < 10) return Colors.red;
+    if (stock < 20) return Colors.orange;
+    return Colors.green;
+  }
+
   DataRow _row(BuildContext context, AppState app, InventoryItem item) {
-    final reorderPoint = item.reorderPoint > 0 ? item.reorderPoint : 5;
-    final isEmpty = item.stock <= 0;
-    final isLow = item.stock <= reorderPoint;
-    final statusText = isEmpty
-        ? 'Sin stock'
-        : isLow
-            ? 'Stock bajo'
-            : 'Stock ok';
+    final status = _statusText(item.stock);
+    final color = _statusColor(item.stock);
 
     return DataRow(cells: [
       DataCell(SizedBox(
@@ -112,7 +120,20 @@ class _Level3InventoryScreenState extends State<Level3InventoryScreen> {
       )),
       DataCell(_StockBadge(value: item.stock)),
       DataCell(Text(_fmtDate(item.expiry))),
-      DataCell(_StatePill(text: statusText, low: isLow, empty: isEmpty)),
+      DataCell(Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        decoration: BoxDecoration(
+          color: color.withOpacity(0.15),
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Text(
+          status,
+          style: TextStyle(
+            color: color,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+      )),
       DataCell(Row(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -135,7 +156,7 @@ class _Level3InventoryScreenState extends State<Level3InventoryScreen> {
                     'Llevamos ${item.name} al máximo (${AppState.maxStock}).');
               } else {
                 _showInvSnack(
-                    context, '${item.name} ya estaba al máximo.');
+                    context, 'Ya estás al máximo (${AppState.maxStock}).');
               }
             },
             child: const Text('100%'),
@@ -146,14 +167,9 @@ class _Level3InventoryScreenState extends State<Level3InventoryScreen> {
   }
 
   Widget _mobileCard(BuildContext context, AppState app, InventoryItem item) {
-    final reorderPoint = item.reorderPoint > 0 ? item.reorderPoint : 5;
     final isEmpty = item.stock <= 0;
-    final isLow = item.stock <= reorderPoint;
-    final statusText = isEmpty
-        ? 'Sin stock'
-        : isLow
-            ? 'Stock bajo'
-            : 'Stock ok';
+    final status = _statusText(item.stock);
+    final color = _statusColor(item.stock);
 
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 6),
@@ -183,7 +199,20 @@ class _Level3InventoryScreenState extends State<Level3InventoryScreen> {
             children: [
               _StockBadge(value: item.stock),
               const SizedBox(width: 12),
-              _StatePill(text: statusText, low: isLow, empty: isEmpty),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                decoration: BoxDecoration(
+                  color: color.withOpacity(0.15),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Text(
+                  status,
+                  style: TextStyle(
+                    color: color,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
             ],
           ),
           const SizedBox(height: 12),
@@ -230,7 +259,7 @@ class _Level3InventoryScreenState extends State<Level3InventoryScreen> {
                           'Llevamos ${item.name} al máximo (${AppState.maxStock}).');
                     } else {
                       _showInvSnack(
-                          context, '${item.name} ya estaba al máximo.');
+                          context, 'Ya estás al máximo (${AppState.maxStock}).');
                     }
                   },
                   child: const Text('100%'),
@@ -275,7 +304,7 @@ class _Level3InventoryScreenState extends State<Level3InventoryScreen> {
                       padding: const EdgeInsets.only(bottom: 12),
                       child: InventoryMouse(
                         items: mouseItems,
-                        lowThreshold: 3,
+                        lowThreshold: 9,
                         onTap: () => _scrollToFirstLow(rows),
                       ),
                     ),
@@ -379,72 +408,26 @@ class _Level3InventoryScreenState extends State<Level3InventoryScreen> {
   }
 }
 
-class _Legend extends StatelessWidget {
-  const _Legend();
-  @override
-  Widget build(BuildContext context) {
-    final textStyle = Theme.of(context)
-        .textTheme
-        .labelSmall
-        ?.copyWith(fontWeight: FontWeight.w600) ??
-        const TextStyle(fontSize: 12, fontWeight: FontWeight.w600);
-
-    Widget legendItem({
-      required Widget child,
-      required String label,
-    }) {
-      return Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          child,
-          const SizedBox(height: 4),
-          Text(label, style: textStyle),
-        ],
-      );
-    }
-
-    return Wrap(
-      alignment: WrapAlignment.center,
-      spacing: 16,
-      runSpacing: 12,
-      children: [
-        legendItem(
-          child: const _StatePill(text: 'Stock ok', low: false),
-          label: 'Stock suficiente',
-        ),
-        legendItem(
-          child: const _StatePill(text: 'Stock bajo', low: true),
-          label: 'Stock bajo',
-        ),
-        legendItem(
-          child: const _StatePill(text: 'Sin stock', low: true, empty: true),
-          label: 'Sin stock',
-        ),
-        legendItem(
-          child: const _StockBadge(value: 3),
-          label: 'Badge de stock',
-        ),
-      ],
-    );
-  }
-}
-
-
 class _StockBadge extends StatelessWidget {
   final int value;
   const _StockBadge({required this.value});
 
   @override
   Widget build(BuildContext context) {
-    final color = value == 0
-        ? Colors.red
-        : (value <= 5 ? Colors.orange : Colors.green);
+    final Color color;
+    if (value < 10) {
+      color = Colors.red;
+    } else if (value < 20) {
+      color = Colors.orange;
+    } else {
+      color = Colors.green;
+    }
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20),
-        color: color.withValues(alpha: 0.12),
-        border: Border.all(color: color.withValues(alpha: 0.35)),
+        color: color.withOpacity(0.15),
+        border: Border.all(color: color.withOpacity(0.35)),
       ),
       child: Text('$value',
           style: TextStyle(fontWeight: FontWeight.w700, color: color)),
@@ -452,31 +435,45 @@ class _StockBadge extends StatelessWidget {
   }
 }
 
-class _StatePill extends StatelessWidget {
-  final String text;
-  final bool low;
-  final bool empty;
-  const _StatePill({required this.text, required this.low, this.empty = false});
+class _Legend extends StatelessWidget {
+  const _Legend();
+
   @override
   Widget build(BuildContext context) {
-    final Color color;
-    if (empty) {
-      color = Theme.of(context).colorScheme.error;
-    } else {
-      color = low ? const Color(0xFFF9A825) : const Color(0xFF2E7D32);
-    }
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(20),
-        color: color.withValues(alpha: 0.12),
-        border: Border.all(color: color.withValues(alpha: 0.35)),
-      ),
-      child: Text(text,
-          style: TextStyle(fontWeight: FontWeight.w700, color: color)),
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: const [
+        _LegendDot(color: Colors.green, label: '20–30 Stock ok'),
+        _LegendDot(color: Colors.orange, label: '10–19 Stock medio'),
+        _LegendDot(color: Colors.red, label: '<10 Stock crítico'),
+      ],
     );
   }
 }
 
+class _LegendDot extends StatelessWidget {
+  final Color color;
+  final String label;
 
+  const _LegendDot({required this.color, required this.label});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          width: 14,
+          height: 14,
+          margin: const EdgeInsets.only(right: 6),
+          decoration: BoxDecoration(
+            color: color,
+            shape: BoxShape.circle,
+          ),
+        ),
+        Text(label, style: const TextStyle(fontSize: 12)),
+      ],
+    );
+  }
+}
 

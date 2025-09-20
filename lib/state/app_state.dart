@@ -52,22 +52,22 @@ class AppState extends ChangeNotifier {
   // Helpers de inventario
   bool isOutOfStock(String name) => (inventory[name]?.stock ?? 0) <= 0;
 
-  void restock(String name, [int amount = 1]) {
+  void restock(String name, int amount) {
     if (amount == 0) return;
     final item = inventory[name];
     if (item == null) return;
 
     final next = (item.stock + amount).clamp(0, maxStock).toInt();
-    item.stock = next;
+    if (next == item.stock) return;
+    inventory[name] = item.copyWith(stock: next);
     notifyListeners();
   }
 
   void restockFull(String name) {
     final item = inventory[name];
-    if (item == null) return;
-    if (item.stock >= maxStock) return;
+    if (item == null || item.stock >= maxStock) return;
 
-    item.stock = maxStock;
+    inventory[name] = item.copyWith(stock: maxStock);
     notifyListeners();
   }
 
@@ -76,7 +76,8 @@ class AppState extends ChangeNotifier {
     final item = inventory[name];
     if (item == null || item.stock <= 0) return false;
 
-    item.stock = (item.stock - 1).clamp(0, maxStock).toInt();
+    final next = (item.stock - 1).clamp(0, maxStock).toInt();
+    inventory[name] = item.copyWith(stock: next);
     servedByCheese[name] = (servedByCheese[name] ?? 0) + 1;
     notifyListeners();
     return true;
