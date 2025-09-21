@@ -485,7 +485,7 @@ class _PieCheese extends StatelessWidget {
   String _formatPercentage(int value, int total) {
     if (total <= 0 || value <= 0) return '0%';
     final pct = (value * 100 / total).clamp(0, 100);
-    final pctValue = (pct is num) ? pct.toDouble() : pct as double;
+    final pctValue = pct.toDouble(); 
     if (pctValue >= 10) {
       return '${pctValue.toStringAsFixed(0)}%';
     }
@@ -497,13 +497,11 @@ class _ChartPlaceholder extends StatelessWidget {
   final String message;
   final List<String> labels;
   final String valueSuffix;
-  final double? height;
 
   const _ChartPlaceholder({
     required this.message,
     required this.labels,
     this.valueSuffix = '',
-    this.height,
   });
 
   @override
@@ -540,12 +538,6 @@ class _ChartPlaceholder extends StatelessWidget {
       ),
     );
 
-    if (height != null) {
-      return ConstrainedBox(
-        constraints: BoxConstraints(minHeight: height!),
-        child: content,
-      );
-    }
 
     return content;
   }
@@ -560,7 +552,7 @@ class _CheeseChip extends StatelessWidget {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
     final chipColor = Color.alphaBlend(
-      _DashboardScreenState.brand.withOpacity(0.08),
+        _DashboardScreenState.brand.withValues(alpha: 0.08),
       scheme.surface,
     );
     final textStyle = theme.textTheme.bodySmall?.copyWith(
@@ -578,7 +570,7 @@ class _CheeseChip extends StatelessWidget {
       decoration: BoxDecoration(
         color: chipColor,
         borderRadius: BorderRadius.circular(30),
-        border: Border.all(color: scheme.outline.withOpacity(0.2)),
+        border: Border.all(color: scheme.outline.withValues(alpha: 0.2)),
       ),
       child: Text(label, style: textStyle),
     );
