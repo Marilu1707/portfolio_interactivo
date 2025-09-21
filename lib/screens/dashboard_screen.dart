@@ -11,14 +11,14 @@ import '../widgets/kawaii_card.dart';
 
 const _kCheeseLabels = <String>['Mozzarella', 'Cheddar', 'Provolone', 'Gouda', 'Brie', 'Parmesano'];
 
-class Level5DashboardScreen extends StatefulWidget {
-  const Level5DashboardScreen({super.key});
+class DashboardScreen extends StatefulWidget {
+  const DashboardScreen({super.key});
 
   @override
-  State<Level5DashboardScreen> createState() => _Level5DashboardScreenState();
+  State<DashboardScreen> createState() => _DashboardScreenState();
 }
 
-class _Level5DashboardScreenState extends State<Level5DashboardScreen> {
+class _DashboardScreenState extends State<DashboardScreen> {
   // Paleta “pro kawaii” (beige/amarillo/marrón)
   static const bg = Color(0xFFFFF6E5);
   static const brand = Color(0xFFFFD166);
@@ -46,7 +46,7 @@ class _Level5DashboardScreenState extends State<Level5DashboardScreen> {
         elevation: 0,
         centerTitle: true,
         title: const Text(
-          'Panel de Control',
+          'Dashboard',
           style: TextStyle(fontSize: 28, fontWeight: FontWeight.w900, color: textDark),
         ),
       ),
@@ -188,7 +188,7 @@ class _Level5DashboardScreenState extends State<Level5DashboardScreen> {
                                   ),
                                 ),
                                 const SizedBox(height: 12),
-                                SizedBox(height: 180, child: _PieCheese(app: app)),
+                                _PieCheese(app: app),
                               ],
                             ),
                           ),
@@ -281,7 +281,7 @@ class KpiTile extends StatelessWidget {
               color: const Color(0xFFFFE082),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: Icon(icon, color: _Level5DashboardScreenState.textDark),
+            child: Icon(icon, color: _DashboardScreenState.textDark),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -290,12 +290,12 @@ class KpiTile extends StatelessWidget {
               children: [
                 Text(label,
                     style: const TextStyle(
-                        fontSize: 12, color: _Level5DashboardScreenState.textDark)),
+                        fontSize: 12, color: _DashboardScreenState.textDark)),
                 Text(value,
                     style: const TextStyle(
                         fontSize: 34,
                         fontWeight: FontWeight.w700,
-                        color: _Level5DashboardScreenState.textDark)),
+                        color: _DashboardScreenState.textDark)),
               ],
             ),
           ),
@@ -390,7 +390,7 @@ class _Bars extends StatelessWidget {
                     toY: series[i].toDouble(),
                     width: 18,
                     borderRadius: BorderRadius.circular(6),
-                    color: _Level5DashboardScreenState.brand,
+                    color: _DashboardScreenState.brand,
                   ),
                 ],
               ),
@@ -409,28 +409,25 @@ class _PieCheese extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final entries = app.servedByCheese.entries.where((e) => e.value > 0).toList();
-    if (entries.isEmpty) {
-      return _ChartPlaceholder(
-        message: 'Sin datos aún — jugá un nivel para ver participación por queso.',
-        labels: _kCheeseLabels,
-        valueSuffix: '%',
-        height: 220,
-      );
+    final served = app.servedByCheese;
+    final labels = <String>[..._kCheeseLabels];
+    for (final label in served.keys) {
+      if (!labels.contains(label)) {
+        labels.add(label);
+      }
     }
 
-    final total = entries.fold<int>(0, (a, b) => a + b.value);
+    final total = served.values.fold<int>(0, (a, b) => a + b);
     if (total <= 0) {
       return _ChartPlaceholder(
         message: 'Sin datos aún — jugá un nivel para ver participación por queso.',
-        labels: _kCheeseLabels,
+        labels: labels,
         valueSuffix: '%',
-        height: 220,
       );
     }
 
     final palette = [
-      _Level5DashboardScreenState.brand,
+      _DashboardScreenState.brand,
       const Color(0xFFFFE082),
       const Color(0xFFFFE49D),
       const Color(0xFFFFDFA6),
@@ -439,9 +436,11 @@ class _PieCheese extends StatelessWidget {
     ];
 
     final sections = <PieChartSectionData>[];
-    for (var i = 0; i < entries.length; i++) {
-      final entry = entries[i];
-      final frac = entry.value / total;
+    for (var i = 0; i < labels.length; i++) {
+      final label = labels[i];
+      final value = served[label] ?? 0;
+      if (value <= 0) continue;
+      final frac = value / total;
       sections.add(
         PieChartSectionData(
           value: (frac * 100).clamp(0, 100).toDouble(),
@@ -454,14 +453,43 @@ class _PieCheese extends StatelessWidget {
       );
     }
 
-    return PieChart(
-      PieChartData(
-        centerSpaceRadius: 32,
-        sectionsSpace: 2,
-        sections: sections,
-        borderData: FlBorderData(show: false),
-      ),
+    final chips = [
+      for (final label in labels)
+        _CheeseChip('$label: ${_formatPercentage(served[label] ?? 0, total)}'),
+    ];
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SizedBox(
+          height: 180,
+          child: PieChart(
+            PieChartData(
+              centerSpaceRadius: 32,
+              sectionsSpace: 2,
+              sections: sections,
+              borderData: FlBorderData(show: false),
+            ),
+          ),
+        ),
+        const SizedBox(height: 16),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: chips,
+        ),
+      ],
     );
+  }
+
+  String _formatPercentage(int value, int total) {
+    if (total <= 0 || value <= 0) return '0%';
+    final pct = (value * 100 / total).clamp(0, 100);
+    final pctValue = (pct is num) ? pct.toDouble() : pct as double;
+    if (pctValue >= 10) {
+      return '${pctValue.toStringAsFixed(0)}%';
+    }
+    return '${pctValue.toStringAsFixed(1)}%';
   }
 }
 
@@ -482,7 +510,12 @@ class _ChartPlaceholder extends StatelessWidget {
   Widget build(BuildContext context) {
     final suffix = valueSuffix;
     final valueText = suffix.isEmpty ? '0' : '0$suffix';
+    final chips = [
+      for (final label in labels) _CheeseChip('$label: $valueText'),
+    ];
+
     final content = Container(
+      width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surface,
@@ -495,36 +528,60 @@ class _ChartPlaceholder extends StatelessWidget {
             message,
             style: Theme.of(context).textTheme.bodyMedium,
           ),
-          const SizedBox(height: 12),
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: [
-              for (final label in labels)
-                Chip(
-                  label: Text('$label: $valueText'),
-                  backgroundColor:
-                      Theme.of(context).colorScheme.surfaceContainerHighest,
-                  visualDensity: VisualDensity.compact,
-                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                ),
-            ],
-          ),
+          if (chips.isNotEmpty) ...[
+            const SizedBox(height: 12),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: chips,
+            ),
+          ],
         ],
       ),
     );
 
     if (height != null) {
-      return SizedBox(
-        height: height,
-        child: Align(
-          alignment: Alignment.center,
-          child: FractionallySizedBox(widthFactor: 1, child: content),
-        ),
+      return ConstrainedBox(
+        constraints: BoxConstraints(minHeight: height!),
+        child: content,
       );
     }
 
-    return SizedBox(width: double.infinity, child: content);
+    return content;
+  }
+}
+
+class _CheeseChip extends StatelessWidget {
+  final String label;
+  const _CheeseChip(this.label);
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    final chipColor = Color.alphaBlend(
+      _DashboardScreenState.brand.withOpacity(0.08),
+      scheme.surface,
+    );
+    final textStyle = theme.textTheme.bodySmall?.copyWith(
+          color: _DashboardScreenState.textDark,
+          fontWeight: FontWeight.w600,
+        ) ??
+        const TextStyle(
+          color: _DashboardScreenState.textDark,
+          fontWeight: FontWeight.w600,
+          fontSize: 13,
+        );
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: BoxDecoration(
+        color: chipColor,
+        borderRadius: BorderRadius.circular(30),
+        border: Border.all(color: scheme.outline.withOpacity(0.2)),
+      ),
+      child: Text(label, style: textStyle),
+    );
   }
 }
 
@@ -547,7 +604,7 @@ class _DemandVsServed extends StatelessWidget {
           'Pedidos vs Servidos (cumplimiento)',
           style: TextStyle(
             fontWeight: FontWeight.w700,
-            color: _Level5DashboardScreenState.textDark,
+            color: _DashboardScreenState.textDark,
           ),
         ),
         const SizedBox(height: 10),
