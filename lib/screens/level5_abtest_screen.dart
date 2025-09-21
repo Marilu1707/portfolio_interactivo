@@ -10,14 +10,14 @@ import '../utils/help_sheet.dart';
 import '../widgets/ab_result_card.dart';
 import '../widgets/kawaii_card.dart';
 
-class Level5AbTestScreen extends StatefulWidget {
-  const Level5AbTestScreen({super.key});
+class AbTestScreen extends StatefulWidget {
+  const AbTestScreen({super.key});
 
   @override
-  State<Level5AbTestScreen> createState() => _Level5AbTestScreenState();
+  State<AbTestScreen> createState() => _AbTestScreenState();
 }
 
-class _Level5AbTestScreenState extends State<Level5AbTestScreen> {
+class _AbTestScreenState extends State<AbTestScreen> {
   final _formKey = GlobalKey<FormState>();
   final _cNController = TextEditingController(text: '100');
   final _cXController = TextEditingController(text: '25');

@@ -207,23 +207,29 @@ class HomeScreen extends StatelessWidget {
                       _CardsSection(
                         isMobile: isMobile,
                         children: [
-                          _LevelCard.emoji(
-                            emoji: '📈',
+                          _LevelCard(
+                            icon: Icons.bar_chart_rounded,
                             title: 'EDA interactiva',
-                            subtitle: 'Explorá participación por queso',
+                            subtitle: 'Explorá participación y KPIs clave',
                             onTap: () => Navigator.pushNamed(context, '/level2'),
                           ),
-                          _LevelCard.emoji(
-                            emoji: '🤖',
+                          _LevelCard(
+                            icon: Icons.auto_graph,
                             title: 'Predicción ML',
                             subtitle: 'Modelo online que aprende en vivo',
                             onTap: () => Navigator.pushNamed(context, '/level4'),
                           ),
-                          _LevelCard.emoji(
-                            emoji: '📊',
-                            title: 'Dashboard & A/B',
-                            subtitle: 'KPIs + experimento con Z-test',
+                          _LevelCard(
+                            icon: Icons.space_dashboard_rounded,
+                            title: 'Dashboard',
+                            subtitle: 'KPIs e insights ejecutivos',
                             onTap: () => Navigator.pushNamed(context, '/dashboard'),
+                          ),
+                          _LevelCard(
+                            icon: Icons.compare_arrows_rounded,
+                            title: 'A/B Test',
+                            subtitle: 'Compará variantes (Z para dos proporciones)',
+                            onTap: () => Navigator.pushNamed(context, '/level5'),
                           ),
                         ],
                       ),
@@ -448,12 +454,26 @@ class _LevelCard extends StatelessWidget {
   final String subtitle;
   final VoidCallback onTap;
 
-  const _LevelCard({
+  const _LevelCard._({
     required this.leading,
     required this.title,
     required this.subtitle,
     required this.onTap,
   });
+
+  factory _LevelCard({
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required VoidCallback onTap,
+  }) {
+    return _LevelCard._(
+      leading: Icon(icon, size: 30, color: HomeScreen.onAccent),
+      title: title,
+      subtitle: subtitle,
+      onTap: onTap,
+    );
+  }
 
   factory _LevelCard.emoji({
     required String emoji,
@@ -461,7 +481,7 @@ class _LevelCard extends StatelessWidget {
     required String subtitle,
     required VoidCallback onTap,
   }) {
-    return _LevelCard(
+    return _LevelCard._(
       leading: Text(emoji, style: const TextStyle(fontSize: 24)),
       title: title,
       subtitle: subtitle,

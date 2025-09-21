@@ -186,8 +186,8 @@ class MariluApp extends StatelessWidget {
         '/level2': (_) => const Level2EdaScreen(),
         '/level3': (_) => const Level3InventoryScreen(),
         '/level4': (_) => const Level4MlPredictionScreen(),
-        '/level5': (_) => const Level5AbTestScreen(),
-        '/dashboard': (_) => const Level5DashboardScreen(),
+        '/level5': (_) => const AbTestScreen(),
+        '/dashboard': (_) => const DashboardScreen(),
       },
       onUnknownRoute: (settings) => MaterialPageRoute(
         builder: (_) => const HomeScreen(),
