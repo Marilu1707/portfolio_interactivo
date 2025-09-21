@@ -69,7 +69,7 @@ class _Level4MlPredictionScreenState extends State<Level4MlPredictionScreen> {
         'provolone': 0.12,
         'gouda': 0.05,
         'brie': -0.04,
-        'azul': -0.02,
+        'Parmesano': -0.02,
       };
       final cheeseKey = sugerido.toLowerCase();
       _lastContribs = <String, double>{
@@ -354,7 +354,6 @@ class _ParametrosCard extends StatelessWidget {
             ),
           ],
         ),
-      ),
     );
   }
 }

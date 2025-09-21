@@ -12,7 +12,7 @@ class OrdersState extends ChangeNotifier {
     'Mozzarella',
     'Cheddar',
     'Gouda',
-    'Azul',
+    'Parmesano',
   ];
 
   final Map<String, int> _requested = {
@@ -36,7 +36,7 @@ class OrdersState extends ChangeNotifier {
       _served[cheese] = prefs.getInt('$_kKeySrv:$cheese') ?? 0;
     }
 
-    // Migrar datos legacy (Parmesano → Provolone, Blue → Azul)
+    // Migrar datos legacy (Parmesano → Provolone, Blue → Parmesano)
     final legacyParmesanoReq = prefs.getInt('$_kKeyReq:Parmesano') ?? 0;
     final legacyParmesanoSrv = prefs.getInt('$_kKeySrv:Parmesano') ?? 0;
     if (legacyParmesanoReq > 0) {
@@ -50,11 +50,11 @@ class OrdersState extends ChangeNotifier {
     final legacyBlueReq = prefs.getInt('$_kKeyReq:Blue') ?? 0;
     final legacyBlueSrv = prefs.getInt('$_kKeySrv:Blue') ?? 0;
     if (legacyBlueReq > 0) {
-      _requested['Azul'] = (_requested['Azul'] ?? 0) + legacyBlueReq;
+      _requested['Parmesano'] = (_requested['Parmesano'] ?? 0) + legacyBlueReq;
       await prefs.remove('$_kKeyReq:Blue');
     }
     if (legacyBlueSrv > 0) {
-      _served['Azul'] = (_served['Azul'] ?? 0) + legacyBlueSrv;
+      _served['Parmesano'] = (_served['Parmesano'] ?? 0) + legacyBlueSrv;
       await prefs.remove('$_kKeySrv:Blue');
     }
     // Migrate legacy `_counts` (served) if both maps are empty

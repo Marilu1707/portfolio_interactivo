@@ -7,7 +7,7 @@ class Features {
     'Provolone',
     'Gouda',
     'Brie',
-    'Azul',
+    'Parmesano',
   ];
 
   static int get dimension => 8 + _cheeses.length;

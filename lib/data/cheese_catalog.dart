@@ -14,7 +14,7 @@ const List<Cheese> kCheeses = [
   Cheese('provolone', 'Provolone', 'Italia'),
   Cheese('gouda', 'Gouda', 'Países Bajos'),
   Cheese('brie', 'Brie', 'Francia'),
-  Cheese('azul', 'Azul', 'Francia'),
+  Cheese('Parmesano', 'Parmesano', 'Francia'),
 ];
 
 // IDs permitidos
@@ -24,7 +24,7 @@ const Set<String> kAllowedIds = {
   'provolone',
   'gouda',
   'brie',
-  'azul',
+  'Parmesano',
 };
 
 // Normalizador de entradas externas → id interno
@@ -37,8 +37,8 @@ String normalizeCheese(String raw) {
   }
   if (r.startsWith('gouda')) return 'gouda';
   if (r.startsWith('brie')) return 'brie';
-  if (r.contains('blue') || r.contains('azul') || r.contains('roquefort') || r.contains('gorgonzola')) {
-    return 'azul';
+  if (r.contains('blue') || r.contains('Parmesano') || r.contains('roquefort') || r.contains('gorgonzola')) {
+    return 'Parmesano';
   }
   return '';
 }

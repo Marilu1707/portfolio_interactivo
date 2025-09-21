@@ -393,7 +393,7 @@ class _H3 extends StatelessWidget {
   }
 }
 
-/// Píldoras multilínea (no truncan)
+/// Pills multilínea 
 class _Chips extends StatelessWidget {
   final List<String> items;
   const _Chips(this.items);

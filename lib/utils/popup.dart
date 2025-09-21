@@ -106,7 +106,7 @@ class Popup {
                               Text(title, style: Theme.of(context).textTheme.titleMedium),
                               if (message?.isNotEmpty ?? false) ...[
                                 const SizedBox(height: 4),
-                                Text(message, style: Theme.of(context).textTheme.bodyMedium),
+                                Text(message!, style: Theme.of(context).textTheme.bodyMedium),
                               ],
                             ],
                           ),
