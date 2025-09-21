@@ -34,7 +34,6 @@ class AppDiagnostics {
     'assets/img/raton_inventario.png',
     'assets/img/ab_mouse.png',
     'assets/icons/favicon.png',
-    'assets/data/CV_MASSIRONI_MARIA_LUJAN.pdf',
   ];
 
   static const _routesToCheck = <String>[

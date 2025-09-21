@@ -244,27 +244,31 @@ class HomeScreen extends StatelessWidget {
                         children: [
                           _contactBtn(Icons.business_rounded, 'LinkedIn', () => _open(linkedinUrl)),
                           _contactBtn(Icons.code_rounded, 'GitHub', () => _open(githubUrl)),
-                          _contactBtn(Icons.picture_as_pdf_rounded, 'Descargar CV', () => descargarCV(context)),
-                        ],
-                      ),
-                      const SizedBox(height: 24),
-
-                      // Footer + CTA extra
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          _playButton(context, expanded: true),
-                          const SizedBox(height: 12),
-                          Container(
-                            padding: const EdgeInsets.symmetric(vertical: 12),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFFFE7A6),
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            alignment: Alignment.center,
-                            child: const Text('© 2025 María Luján Massironi — Data Science & Fullstack', style: TextStyle(color: onAccent)),
+                          _contactBtn(
+                            Icons.picture_as_pdf_rounded,
+                            'Descargar CV',
+                            () async {
+                              final ok = await descargarCV();
+                              if (!context.mounted) return;
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(ok ? 'Abriendo CV…' : 'No se logró abrir el CV.'),
+                                  behavior: SnackBarBehavior.floating,
+                                ),
+                              );
+                            },
                           ),
                         ],
+                      ),
+                      // Footer
+                      Container(
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFFFE7A6),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        alignment: Alignment.center,
+                        child: const Text('© 2025 María Luján Massironi — Data Science & Fullstack', style: TextStyle(color: onAccent)),
                       ),
                     ],
                   ),
