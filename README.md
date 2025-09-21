@@ -147,7 +147,7 @@ Me apasiona unir **estrategia + tecnología + creatividad** para generar solucio
 * ✉️ [mlujanmassironi@gmail.com](mailto:mlujanmassironi@gmail.com)
 * 💼 [LinkedIn](https://www.linkedin.com/in/maria-lujan-massironi/)
 * 🐙 [GitHub](https://github.com/Marilu1707)
-* 📄 [Descargar CV](assets/data/CV_MASSIRONI_MARIA_LUJAN.pdf)
+* 📄 [Descargar CV](https://drive.google.com/uc?export=download&id=1Br8mApkGhV-jDszyj39468rD9ye3G9Qy)
 
 ---
 

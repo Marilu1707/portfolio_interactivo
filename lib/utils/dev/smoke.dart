@@ -11,11 +11,12 @@ class Smoke {
   }
 
   static Future<void> _assets() async {
+    const assetPath = 'assets/img/raton_menu.png';
     try {
-      final bytes = await rootBundle.load('assets/data/CV_MARIA_LUJAN_MASSIRONI.pdf');
-      dev.log('SMOKE assets: CV bytes=${bytes.lengthInBytes}', name: 'smoke');
+      final bytes = await rootBundle.load(assetPath);
+      dev.log('SMOKE assets: $assetPath bytes=${bytes.lengthInBytes}', name: 'smoke');
     } catch (e) {
-      dev.log('SMOKE assets: FAILED to load CV: $e', name: 'smoke', level: 1000);
+      dev.log('SMOKE assets: FAILED to load $assetPath: $e', name: 'smoke', level: 1000);
     }
   }
 

@@ -18,13 +18,9 @@ dependencies:
   csv: ^6.0.0
   google_fonts: ^6.2.1
   provider: ^6.1.2
-  path_provider: ^2.1.5
-  open_filex: ^4.5.0
   shared_preferences: ^2.3.2
   flutter_web_plugins:
     sdk: flutter
-  pdf: ^3.10.7
-  printing: ^5.13.4
 
 dev_dependencies:
   flutter_test:
