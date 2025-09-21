@@ -1,18 +1,26 @@
-// ignore_for_file: deprecated_member_use
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
+
 import '../utils/kawaii_toast.dart';
-// ignore: avoid_web_libraries_in_flutter
-import 'dart:html' as html;
 
 Future<void> descargarCV(BuildContext context) async {
-  const path = 'assets/data/CV_MASSIRONI_MARIA_LUJAN.pdf';
-  final a = html.AnchorElement(href: path)
-    ..setAttribute('download', 'CV_MARIA_LUJAN_MASSIRONI.pdf')
-    ..style.display = 'none';
-  html.document.body?.append(a);
-  a.click();
-  a.remove();
+  const cvUrl = 'CV_MASSIRONI_MARIA_LUJAN.pdf';
+  final uri = Uri.parse(cvUrl);
+  final launched = await launchUrl(uri);
+
   if (!context.mounted) return;
+
+  if (!launched) {
+    KawaiiToast.show(
+      context,
+      'No se pudo descargar el CV',
+      color: Colors.redAccent,
+      icon: Icons.error_outline,
+      success: false,
+    );
+    return;
+  }
+
   KawaiiToast.show(
     context,
     'Descargando CV...',
