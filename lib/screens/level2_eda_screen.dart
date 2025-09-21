@@ -402,18 +402,6 @@ class _ParticipacionCard extends StatelessWidget {
       }
     }
 
-    final cardDecoration = BoxDecoration(
-      color: theme.colorScheme.surface,
-      borderRadius: BorderRadius.circular(16),
-      boxShadow: [
-        BoxShadow(
-          color: Colors.black.withValues(alpha: 0.05),
-          blurRadius: 10,
-          offset: const Offset(0, 4),
-        ),
-      ],
-    );
-
     return KawaiiCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

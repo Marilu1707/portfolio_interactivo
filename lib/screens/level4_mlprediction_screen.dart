@@ -376,52 +376,51 @@ class _ResultadoCard extends StatelessWidget {
       duration: const Duration(milliseconds: 200),
       child: KawaiiCard(
         child: hasResult
-              ? Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Resultado de la predicción',
-                      style: Theme.of(context)
-                          .textTheme
-                          .labelLarge
-                          ?.copyWith(fontWeight: FontWeight.w700),
-                    ),
-                    const SizedBox(height: 12),
-                    Text(
-                      'Probabilidad de conversión: ${(probPredicha! * 100).toStringAsFixed(1)} %',
-                      style: Theme.of(context).textTheme.titleMedium,
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      sugerencia ?? '',
-                      style: Theme.of(context).textTheme.bodyMedium,
-                      softWrap: true,
-                    ),
-                    const SizedBox(height: 16),
-                    const _HowCalculatedTile(),
-                  ],
-                )
-              : Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Listo para predecir',
-                      style: Theme.of(context)
-                          .textTheme
-                          .labelLarge
-                          ?.copyWith(fontWeight: FontWeight.w700),
-                    ),
-                    const SizedBox(height: 8),
-                    const Text(
-                      'Necesito feedback para aprender: ajustá los parámetros y tocá “Predecir” '
-                      'para estimar la probabilidad de acierto del próximo pedido.',
-                      softWrap: true,
-                    ),
-                    const SizedBox(height: 16),
-                    const _HowCalculatedTile(),
-                  ],
-                ),
-        ),
+            ? Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Resultado de la predicción',
+                    style: Theme.of(context)
+                        .textTheme
+                        .labelLarge
+                        ?.copyWith(fontWeight: FontWeight.w700),
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    'Probabilidad de conversión: ${(probPredicha! * 100).toStringAsFixed(1)} %',
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    sugerencia ?? '',
+                    style: Theme.of(context).textTheme.bodyMedium,
+                    softWrap: true,
+                  ),
+                  const SizedBox(height: 16),
+                  const _HowCalculatedTile(),
+                ],
+              )
+            : Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Listo para predecir',
+                    style: Theme.of(context)
+                        .textTheme
+                        .labelLarge
+                        ?.copyWith(fontWeight: FontWeight.w700),
+                  ),
+                  const SizedBox(height: 8),
+                  const Text(
+                    'Necesito feedback para aprender: ajustá los parámetros y tocá “Predecir” '
+                    'para estimar la probabilidad de acierto del próximo pedido.',
+                    softWrap: true,
+                  ),
+                  const SizedBox(height: 16),
+                  const _HowCalculatedTile(),
+                ],
+              ),
       ),
     );
   }
@@ -479,74 +478,73 @@ class _AprenderCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return KawaiiCard(
       child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              texto,
-              style: Theme.of(context)
-                  .textTheme
-                  .labelLarge
-                  ?.copyWith(fontWeight: FontWeight.w700),
-            ),
-            const SizedBox(height: 12),
-            LayoutBuilder(
-              builder: (context, constraints) {
-                Widget buildSuccess({double? width}) => SizedBox(
-                      width: width,
-                      child: ElevatedButton.icon(
-                        onPressed: () => onAprender(true),
-                        icon: const Icon(Icons.check_circle_outline),
-                        label: const Text('Convirtió'),
-                        style: ElevatedButton.styleFrom(
-                          minimumSize: const Size(140, 48),
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 20, vertical: 14),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            texto,
+            style: Theme.of(context)
+                .textTheme
+                .labelLarge
+                ?.copyWith(fontWeight: FontWeight.w700),
+          ),
+          const SizedBox(height: 12),
+          LayoutBuilder(
+            builder: (context, constraints) {
+              Widget buildSuccess({double? width}) => SizedBox(
+                    width: width,
+                    child: ElevatedButton.icon(
+                      onPressed: () => onAprender(true),
+                      icon: const Icon(Icons.check_circle_outline),
+                      label: const Text('Convirtió'),
+                      style: ElevatedButton.styleFrom(
+                        minimumSize: const Size(140, 48),
+                        padding:
+                            const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
                         ),
                       ),
-                    );
-                Widget buildFail({double? width}) => SizedBox(
-                      width: width,
-                      child: OutlinedButton.icon(
-                        onPressed: () => onAprender(false),
-                        icon: const Icon(Icons.cancel_outlined),
-                        label: const Text('No convirtió'),
-                        style: OutlinedButton.styleFrom(
-                          minimumSize: const Size(140, 48),
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 20, vertical: 14),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
-                      ),
-                    );
-
-                if (constraints.maxWidth < 360) {
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      buildSuccess(width: double.infinity),
-                      const SizedBox(height: 8),
-                      buildFail(width: double.infinity),
-                    ],
+                    ),
                   );
-                }
+              Widget buildFail({double? width}) => SizedBox(
+                    width: width,
+                    child: OutlinedButton.icon(
+                      onPressed: () => onAprender(false),
+                      icon: const Icon(Icons.cancel_outlined),
+                      label: const Text('No convirtió'),
+                      style: OutlinedButton.styleFrom(
+                        minimumSize: const Size(140, 48),
+                        padding:
+                            const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                    ),
+                  );
 
-                return Wrap(
-                  spacing: 12,
-                  runSpacing: 8,
+              if (constraints.maxWidth < 360) {
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    buildSuccess(width: 180),
-                    buildFail(width: 180),
+                    buildSuccess(width: double.infinity),
+                    const SizedBox(height: 8),
+                    buildFail(width: double.infinity),
                   ],
                 );
-              },
-            ),
-          ],
-        ),
+              }
+
+              return Wrap(
+                spacing: 12,
+                runSpacing: 8,
+                children: [
+                  buildSuccess(width: 180),
+                  buildFail(width: 180),
+                ],
+              );
+            },
+          ),
+        ],
       ),
     );
   }

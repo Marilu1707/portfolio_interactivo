@@ -104,7 +104,7 @@ class Popup {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(title, style: Theme.of(context).textTheme.titleMedium),
-                              if (message != null && message.isNotEmpty) ...[
+                              if (message?.isNotEmpty ?? false) ...[
                                 const SizedBox(height: 4),
                                 Text(message, style: Theme.of(context).textTheme.bodyMedium),
                               ],
