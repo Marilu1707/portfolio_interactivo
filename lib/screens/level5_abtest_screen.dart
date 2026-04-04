@@ -7,6 +7,7 @@ import '../models/ab_test_result.dart';
 import '../state/ab_result_state.dart';
 import '../state/app_state.dart';
 import '../utils/help_sheet.dart';
+import '../widgets/help_modal.dart';
 import '../widgets/ab_result_card.dart';
 import '../widgets/kawaii_card.dart';
 
@@ -55,7 +56,12 @@ class _AbTestScreenState extends State<AbTestScreen> {
             icon: const Icon(Icons.help_outline),
             onPressed: () => showHelpSheet(
               context,
-              child: const _AbHelpContent(),
+              child: const HelpModal(
+                title: 'Nivel 5 — Test A/B',
+                whatIs: 'Herramienta para comparar dos estrategias de venta con datos reales.',
+                howToUse: 'Ingresá los resultados de los grupos A y B para ver si la diferencia es estadísticamente significativa.',
+                whyItMatters: 'Validar experimentos antes de implementar cambios permanentes en el negocio.',
+              ),
             ),
           ),
         ],
@@ -397,54 +403,6 @@ class _ActionRow extends StatelessWidget {
         children[0],
         const SizedBox(width: 16),
         children[1],
-      ],
-    );
-  }
-}
-
-class _AbHelpContent extends StatelessWidget {
-  const _AbHelpContent();
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: const [
-        Text(
-          'Cómo interpretar el A/B Test',
-          style: TextStyle(fontWeight: FontWeight.w800, fontSize: 18),
-        ),
-        SizedBox(height: 12),
-        Text('• Conversión A/B: proporción de usuarios que convierten en cada grupo.'),
-        Text('• Diferencia de conversión: cuánto cambia B respecto de A en puntos porcentuales.'),
-        Text('• Mejora relativa: crecimiento porcentual tomando A como base.'),
-        Text('• Intensidad de la diferencia: indicador numérico; valores más altos = diferencia más marcada.'),
-        Text('• Probabilidad de azar: qué tan probable es ver una diferencia igual o mayor solo por casualidad si no existe un efecto real.'),
-        SizedBox(height: 16),
-        Text(
-          'Fórmulas',
-          style: TextStyle(fontWeight: FontWeight.w700),
-        ),
-        SizedBox(height: 8),
-        SelectableText(
-          'pA = cA / nA\n'
-          'pB = cB / nB\n'
-          'p̂ = (cA + cB) / (nA + nB)\n'
-          'SE = √[ p̂ (1 − p̂) (1/nA + 1/nB) ]\n'
-          'z = (pB − pA) / SE\n'
-          'p-valor = 2 · (1 − Φ(|z|))\n'
-          'IC = (pB − pA) ± zα/2 · SE',
-        ),
-        SizedBox(height: 16),
-        Text(
-          'Buenas prácticas',
-          style: TextStyle(fontWeight: FontWeight.w700),
-        ),
-        SizedBox(height: 8),
-        Text('• Definí hipótesis y métrica antes de empezar.'),
-        Text('• Evitá mirar el p-valor a mitad de camino: completá el test.'),
-        Text('• Balanceá muestras y verificá que cada celda tenga al menos 5 eventos.'),
-        Text('• Si no se cumple el criterio de 5, usá pruebas exactas (Fisher, chi-cuadrado con corrección).'),
       ],
     );
   }

@@ -6,6 +6,8 @@ import '../models/inventory_item.dart';
 import '../theme/kawaii_theme.dart';
 import '../state/app_state.dart';
 import '../utils/constants.dart';
+import '../utils/help_sheet.dart';
+import '../widgets/help_modal.dart';
 
 // Pantalla Nivel 3 (Inventario): muestra stock por queso y permite reponer.
 class Level3InventoryScreen extends StatefulWidget {
@@ -303,6 +305,21 @@ class _Level3InventoryScreenState extends State<Level3InventoryScreen> {
         elevation: 0,
         centerTitle: true,
         title: const Text('Inventario'),
+        actions: [
+          IconButton(
+            tooltip: 'Ayuda',
+            icon: const Icon(Icons.help_outline),
+            onPressed: () => showHelpSheet(
+              context,
+              child: const HelpModal(
+                title: 'Nivel 3 — Inventario',
+                whatIs: 'Panel de gestión de stock de quesos del local.',
+                howToUse: 'Ajustá las cantidades según la demanda observada en el EDA.',
+                whyItMatters: 'Evitar quiebres de stock y optimizar pedidos al proveedor.',
+              ),
+            ),
+          ),
+        ],
       ),
       body: SafeArea(
         child: Center(

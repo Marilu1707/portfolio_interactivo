@@ -9,6 +9,8 @@ import '../state/orders_state.dart';
 import '../state/player_state.dart';
 import '../widgets/ab_result_card.dart';
 import '../widgets/kawaii_card.dart';
+import '../utils/help_sheet.dart';
+import '../widgets/help_modal.dart';
 
 const _kCheeseLabels = <String>['Mozzarella', 'Cheddar', 'Provolone', 'Gouda', 'Brie', 'Parmesano'];
 
@@ -50,6 +52,21 @@ class _DashboardScreenState extends State<DashboardScreen> {
           'Dashboard',
           style: TextStyle(fontSize: 28, fontWeight: FontWeight.w900, color: textDark),
         ),
+        actions: [
+          IconButton(
+            tooltip: 'Ayuda',
+            icon: const Icon(Icons.help_outline),
+            onPressed: () => showHelpSheet(
+              context,
+              child: const HelpModal(
+                title: 'Dashboard — Tu progreso',
+                whatIs: 'Resumen de todas tus sesiones de juego acumuladas.',
+                howToUse: 'Revisá tu puntaje total, pedidos atendidos, queso favorito y tiempo de respuesta promedio.',
+                whyItMatters: 'Monitorear tu evolución y detectar áreas de mejora a lo largo del tiempo.',
+              ),
+            ),
+          ),
+        ],
       ),
       body: Center(
         child: ConstrainedBox(

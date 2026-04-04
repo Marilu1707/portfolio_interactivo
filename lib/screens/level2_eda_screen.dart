@@ -5,6 +5,8 @@ import 'package:provider/provider.dart';
 import '../state/app_state.dart';
 import '../state/orders_state.dart';
 import '../widgets/kawaii_card.dart';
+import '../utils/help_sheet.dart';
+import '../widgets/help_modal.dart';
 
 /// Nivel 2 — Exploración de datos (mobile-first)
 /// Lee pedidos reales persistidos y muestra:
@@ -120,6 +122,21 @@ class Level2EdaScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('EDA interactiva'),
         centerTitle: true,
+        actions: [
+          IconButton(
+            tooltip: 'Ayuda',
+            icon: const Icon(Icons.help_outline),
+            onPressed: () => showHelpSheet(
+              context,
+              child: const HelpModal(
+                title: 'Nivel 2 — Análisis EDA',
+                whatIs: 'Exploración de los pedidos que registraste en el juego.',
+                howToUse: 'Revisá los gráficos de distribución, tiempo de respuesta y queso más popular.',
+                whyItMatters: 'Entender el comportamiento de tus ventas antes de aplicar modelos predictivos.',
+              ),
+            ),
+          ),
+        ],
       ),
       body: SafeArea(
         child: SingleChildScrollView(

@@ -12,6 +12,8 @@ import '../state/orders_state.dart';
 import '../state/player_state.dart';
 import '../services/ml_service.dart';
 import '../utils/popup.dart';
+import '../utils/help_sheet.dart';
+import '../widgets/help_modal.dart';
 import '../utils/kawaii_toast.dart';
 
 // Pantalla Nivel 1 (Juego): simula pedidos y mide aciertos por queso.
@@ -456,6 +458,21 @@ class _Level1GameScreenState extends State<Level1GameScreen>
         elevation: 0,
         title: const Text('Nido Mozzarella'),
         centerTitle: true,
+        actions: [
+          IconButton(
+            tooltip: 'Ayuda',
+            icon: const Icon(Icons.help_outline),
+            onPressed: () => showHelpSheet(
+              context,
+              child: const HelpModal(
+                title: 'Nivel 1 — Atendé pedidos',
+                whatIs: 'Simulador de pedidos de quesos en tiempo real.',
+                howToUse: 'Aparece un pedido en pantalla; elegí el queso correcto antes de que se acabe el tiempo.',
+                whyItMatters: 'Mide tu velocidad de respuesta y racha, y genera los datos usados en los análisis de los niveles siguientes.',
+              ),
+            ),
+          ),
+        ],
       ),
       body: SafeArea(
         child: loading

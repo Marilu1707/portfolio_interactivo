@@ -6,6 +6,7 @@ import '../state/player_state.dart';
 import '../state/player_state.dart';
 import '../services/ml_service.dart';
 import '../utils/help_sheet.dart';
+import '../widgets/help_modal.dart';
 import '../widgets/kawaii_card.dart';
 
 /// Nivel 4 — Predicción ML (online)
@@ -179,7 +180,12 @@ class _Level4MlPredictionScreenState extends State<Level4MlPredictionScreen> {
             icon: const Icon(Icons.help_outline),
             onPressed: () => showHelpSheet(
               context,
-              child: const _MlHelpContent(),
+              child: const HelpModal(
+                title: 'Nivel 4 — Predicción ML',
+                whatIs: 'Modelo de regresión logística online que aprende de cada pedido.',
+                howToUse: 'Ingresá racha, tiempo de respuesta y hora del día para predecir la probabilidad de conversión.',
+                whyItMatters: 'Usar datos históricos para tomar decisiones más informadas sobre qué queso ofrecer.',
+              ),
             ),
           ),
         ],
@@ -569,45 +575,6 @@ class _AprenderCard extends StatelessWidget {
           ),
         ],
       ),
-    );
-  }
-}
-
-class _MlHelpContent extends StatelessWidget {
-  const _MlHelpContent();
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: const [
-        Text(
-          'Cómo funciona la predicción',
-          style: TextStyle(fontWeight: FontWeight.w800, fontSize: 18),
-        ),
-        SizedBox(height: 12),
-        Text('• Modelo: regresión logística online entrenada con cada pedido del juego.'),
-        Text('• Features: racha, tiempo de respuesta, hora del día, stock promedio visible y el queso ofrecido.'),
-        Text('• Aprendizaje: cada feedback (“Convirtió/No convirtió”) ajusta los pesos en tiempo real.'),
-        SizedBox(height: 16),
-        Text(
-          'Interpretación',
-          style: TextStyle(fontWeight: FontWeight.w700),
-        ),
-        SizedBox(height: 8),
-        Text('• La probabilidad indica qué tan probable es que el queso sugerido convierta en este turno.'),
-        Text('• "Motivos" resume el aporte estimado de cada feature (peso × valor normalizado).'),
-        Text('• Si recién empezaste, el modelo se mantendrá prudente cerca de 50% hasta aprender más.'),
-        SizedBox(height: 16),
-        Text(
-          'Limitaciones y buenas prácticas',
-          style: TextStyle(fontWeight: FontWeight.w700),
-        ),
-        SizedBox(height: 8),
-        Text('• No captura variables externas como clima o campañas; complementalo con análisis cualitativo.'),
-        Text('• Los pesos viven en tu dispositivo: borrar datos reinicia el entrenamiento.'),
-        Text('• Usalo como brújula rápida y combiná con experimentos A/B para validar decisiones.'),
-      ],
     );
   }
 }
