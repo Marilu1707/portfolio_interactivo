@@ -373,12 +373,12 @@ class _ParticipacionCard extends StatelessWidget {
   final Map<String, int> counts;
 
   static const _palette = <Color>[
-    Color(0xFFFFC75F),
-    Color(0xFFFFA45B),
-    Color(0xFFFF6F91),
-    Color(0xFFBA90C6),
-    Color(0xFF85CFD8),
-    Color(0xFFFFE6A7),
+    Color(0xFFEF9F27),
+    Color(0xFFC8A97A),
+    Color(0xFF8B6343),
+    Color(0xFFFAC775),
+    Color(0xFF4A2E1A),
+    Color(0xFFFAEEDA),
   ];
 
   @override
@@ -440,6 +440,8 @@ class _ParticipacionCard extends StatelessWidget {
                       borderData: FlBorderData(show: false),
                       sections: sections,
                     ),
+                    swapAnimationDuration: const Duration(milliseconds: 450),
+                    swapAnimationCurve: Curves.easeInOut,
                   )
                 : Container(
                     decoration: BoxDecoration(
@@ -461,7 +463,8 @@ class _ParticipacionCard extends StatelessWidget {
           Wrap(
             spacing: 6,
             runSpacing: 6,
-            children: entries.map((entry) {
+            children: List.generate(entries.length, (i) {
+              final entry = entries[i];
               final percent = total == 0
                   ? 0
                   : ((entry.value / total) * 100).clamp(0, 100);
@@ -472,12 +475,11 @@ class _ParticipacionCard extends StatelessWidget {
                       : '${percent.toStringAsFixed(1)}%');
               return Chip(
                 label: Text('🧀 ${entry.key}: $label'),
-                backgroundColor: theme.colorScheme.surfaceContainerHighest
-                    .withValues(alpha: 0.25),
+                backgroundColor: _palette[i % _palette.length].withOpacity(0.28),
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
               );
-            }).toList(),
+            }),
           ),
           if (!hasData)
             Padding(

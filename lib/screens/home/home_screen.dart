@@ -187,7 +187,7 @@ class HomeScreen extends StatelessWidget {
                             const _H3('🎮 Jugar ahora'),
                             const SizedBox(height: 8),
                             const Text(
-                              'Entrá a “Nido Mozzarella” y atendé pedidos en un juego kawaii. '
+                              'Entrá a “Nido Mozzarella” y atendé pedidos en tiempo real. '
                               'Cada partida genera datos reales para el análisis y el dashboard.',
                             ),
                             const SizedBox(height: 16),

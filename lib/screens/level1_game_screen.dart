@@ -757,22 +757,25 @@ class _Level1GameScreenState extends State<Level1GameScreen>
         : const Color(0xFFFFF8E7);
 
     // Cada chip representa un queso servible desde el inventario.
-    return ActionChip(
-      label: Text(
-        cheese,
-        style: TextStyle(fontWeight: FontWeight.w700, color: textColor),
-      ),
-      avatar: Text(
-        '🧀',
-        style: TextStyle(
-          fontSize: 16,
-          color: iconColor,
+    return _ScaleChip(
+      disabled: disabled,
+      child: ActionChip(
+        label: Text(
+          cheese,
+          style: TextStyle(fontWeight: FontWeight.w700, color: textColor),
         ),
+        avatar: Text(
+          '🧀',
+          style: TextStyle(
+            fontSize: 16,
+            color: iconColor,
+          ),
+        ),
+        onPressed: disabled ? null : () => _onPickCheese(context, cheese),
+        backgroundColor: bgColor,
+        shape: StadiumBorder(side: BorderSide(color: border, width: 1.4)),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
       ),
-      onPressed: disabled ? null : () => _onPickCheese(context, cheese),
-      backgroundColor: bgColor,
-      shape: StadiumBorder(side: BorderSide(color: border, width: 1.4)),
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
     );
   }
 
@@ -809,6 +812,31 @@ class _Level1GameScreenState extends State<Level1GameScreen>
           ],
         );
       },
+    );
+  }
+}
+
+class _ScaleChip extends StatefulWidget {
+  final Widget child;
+  final bool disabled;
+  const _ScaleChip({required this.child, required this.disabled});
+  @override
+  State<_ScaleChip> createState() => _ScaleChipState();
+}
+
+class _ScaleChipState extends State<_ScaleChip> {
+  bool _pressed = false;
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedScale(
+      scale: (_pressed && !widget.disabled) ? 0.96 : 1.0,
+      duration: const Duration(milliseconds: 100),
+      child: Listener(
+        onPointerDown: (_) => setState(() => _pressed = true),
+        onPointerUp: (_) => setState(() => _pressed = false),
+        onPointerCancel: (_) => setState(() => _pressed = false),
+        child: widget.child,
+      ),
     );
   }
 }

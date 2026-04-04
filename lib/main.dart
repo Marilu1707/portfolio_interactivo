@@ -188,19 +188,46 @@ class MariluApp extends StatelessWidget {
       scrollBehavior: const _NoGlowScrollBehavior(),
       theme: KawaiiTheme.materialTheme(),
       initialRoute: '/welcome',
-      routes: {
-        '/welcome': (_) => const WelcomeScreen(),
-        '/': (_) => const HomeScreen(),
-        '/level1': (_) => const Level1GameScreen(),
-        '/level2': (_) => const Level2EdaScreen(),
-        '/level3': (_) => const Level3InventoryScreen(),
-        '/level4': (_) => const Level4MlPredictionScreen(),
-        '/level5': (_) => const AbTestScreen(),
-        '/dashboard': (_) => const DashboardScreen(),
+      onGenerateRoute: (settings) {
+        Widget page;
+        switch (settings.name) {
+          case '/welcome':
+            page = const WelcomeScreen();
+            break;
+          case '/':
+            page = const HomeScreen();
+            break;
+          case '/level1':
+            page = const Level1GameScreen();
+            break;
+          case '/level2':
+            page = const Level2EdaScreen();
+            break;
+          case '/level3':
+            page = const Level3InventoryScreen();
+            break;
+          case '/level4':
+            page = const Level4MlPredictionScreen();
+            break;
+          case '/level5':
+            page = const AbTestScreen();
+            break;
+          case '/dashboard':
+            page = const DashboardScreen();
+            break;
+          default:
+            page = const HomeScreen();
+        }
+        return PageRouteBuilder(
+          settings: settings,
+          transitionDuration: const Duration(milliseconds: 300),
+          transitionsBuilder: (_, animation, __, child) => FadeTransition(
+            opacity: CurvedAnimation(parent: animation, curve: Curves.easeInOut),
+            child: child,
+          ),
+          pageBuilder: (_, __, ___) => page,
+        );
       },
-      onUnknownRoute: (settings) => MaterialPageRoute(
-        builder: (_) => const HomeScreen(),
-      ),
     );
   }
 }

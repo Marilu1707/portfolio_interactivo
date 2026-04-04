@@ -297,6 +297,12 @@ class _ParametrosCard extends StatelessWidget {
       trackHeight: 4,
       thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 12),
       overlayShape: const RoundSliderOverlayShape(overlayRadius: 18),
+      activeTrackColor: const Color(0xFFEF9F27),
+      inactiveTrackColor: const Color(0xFFE8D9C0),
+      thumbColor: const Color(0xFF8B6343),
+      overlayColor: const Color(0xFFFAC775).withOpacity(0.2),
+      valueIndicatorColor: const Color(0xFF4A2E1A),
+      valueIndicatorTextStyle: const TextStyle(color: Colors.white),
     );
 
     Widget minMax(String minLabel, String maxLabel) {
@@ -380,6 +386,13 @@ class _ParametrosCard extends StatelessWidget {
                 onPressed: onPredecir,
                 icon: const Icon(Icons.insights),
                 label: const Text('Predecir'),
+                style: FilledButton.styleFrom(
+                  backgroundColor: const Color(0xFFEF9F27),
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 14),
+                  textStyle: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+                ),
               ),
             ),
           ],

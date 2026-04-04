@@ -156,6 +156,11 @@ class _AbTestScreenState extends State<AbTestScreen> {
                           label: const Text('Calcular Z y probabilidad de azar'),
                           style: FilledButton.styleFrom(
                             minimumSize: const Size.fromHeight(52),
+                            backgroundColor: const Color(0xFFEF9F27),
+                            foregroundColor: const Color(0xFF4A2E1A),
+                            elevation: 0,
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                            textStyle: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
                           ),
                         ),
                       ],
@@ -216,10 +221,21 @@ class _AbTestScreenState extends State<AbTestScreen> {
           TextFormField(
             controller: nController,
             keyboardType: const TextInputType.numberWithOptions(signed: false, decimal: false),
-            decoration: const InputDecoration(
-              labelText: 'N usuarios',
-              hintText: 'Ej.: 120',
+          decoration: InputDecoration(
+            labelStyle: const TextStyle(color: Color(0xFF8B6343)),
+            focusedBorder: OutlineInputBorder(
+              borderSide: const BorderSide(color: Color(0xFFEF9F27), width: 1.5),
+              borderRadius: BorderRadius.circular(10),
             ),
+            enabledBorder: OutlineInputBorder(
+              borderSide: const BorderSide(color: Color(0xFFE8D9C0), width: 1),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            filled: true,
+            fillColor: Colors.white,
+            labelText: 'N usuarios',
+            hintText: 'Ej.: 120',
+          ),
             validator: (value) {
               final n = int.tryParse(value ?? '');
               if (n == null || n <= 0) {
@@ -232,10 +248,21 @@ class _AbTestScreenState extends State<AbTestScreen> {
           TextFormField(
             controller: xController,
             keyboardType: const TextInputType.numberWithOptions(signed: false, decimal: false),
-            decoration: const InputDecoration(
-              labelText: 'Conversiones',
-              hintText: 'Ej.: 30',
+          decoration: InputDecoration(
+            labelStyle: const TextStyle(color: Color(0xFF8B6343)),
+            focusedBorder: OutlineInputBorder(
+              borderSide: const BorderSide(color: Color(0xFFEF9F27), width: 1.5),
+              borderRadius: BorderRadius.circular(10),
             ),
+            enabledBorder: OutlineInputBorder(
+              borderSide: const BorderSide(color: Color(0xFFE8D9C0), width: 1),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            filled: true,
+            fillColor: Colors.white,
+            labelText: 'Conversiones',
+            hintText: 'Ej.: 30',
+          ),
             validator: (value) {
               final conv = int.tryParse(value ?? '');
               if (conv == null || conv < 0) {
