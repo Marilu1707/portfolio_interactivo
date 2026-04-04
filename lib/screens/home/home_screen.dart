@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_portfolio/utils/download_cv.dart';
+import 'package:flutter_portfolio/state/player_state.dart';
+import 'package:provider/provider.dart';
 
 /// Home: hero + CTA “Jugar ahora”, secciones de Juego (arriba),
 /// Datos del juego (abajo), Sobre mí y Contacto.
@@ -135,12 +137,28 @@ class HomeScreen extends StatelessWidget {
     
   @override
   Widget build(BuildContext context) {
+    final player = context.watch<PlayerState>();
     return Scaffold(
       backgroundColor: bg,
       appBar: AppBar(
         backgroundColor: bg,
         elevation: 0,
-        title: const Text('María Luján Massironi — Data Science'),
+        title: player.hasPlayer
+            ? Text('Hola, ${player.playerName} \U0001f44b',
+                style: const TextStyle(fontWeight: FontWeight.w700, color: onAccent, fontSize: 18))
+            : const Text('María Luján Massironi — Data Science'),
+        actions: [
+          if (player.hasPlayer)
+            IconButton(
+              tooltip: 'Cambiar jugador',
+              icon: const Icon(Icons.person_outline_rounded, color: onAccent),
+              onPressed: () async {
+                await context.read<PlayerState>().logout();
+                if (!context.mounted) return;
+                Navigator.pushReplacementNamed(context, '/welcome');
+              },
+            ),
+        ],
       ),
       body: SafeArea(
         child: LayoutBuilder(

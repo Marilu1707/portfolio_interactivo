@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import 'screens/home/home_screen.dart';
+import 'screens/welcome_screen.dart';
 import 'screens/dashboard_screen.dart';
 import 'screens/level1_game_screen.dart';
 import 'screens/level2_eda_screen.dart';
@@ -16,6 +17,7 @@ import 'services/data_service.dart';
 import 'state/ab_result_state.dart';
 import 'state/app_state.dart';
 import 'state/orders_state.dart';
+import 'state/player_state.dart';
 import 'theme/kawaii_theme.dart';
 
 void main() {
@@ -64,11 +66,14 @@ class _MyAppState extends State<MyApp> {
     await ordersState.load();
     final abState = ABResultState();
     await abState.load();
+    final playerState = PlayerState();
+    await playerState.load();
 
     return _AppDependencies(
       appState: appState,
       ordersState: ordersState,
       abState: abState,
+      playerState: playerState,
     );
   }
 
@@ -115,6 +120,7 @@ class _MyAppState extends State<MyApp> {
             ChangeNotifierProvider.value(value: deps.appState),
             ChangeNotifierProvider.value(value: deps.ordersState),
             ChangeNotifierProvider.value(value: deps.abState),
+            ChangeNotifierProvider.value(value: deps.playerState),
           ],
           child: const MariluApp(),
         );
@@ -127,11 +133,13 @@ class _AppDependencies {
   final AppState appState;
   final OrdersState ordersState;
   final ABResultState abState;
+  final PlayerState playerState;
 
   const _AppDependencies({
     required this.appState,
     required this.ordersState,
     required this.abState,
+    required this.playerState,
   });
 }
 
@@ -179,8 +187,9 @@ class MariluApp extends StatelessWidget {
       // Evita el efecto glow de scroll en web/desktop.
       scrollBehavior: const _NoGlowScrollBehavior(),
       theme: KawaiiTheme.materialTheme(),
-      initialRoute: '/',
+      initialRoute: '/welcome',
       routes: {
+        '/welcome': (_) => const WelcomeScreen(),
         '/': (_) => const HomeScreen(),
         '/level1': (_) => const Level1GameScreen(),
         '/level2': (_) => const Level2EdaScreen(),

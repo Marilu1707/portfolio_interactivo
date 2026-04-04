@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import '../state/app_state.dart';
 import '../state/ab_result_state.dart';
 import '../state/orders_state.dart';
+import '../state/player_state.dart';
 import '../widgets/ab_result_card.dart';
 import '../widgets/kawaii_card.dart';
 
@@ -132,6 +133,47 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       ],
                     ),
                     const SizedBox(height: 24),
+                    // Historial del jugador
+                    Builder(builder: (context) {
+                      final player = context.watch<PlayerState>();
+                      if (!player.hasPlayer && player.totalOrders == 0) {
+                        return const SizedBox.shrink();
+                      }
+                      final lastDate = player.lastPlayed != null
+                          ? DateFormat('dd MMM yyyy', 'es_AR').format(player.lastPlayed!)
+                          : '---';
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          KawaiiCard(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(children: [
+                                  const Text(
+                                    'Tu historial',
+                                    style: TextStyle(fontWeight: FontWeight.w800, fontSize: 16, color: textDark),
+                                  ),
+                                  if (player.hasPlayer) ...[
+                                    const SizedBox(width: 8),
+                                    Text('(${player.playerName})',
+                                        style: const TextStyle(color: textDark)),
+                                  ],
+                                ]),
+                                const SizedBox(height: 12),
+                                Wrap(spacing: 16, runSpacing: 8, children: [
+                                  _HistStat('Puntos totales', '${player.totalScore}'),
+                                  _HistStat('Pedidos totales', '${player.totalOrders}'),
+                                  _HistStat('Queso favorito', player.topCheese ?? '---'),
+                                  _HistStat('Ultima partida', lastDate),
+                                ]),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: 24),
+                        ],
+                      );
+                    }),
                     // Pedidos vs Servidos (cumplimiento)
                     Builder(builder: (context) {
                       final orders = context.watch<OrdersState>();
@@ -666,5 +708,24 @@ class _DemandVsServed extends StatelessWidget {
     if (ratio >= 1.0) return const Color(0xFF2E7D32); // verde
     if (ratio >= 0.7) return const Color(0xFFF9A825); // ámbar
     return const Color(0xFFC62828); // rojo
+  }
+}
+
+
+/// Stat chip para la card de historial del jugador.
+class _HistStat extends StatelessWidget {
+  final String label;
+  final String value;
+  const _HistStat(this.label, this.value);
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label, style: const TextStyle(fontSize: 11, color: _DashboardScreenState.textDark)),
+        Text(value, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w700, color: _DashboardScreenState.textDark)),
+      ],
+    );
   }
 }

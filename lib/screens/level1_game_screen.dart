@@ -9,6 +9,7 @@ import '../data/cheese_catalog.dart';
 import '../theme/kawaii_theme.dart';
 import '../state/app_state.dart';
 import '../state/orders_state.dart';
+import '../state/player_state.dart';
 import '../services/ml_service.dart';
 import '../utils/popup.dart';
 import '../utils/kawaii_toast.dart';
@@ -353,6 +354,18 @@ class _Level1GameScreenState extends State<Level1GameScreen>
     if (goalReached) {
       app.markLevel1Cleared();
     }
+    // Persiste estadisticas de la sesion en el historial del jugador
+    final allTimes = [...app.tiemposA, ...app.tiemposB];
+    final avgMs = allTimes.isEmpty
+        ? 6000.0
+        : allTimes.reduce((a, b) => a + b) / allTimes.length;
+    context.read<PlayerState>().recordGameSession(
+      sessionScore: _hits,
+      sessionOrders: _orderCount,
+      cheeseMap: Map<String, int>.from(app.servedByCheese),
+      sessionAvgMs: avgMs,
+      sessionStreak: streak,
+    );
     final total = _orderCount == 0 ? 1 : _orderCount;
     final acc = (_hits * 100 / total).toStringAsFixed(1);
     showDialog(

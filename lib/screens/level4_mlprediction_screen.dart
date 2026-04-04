@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../state/app_state.dart';
+import '../state/player_state.dart';
+import '../state/player_state.dart';
 import '../services/ml_service.dart';
 import '../utils/help_sheet.dart';
 import '../widgets/kawaii_card.dart';
@@ -36,6 +38,17 @@ class _Level4MlPredictionScreenState extends State<Level4MlPredictionScreen> {
     super.initState();
     // carga eventos previos y reconstruye el modelo
     MlService.instance.init();
+    // Pre-carga valores del historial del jugador
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final player = context.read<PlayerState>();
+      if (player.totalOrders > 0) {
+        setState(() {
+          racha = player.streak.clamp(0, 10).toDouble();
+          tiempoMs = player.avgResponseMs.clamp(500, 15000);
+        });
+      }
+    });
   }
 
   Future<void> _predecir() async {
@@ -186,6 +199,17 @@ class _Level4MlPredictionScreenState extends State<Level4MlPredictionScreen> {
                     softWrap: true,
                   ),
                   const SizedBox(height: 12),
+                  Builder(builder: (ctx2) {
+                    final player = ctx2.watch<PlayerState>();
+                    if (player.totalOrders == 0) return const SizedBox.shrink();
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 8),
+                      child: Text(
+                        'Basado en tus \${player.totalOrders} partidas anteriores',
+                        style: const TextStyle(fontSize: 12, color: Colors.brown),
+                      ),
+                    );
+                  }),
                   if (isMobile) ...[
                     params,
                     const SizedBox(height: 12),
