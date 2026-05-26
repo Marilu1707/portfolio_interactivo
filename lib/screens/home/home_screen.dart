@@ -155,7 +155,7 @@ class HomeScreen extends StatelessWidget {
         backgroundColor: bg,
         elevation: 0,
         title: player.hasPlayer
-            ? Text('Hola, ${player.playerName} \U0001f44b',
+            ? Text('Hola, ${player.playerName} 👋',
                 style: const TextStyle(fontWeight: FontWeight.w700, color: onAccent, fontSize: 18))
             : const Text('María Luján Massironi — Data Science'),
         actions: [

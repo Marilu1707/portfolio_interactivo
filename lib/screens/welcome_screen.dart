@@ -71,7 +71,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                         width: 76,
                         fit: BoxFit.contain,
                         errorBuilder: (_, __, ___) =>
-                            const Text('\U0001F9C0', style: TextStyle(fontSize: 42)),
+                            const Text('🧀', style: TextStyle(fontSize: 42)),
                       ),
                     ),
                     const SizedBox(height: 28),

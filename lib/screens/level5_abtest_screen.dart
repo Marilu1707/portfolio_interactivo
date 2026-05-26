@@ -75,10 +75,35 @@ class _AbTestScreenState extends State<AbTestScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Text(
-                    'Compará la conversión entre Control (A) y Tratamiento (B). '
-                    'Ingresá muestras enteras y validamos el Z test de dos proporciones.',
-                    style: theme.textTheme.bodyMedium,
+                  KawaiiCard(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Icon(Icons.science_rounded, color: theme.colorScheme.primary, size: 22),
+                            const SizedBox(width: 8),
+                            Text(
+                              '¿Qué es un A/B Test?',
+                              style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          'Un A/B test compara dos variantes (Control vs Tratamiento) '
+                          'para determinar si una diferencia observada es real o producto del azar. '
+                          'Por ejemplo: ¿ofrecer Gouda en vez de Mozzarella mejora la conversión?',
+                          style: theme.textTheme.bodyMedium,
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          'Ingresá los datos de ambos grupos y el Z-test de dos proporciones '
+                          'te dice si la diferencia es estadísticamente significativa.',
+                          style: theme.textTheme.bodySmall?.copyWith(color: Colors.brown.shade400),
+                        ),
+                      ],
+                    ),
                   ),
                   const SizedBox(height: 16),
                   KawaiiCard(
@@ -168,6 +193,8 @@ class _AbTestScreenState extends State<AbTestScreen> {
                   ),
                   if (result != null) ...[
                     const SizedBox(height: 20),
+                    _VerdictBanner(result: result),
+                    const SizedBox(height: 12),
                     AbResultCard(result: result),
                     if (!_normalApproxOk) ...[
                       const SizedBox(height: 12),
@@ -435,6 +462,76 @@ class _ActionRow extends StatelessWidget {
         const SizedBox(width: 16),
         children[1],
       ],
+    );
+  }
+}
+
+class _VerdictBanner extends StatelessWidget {
+  final AbTestResult result;
+  const _VerdictBanner({required this.result});
+
+  @override
+  Widget build(BuildContext context) {
+    final significant = result.pValue < result.alpha;
+    final confPct = ((1 - result.alpha) * 100).toStringAsFixed(0);
+    final bWins = result.diff > 0;
+
+    final Color bgColor;
+    final Color fgColor;
+    final IconData icon;
+    final String title;
+    final String subtitle;
+
+    if (significant && bWins) {
+      bgColor = const Color(0xFFE8F5E9);
+      fgColor = const Color(0xFF2E7D32);
+      icon = Icons.check_circle_rounded;
+      title = 'B gana con $confPct% de confianza';
+      subtitle = 'La mejora es estadísticamente significativa. '
+          'Podés implementar el cambio con respaldo de datos.';
+    } else if (significant && !bWins) {
+      bgColor = const Color(0xFFFCE4EC);
+      fgColor = const Color(0xFFC62828);
+      icon = Icons.trending_down_rounded;
+      title = 'B es peor que A (significativo)';
+      subtitle = 'El tratamiento empeoró la conversión. '
+          'No conviene implementar este cambio.';
+    } else {
+      bgColor = const Color(0xFFFFF8E1);
+      fgColor = const Color(0xFFE65100);
+      icon = Icons.help_outline_rounded;
+      title = 'Sin diferencia significativa';
+      subtitle = 'No hay evidencia suficiente al $confPct%. '
+          'Necesitás más datos o la diferencia real es muy pequeña.';
+    }
+
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: bgColor,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: fgColor.withValues(alpha: 0.3)),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(icon, color: fgColor, size: 28),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(title,
+                    style: TextStyle(
+                        fontWeight: FontWeight.w800, color: fgColor, fontSize: 16)),
+                const SizedBox(height: 4),
+                Text(subtitle,
+                    style: TextStyle(color: fgColor.withValues(alpha: 0.8), fontSize: 13)),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

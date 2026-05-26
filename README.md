@@ -2,17 +2,17 @@
 
 **Autora:** María Luján Massironi  
 **Carreras:** Ingeniería en Inteligencia Artificial (UP) · Negocios Digitales (UADE)  
-**Demo:** [marilu-portfolio.vercel.app](https://marilu-portfolio.vercel.app/)
+**Demo:** [portfolio-interactivo.vercel.app](https://portfolio-interactivo.vercel.app/)
 
 ---
 
 ## Descripción
 
-Portfolio interactivo que combina **gamificación con Data Science**. Usando la temática kawaii de "Nido Mozzarella", la app permite jugar un simulador de pedidos y luego analizar los datos generados con herramientas reales: EDA, inventario, predicción ML y A/B testing.
+Portfolio interactivo que combina **gamificación con Data Science**. Usando la temática kawaii de "Nido Mozzarella", la app permite jugar un simulador de pedidos y luego analizar los datos generados con herramientas reales: EDA, predicción ML en vivo y A/B testing.
 
-Cada sección representa una parte del ciclo de análisis de datos: desde la recolección (juego) hasta la comunicación de insights (dashboard).
+Cada sección representa una parte del ciclo de análisis de datos: desde la recolección (juego) hasta la comunicación de insights (dashboard ejecutivo).
 
-La IA fue una compañera de trabajo durante el desarrollo — para explorar ideas, entender errores, y pensar mejores implementaciones. Eso también es una habilidad que vale la pena desarrollar.
+La IA fue compañera de trabajo durante el desarrollo — para explorar ideas, entender errores y pensar mejores implementaciones. Eso también es una habilidad que vale la pena desarrollar.
 
 ---
 
@@ -21,11 +21,24 @@ La IA fue una compañera de trabajo durante el desarrollo — para explorar idea
 | Sección | Descripción |
 |---------|-------------|
 | 🎮 **Nido Mozzarella** | Juego de 60s: atendé pedidos de quesos, sumá puntos y generá datos para análisis |
-| 📊 **EDA Interactiva** | Gráficos de barras, donuts y rankings generados con fl_chart |
+| 📊 **EDA Interactiva** | Gráficos de barras, donuts, rankings + estadísticas descriptivas (media, mediana, CV%) |
 | 📦 **Inventario** | Control de stock con semáforos visuales (🟢 ok · 🟡 bajo · 🔴 crítico) |
-| 🤖 **Predicción ML** | Regresión logística online con SGD — aprende en vivo de cada pedido |
-| 🧪 **A/B Testing** | Z-test de dos proporciones con intervalos de confianza (90%, 95%, 99%) |
-| 📋 **Dashboard Ejecutivo** | KPIs, cumplimiento de pedidos, insights automáticos |
+| 🤖 **Predicción ML** | Regresión logística online (SGD + L2) — aprende en vivo y explica cada predicción con pesos reales |
+| 🧪 **A/B Testing** | Z-test de dos proporciones con CI, Cohen's h, veredicto visual e interpretación contextual |
+| 📋 **Dashboard** | KPIs, métricas ML, insights automáticos con evaluación de accuracy |
+
+---
+
+## Data Science en detalle
+
+| Concepto | Implementación |
+|----------|---------------|
+| **Regresión Logística** | SGD online con regularización L2, 14 features, learning rate 0.05 |
+| **Feature Engineering** | Log transforms, encoding cíclico (sin/cos hora), one-hot quesos, normalización |
+| **Explainabilidad** | Contribuciones reales w[i]*x[i] por feature — no hardcoded |
+| **Estadísticas Descriptivas** | Media, mediana, desviación estándar, coeficiente de variación |
+| **A/B Testing** | Z-test dos proporciones, p-value, intervalos de confianza, Cohen's h |
+| **Visualización** | fl_chart (barras, donuts), semáforos de stock, badges de métricas |
 
 ---
 
@@ -33,11 +46,11 @@ La IA fue una compañera de trabajo durante el desarrollo — para explorar idea
 
 | Tecnología | Uso |
 |-----------|-----|
-| Flutter + Dart | Framework principal |
+| Flutter + Dart | Framework principal (CanvasKit renderer) |
 | fl_chart | Visualizaciones interactivas |
 | Provider | Gestión de estado |
 | Google Fonts | Tipografía |
-| Vercel | Hosting y deploy |
+| Vercel | Hosting y deploy automático |
 
 ---
 
@@ -58,7 +71,7 @@ flutter run -d chrome
 Para compilar la versión de producción:
 
 ```bash
-flutter build web --release --web-renderer html
+flutter build web --release
 ```
 
 ---
@@ -68,6 +81,7 @@ flutter build web --release --web-renderer html
 | Ruta | Descripción |
 |------|-------------|
 | `/welcome` | Pantalla de bienvenida |
+| `/` | Home — CV, skills, educación, niveles |
 | `/level1` | Juego Nido Mozzarella |
 | `/level2` | EDA Interactiva |
 | `/level3` | Inventario |
@@ -79,13 +93,13 @@ flutter build web --release --web-renderer html
 
 ## Deploy en Vercel
 
-El proyecto se despliega automáticamente con GitHub Actions al hacer push a `main`.
+El proyecto se despliega automáticamente al hacer push a `main`.
 
 Para deploy manual:
 
 ```bash
 npm i -g vercel
-flutter build web --release --web-renderer html
+flutter build web --release
 vercel deploy build/web --prod
 ```
 

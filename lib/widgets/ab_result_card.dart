@@ -77,7 +77,7 @@ class AbResultCard extends StatelessWidget {
 
   static String _effectSize(double h) {
     if (h.isNaN) return '—';
-    final label = h < 0.2 ? 'pequeño' : (h < 0.5 ? 'pequeño' : (h < 0.8 ? 'medio' : 'grande'));
+    final label = h < 0.2 ? 'negligible' : (h < 0.5 ? 'pequeño' : (h < 0.8 ? 'medio' : 'grande'));
     return '${h.toStringAsFixed(3)} ($label)';
   }
 }
