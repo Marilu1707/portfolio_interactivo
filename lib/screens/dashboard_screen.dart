@@ -7,6 +7,7 @@ import '../state/app_state.dart';
 import '../state/ab_result_state.dart';
 import '../state/orders_state.dart';
 import '../state/player_state.dart';
+import '../services/ml_service.dart';
 import '../widgets/ab_result_card.dart';
 import '../widgets/kawaii_card.dart';
 import '../utils/help_sheet.dart';
@@ -191,6 +192,41 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         ],
                       );
                     }),
+                    // Modelo ML — métricas
+                    Builder(builder: (context) {
+                      final mlCount = MlService.instance.trainingCount;
+                      if (mlCount == 0) return const SizedBox.shrink();
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          KawaiiCard(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Row(
+                                  children: [
+                                    Icon(Icons.model_training, color: textDark, size: 20),
+                                    SizedBox(width: 8),
+                                    Text(
+                                      'Modelo ML — Regresión Logística Online',
+                                      style: TextStyle(fontWeight: FontWeight.w800, fontSize: 14, color: textDark),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 12),
+                                Wrap(spacing: 16, runSpacing: 8, children: [
+                                  _HistStat('Eventos de entrenamiento', '$mlCount'),
+                                  _HistStat('Features', '14'),
+                                  _HistStat('Algoritmo', 'SGD + L2'),
+                                  _HistStat('Learning Rate', '0.05'),
+                                ]),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: 24),
+                        ],
+                      );
+                    }),
                     // Pedidos vs Servidos (cumplimiento)
                     Builder(builder: (context) {
                       final orders = context.watch<OrdersState>();
@@ -260,15 +296,39 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
-                            'Insights',
-                            style: TextStyle(fontWeight: FontWeight.w700, color: textDark),
+                          const Row(
+                            children: [
+                              Icon(Icons.lightbulb_outline, size: 18, color: textDark),
+                              SizedBox(width: 6),
+                              Text(
+                                'Insights automáticos',
+                                style: TextStyle(fontWeight: FontWeight.w700, color: textDark),
+                              ),
+                            ],
                           ),
                           const SizedBox(height: 8),
                           if (!hasServedData)
                             const Text('• Aún no hay datos. Jugá un nivel para comenzar.')
-                          else if (topCheese != null)
-                            Text('• $topCheese es el más pedido.'),
+                          else ...[
+                            if (topCheese != null)
+                              Text('📊 $topCheese concentra la mayor demanda.'),
+                            if (accuracy >= 0.8)
+                              Text('✅ Tasa de acierto del ${(accuracy * 100).toStringAsFixed(0)}% — excelente rendimiento.')
+                            else if (accuracy >= 0.5)
+                              Text('⚠️ Tasa de acierto del ${(accuracy * 100).toStringAsFixed(0)}% — hay margen de mejora.')
+                            else if (accuracy > 0)
+                              Text('🔴 Tasa de acierto del ${(accuracy * 100).toStringAsFixed(0)}% — recomendamos practicar más.'),
+                            if (servedEntries.length >= 2) ...[
+                              Builder(builder: (_) {
+                                final top2 = servedEntries.take(2).toList();
+                                final ratio = top2[1].value / (top2[0].value == 0 ? 1 : top2[0].value);
+                                if (ratio > 0.9) {
+                                  return Text('🔄 ${top2[0].key} y ${top2[1].key} están parejos — oferta diversificada.');
+                                }
+                                return Text('📈 ${top2[0].key} domina vs ${top2[1].key} (ratio ${ratio.toStringAsFixed(2)}).');
+                              }),
+                            ],
+                          ],
                           ..._lowStockInsights(app),
                         ],
                       ),

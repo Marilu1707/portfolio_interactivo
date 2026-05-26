@@ -305,6 +305,9 @@ class _AbTestScreenState extends State<AbTestScreen> {
     final ciHigh = diff + critical * se;
     final lift = pA == 0 ? double.nan : diff / (pA == 0 ? 1e-9 : pA);
 
+    // Cohen's h — effect size for two proportions
+    final h = (2 * math.asin(math.sqrt(pB)) - 2 * math.asin(math.sqrt(pA))).abs();
+
     final approxOk = _checkApproximation(nA, pA, nB, pB);
 
     setState(() {
@@ -324,6 +327,7 @@ class _AbTestScreenState extends State<AbTestScreen> {
         ciHigh: ciHigh,
         alpha: _alpha,
         significant: pValue < _alpha,
+        cohensH: h,
         timestamp: DateTime.now(),
       );
     });

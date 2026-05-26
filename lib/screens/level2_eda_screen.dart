@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:provider/provider.dart';
@@ -69,6 +71,7 @@ class Level2EdaScreen extends StatelessWidget {
     final isMobile = MediaQuery.of(context).size.width < 700;
 
     final topCard = _TopQuesosCard(sorted: sorted, scores: scores);
+    final statsCard = _DescriptiveStatsCard(counts: counts);
     final chartCard = _PedidosChartCard(
       series: seriesPedidos(counts),
       counts: counts,
@@ -81,6 +84,8 @@ class Level2EdaScreen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               topCard,
+              const SizedBox(height: 12),
+              statsCard,
               const SizedBox(height: 12),
               donutCard,
               const SizedBox(height: 12),
@@ -97,6 +102,8 @@ class Level2EdaScreen extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     topCard,
+                    const SizedBox(height: 12),
+                    statsCard,
                     const SizedBox(height: 12),
                     donutCard,
                   ],
@@ -491,6 +498,123 @@ class _ParticipacionCard extends StatelessWidget {
             ),
         ],
       ),
+    );
+  }
+}
+
+/// Estadísticas descriptivas: n, media, mediana, desv. estándar, coef. variación.
+class _DescriptiveStatsCard extends StatelessWidget {
+  const _DescriptiveStatsCard({required this.counts});
+
+  final Map<String, int> counts;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final values = Level2EdaScreen.ordenQuesos
+        .map((q) => (counts[q] ?? 0).toDouble())
+        .toList();
+    final total = values.fold<double>(0, (a, b) => a + b);
+    final hasData = total > 0;
+    final n = values.length;
+    final mean = hasData ? total / n : 0.0;
+
+    // Mediana
+    final sorted = List<double>.from(values)..sort();
+    final median = n.isEven
+        ? (sorted[n ~/ 2 - 1] + sorted[n ~/ 2]) / 2.0
+        : sorted[n ~/ 2];
+
+    // Desv. estándar (poblacional)
+    final variance = hasData
+        ? values.map((v) => (v - mean) * (v - mean)).reduce((a, b) => a + b) / n
+        : 0.0;
+    final stdDev = math.sqrt(variance);
+
+    // Coeficiente de variación
+    final cv = mean > 0 ? (stdDev / mean) * 100 : 0.0;
+
+    return KawaiiCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Estadísticas descriptivas',
+            style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            'Distribución de pedidos por queso (n=$n categorías)',
+            style: theme.textTheme.bodySmall,
+          ),
+          const SizedBox(height: 12),
+          if (!hasData)
+            Text('Sin datos aún — jugá el Nivel 1.', style: theme.textTheme.bodyMedium)
+          else
+            Wrap(
+              spacing: 16,
+              runSpacing: 12,
+              children: [
+                _StatChip(label: 'Total', value: total.toStringAsFixed(0)),
+                _StatChip(label: 'Media', value: mean.toStringAsFixed(1)),
+                _StatChip(label: 'Mediana', value: median.toStringAsFixed(1)),
+                _StatChip(label: 'Desv. Est.', value: stdDev.toStringAsFixed(2)),
+                _StatChip(label: 'CV', value: '${cv.toStringAsFixed(1)}%'),
+              ],
+            ),
+          if (hasData && cv > 50) ...[
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                const Icon(Icons.info_outline, size: 14, color: Color(0xFF8B6343)),
+                const SizedBox(width: 4),
+                Expanded(
+                  child: Text(
+                    'CV > 50% indica alta dispersión: la demanda varía mucho entre quesos.',
+                    style: theme.textTheme.bodySmall?.copyWith(color: const Color(0xFF8B6343)),
+                  ),
+                ),
+              ],
+            ),
+          ],
+          if (hasData && cv <= 50 && cv > 0) ...[
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                const Icon(Icons.check_circle_outline, size: 14, color: Color(0xFF2E7D32)),
+                const SizedBox(width: 4),
+                Expanded(
+                  child: Text(
+                    'Distribución relativamente uniforme entre los quesos.',
+                    style: theme.textTheme.bodySmall?.copyWith(color: const Color(0xFF2E7D32)),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+class _StatChip extends StatelessWidget {
+  final String label;
+  final String value;
+  const _StatChip({required this.label, required this.value});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(value,
+            style: const TextStyle(
+                fontSize: 20, fontWeight: FontWeight.w700, color: Color(0xFF5B4E2F))),
+        const SizedBox(height: 2),
+        Text(label,
+            style: const TextStyle(fontSize: 11, color: Color(0xFF8B6343))),
+      ],
     );
   }
 }

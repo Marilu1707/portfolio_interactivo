@@ -52,6 +52,9 @@ class MlService {
   final OnlineLogReg model = OnlineLogReg(Features.dimension, lr: 0.05, l2: 1e-4);
   final List<EventRow> _events = [];
 
+  /// Number of training events the model has seen.
+  int get trainingCount => _events.length;
+
   Future<void> init() async {
     final prefs = await SharedPreferences.getInstance();
     final raw = prefs.getString(_key);
@@ -119,6 +122,25 @@ class MlService {
       }
     }
     return bestC;
+  }
+
+  /// Expose feature vector for explainability in the UI.
+  List<double> buildFeatures({
+    required int streak,
+    required double avgMs,
+    required int hour,
+    required double stock,
+    required String cheese,
+    bool wastePenalty = false,
+  }) {
+    return Features.build(
+      streak: streak,
+      avgMs: avgMs,
+      hour: hour,
+      stock: stock,
+      cheese: cheese,
+      wastePenalty: wastePenalty,
+    );
   }
 
   double predictProba({

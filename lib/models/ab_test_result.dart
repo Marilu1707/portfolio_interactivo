@@ -15,6 +15,7 @@ class AbTestResult {
   final double ciHigh;
   final double alpha;
   final bool significant;
+  final double cohensH;
   final DateTime timestamp;
 
   const AbTestResult({
@@ -32,6 +33,7 @@ class AbTestResult {
     required this.ciHigh,
     required this.alpha,
     required this.significant,
+    this.cohensH = 0.0,
     required this.timestamp,
   });
 
@@ -50,6 +52,7 @@ class AbTestResult {
         'ciHigh': ciHigh,
         'alpha': alpha,
         'significant': significant,
+        'cohensH': cohensH,
         'timestamp': timestamp.toIso8601String(),
       };
 
@@ -108,6 +111,7 @@ class AbTestResult {
           : parseDouble(json['ciHigh'] ?? parsedCiHigh),
       alpha: parseDouble(json['alpha'] ?? 0.05),
       significant: parseBool(json['significant'] ?? json['sig']),
+      cohensH: parseDouble(json['cohensH'] ?? 0.0),
       timestamp: json['timestamp'] != null
           ? DateTime.tryParse(json['timestamp'].toString()) ?? DateTime.now()
           : DateTime.now(),

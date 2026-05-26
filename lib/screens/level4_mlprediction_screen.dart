@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../state/app_state.dart';
 import '../state/player_state.dart';
-import '../state/player_state.dart';
+import '../ml/features.dart';
 import '../services/ml_service.dart';
 import '../utils/help_sheet.dart';
 import '../widgets/help_modal.dart';
@@ -33,6 +33,7 @@ class _Level4MlPredictionScreenState extends State<Level4MlPredictionScreen> {
   String? textoSugerencia;
   String? quesoSugerido;
   Map<String, double> _lastContribs = const {};
+  int _trainingCount = 0;
 
   @override
   void initState() {
@@ -67,33 +68,43 @@ class _Level4MlPredictionScreenState extends State<Level4MlPredictionScreen> {
       cheese: sugerido,
     );
     setState(() {
+      _trainingCount = MlService.instance.trainingCount;
       quesoSugerido = sugerido;
       probPredicha = p;
       textoSugerencia =
           'Sugerencia: ofrecé $sugerido (p≈${(p * 100).toStringAsFixed(1)}%).';
-      // Contribuciones explicativas simples (no afectan el modelo real)
-      const betas = <String, double>{
-        'bias': -0.2,
-        'racha': 0.15,
-        'tiempo': 0.02,
-        'hora': -0.03,
-        'stock': 0.25,
-        'mozzarella': 0.02,
-        'cheddar': 0.10,
-        'provolone': 0.12,
-        'gouda': 0.05,
-        'brie': -0.04,
-        'Parmesano': -0.02,
-      };
-      final cheeseKey = sugerido.toLowerCase();
-      _lastContribs = <String, double>{
-        'Sesgo (base)': betas['bias']!,
-        'Racha': (racha.toInt()).toDouble() * betas['racha']!,
-        'Tiempo de juego (ms)': tiempoMs * betas['tiempo']!,
-        'Hora del día': hora.toDouble() * betas['hora']!,
-        'Stock visible': stockProm * betas['stock']!,
-        'Queso: $sugerido': betas[cheeseKey] ?? 0.0,
-      };
+      // Contribuciones reales: w[i] * x[i] del modelo entrenado
+      final weights = MlService.instance.model.w;
+      final x = MlService.instance.buildFeatures(
+        streak: racha.toInt(),
+        avgMs: tiempoMs,
+        hour: hora,
+        stock: stockProm,
+        cheese: sugerido,
+      );
+      const featureNames = [
+        'Sesgo (bias)',
+        'Racha de aciertos',
+        'log(Tiempo resp.)',
+        'Hora (sin)',
+        'Hora (cos)',
+        'Stock normalizado',
+        'Win-rate reciente',
+        'Penalización desperdicio',
+      ];
+      const cheeseNames = [
+        'Mozzarella', 'Cheddar', 'Provolone', 'Gouda', 'Brie', 'Parmesano',
+      ];
+      _lastContribs = <String, double>{};
+      for (var i = 0; i < featureNames.length && i < weights.length; i++) {
+        _lastContribs[featureNames[i]] = weights[i] * x[i];
+      }
+      for (var j = 0; j < cheeseNames.length; j++) {
+        final idx = featureNames.length + j;
+        if (idx < weights.length) {
+          _lastContribs['Queso: ${cheeseNames[j]}'] = weights[idx] * x[idx];
+        }
+      }
     });
   }
 
@@ -116,6 +127,7 @@ class _Level4MlPredictionScreenState extends State<Level4MlPredictionScreen> {
     final result = _ResultadoCard(
       probPredicha: probPredicha,
       sugerencia: textoSugerencia,
+      trainingCount: _trainingCount,
     );
 
     final aprender = (quesoSugerido == null)
@@ -211,7 +223,7 @@ class _Level4MlPredictionScreenState extends State<Level4MlPredictionScreen> {
                     return Padding(
                       padding: const EdgeInsets.only(bottom: 8),
                       child: Text(
-                        'Basado en tus \${player.totalOrders} partidas anteriores',
+                        'Basado en tus ${player.totalOrders} partidas anteriores',
                         style: const TextStyle(fontSize: 12, color: Colors.brown),
                       ),
                     );
@@ -404,10 +416,12 @@ class _ParametrosCard extends StatelessWidget {
 class _ResultadoCard extends StatelessWidget {
   final double? probPredicha;
   final String? sugerencia;
+  final int trainingCount;
 
   const _ResultadoCard({
     required this.probPredicha,
     required this.sugerencia,
+    this.trainingCount = 0,
   });
 
   @override
@@ -439,6 +453,27 @@ class _ResultadoCard extends StatelessWidget {
                     style: Theme.of(context).textTheme.bodyMedium,
                     softWrap: true,
                   ),
+                  if (trainingCount > 0) ...[
+                    const SizedBox(height: 8),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFFFF3E0),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(Icons.model_training, size: 16, color: Color(0xFF8B6343)),
+                          const SizedBox(width: 6),
+                          Text(
+                            'Modelo entrenado con $trainingCount ejemplos · ${Features.dimension} features',
+                            style: const TextStyle(fontSize: 12, color: Color(0xFF8B6343)),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                   const SizedBox(height: 16),
                   const _HowCalculatedTile(),
                 ],
@@ -485,7 +520,7 @@ class _HowCalculatedTile extends StatelessWidget {
       collapsedIconColor: iconColor,
       textColor: theme.colorScheme.onSurface,
       collapsedTextColor: theme.colorScheme.onSurface,
-      title: const Text('Cómo se calculó (tocar para ver)'),
+      title: const Text('Metodología ML (tocar para ver)'),
       children: [
         Padding(
           padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
@@ -493,13 +528,31 @@ class _HowCalculatedTile extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Usamos un modelo de regresión logística online que aprende con tus jugadas (racha, tiempo, queso, hora, stock).',
+                '• Modelo: Regresión Logística Online (SGD + regularización L2)',
                 style: bodyStyle,
                 softWrap: true,
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 6),
               Text(
-                'Se recalibra en vivo con cada intento para mejorar la sugerencia siguiente.',
+                '• Features (14-dim): bias, racha, log(tiempo), codificación cíclica de hora (sin/cos), stock normalizado, win-rate, penalización, y one-hot encoding de 6 quesos.',
+                style: bodyStyle,
+                softWrap: true,
+              ),
+              const SizedBox(height: 6),
+              Text(
+                '• Entrenamiento: cada feedback ("Convirtió" / "No convirtió") ejecuta un paso de SGD minimizando Binary Cross-Entropy.',
+                style: bodyStyle,
+                softWrap: true,
+              ),
+              const SizedBox(height: 6),
+              Text(
+                '• Predicción: σ(wᵀx) calcula P(conversión). El queso con mayor probabilidad es la sugerencia.',
+                style: bodyStyle,
+                softWrap: true,
+              ),
+              const SizedBox(height: 6),
+              Text(
+                '• Explicabilidad: la contribución de cada feature es wᵢ·xᵢ (pesos reales del modelo, no hardcodeados).',
                 style: bodyStyle,
                 softWrap: true,
               ),

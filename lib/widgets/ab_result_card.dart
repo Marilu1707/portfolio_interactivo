@@ -37,7 +37,8 @@ class AbResultCard extends StatelessWidget {
             '${_pct(result.ciLow)}  a  ${_pct(result.ciHigh)}',
           ),
           _kv('Probabilidad de azar', _prob(result.pValue)),
-          _kv('Intensidad de la diferencia', result.zScore.toStringAsFixed(2)),
+          _kv('Z-score', result.zScore.toStringAsFixed(2)),
+          _kv("Cohen's h (effect size)", _effectSize(result.cohensH)),
           _kv('¿Resultado confiable al $confPct%?', confiable ? 'Sí' : 'No'),
         ],
       ),
@@ -72,5 +73,11 @@ class AbResultCard extends StatelessWidget {
     if (p.isNaN) return '—';
     if (p < 0.001) return '< 0.1%';
     return '${(p * 100).toStringAsFixed(2)}%';
+  }
+
+  static String _effectSize(double h) {
+    if (h.isNaN) return '—';
+    final label = h < 0.2 ? 'pequeño' : (h < 0.5 ? 'pequeño' : (h < 0.8 ? 'medio' : 'grande'));
+    return '${h.toStringAsFixed(3)} ($label)';
   }
 }
