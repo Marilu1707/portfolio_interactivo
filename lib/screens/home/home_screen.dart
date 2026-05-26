@@ -155,7 +155,7 @@ class HomeScreen extends StatelessWidget {
         backgroundColor: bg,
         elevation: 0,
         title: player.hasPlayer
-            ? Text('Hola, ${player.playerName} 👋',
+            ? Text('Hola, ${player.playerName}',
                 style: const TextStyle(fontWeight: FontWeight.w700, color: onAccent, fontSize: 18))
             : const Text('María Luján Massironi — Data Science'),
         actions: [
@@ -299,7 +299,7 @@ class HomeScreen extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('👋 Hola, soy María Luján Massironi',
+          const Text('Hola, soy María Luján Massironi',
               style: TextStyle(fontSize: 40, fontWeight: FontWeight.w900, color: onAccent)),
           const SizedBox(height: 8),
           const Text('Data Analytics · IA · Desarrollo Full-Stack',
