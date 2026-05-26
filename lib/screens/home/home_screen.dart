@@ -30,20 +30,6 @@ class HomeScreen extends StatelessWidget {
     }
   }
 
-  // Botón reutilizable “Jugar ahora”
-  Widget _playButton(BuildContext context, {bool expanded = false}) {
-    final btn = FilledButton(
-      onPressed: () => Navigator.pushNamed(context, '/level1'),
-      style: FilledButton.styleFrom(
-        backgroundColor: const Color(0xFFFFD76B),
-        foregroundColor: onAccent,
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-      ),
-      child: const Text('Jugar ahora', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 18)),
-    );
-    return expanded ? SizedBox(width: double.infinity, child: btn) : btn;
-  }
   Widget _buildAboutSection(bool isMobile) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -55,14 +41,34 @@ class HomeScreen extends StatelessWidget {
               _H3('✨ Sobre mí'),
               SizedBox(height: 8),
               Text(
-                'Estudiante de Negocios Digitales (UADE). Me formé en análisis de datos, marketing y desarrollo web. '
-                'Capacitaciones en Python, Django, React.js y SQL. Combino tecnología + eficiencia operativa + enfoque estratégico '
-                'para crear soluciones simples y efectivas.',
+                'Estudiante de Ingeniería en Inteligencia Artificial (UP) con base en Negocios Digitales (UADE) y foco en Data Analytics. '
+                'Construyo pipelines de análisis end-to-end en SQL y Python, diseño dashboards en Power BI y Tableau, '
+                'y desarrollo aplicaciones de datos full-stack desplegadas en producción. Inglés C1.',
               ),
               SizedBox(height: 12),
-              _Dot('Análisis de datos (Python, SQL, EDA)'),
-              _Dot('Desarrollo web (Django, React.js)'),
-              _Dot('Orientación a resultados + mejora de procesos.'),
+              _Dot('Análisis de datos (SQL, Python, Pandas, EDA)'),
+              _Dot('BI y visualización (Power BI, Tableau, dashboards ejecutivos)'),
+              _Dot('Desarrollo (Django, Flutter, REST APIs, Git)'),
+            ],
+          ),
+        ),
+        const SizedBox(height: 16),
+        const _HomeCard(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _H3('💼 Experiencia'),
+              SizedBox(height: 8),
+              Text(
+                'Asistente Virtual — Tango Management Services',
+                style: TextStyle(fontWeight: FontWeight.w700),
+              ),
+              Text('Dic 2024 – Actualidad'),
+              SizedBox(height: 8),
+              _Dot('Dashboards operativos en Excel (Power Query, Tablas Dinámicas) y Google Sheets'),
+              _Dot('Tracking de 50+ contratos activos: vencimientos, renovaciones y documentación'),
+              _Dot('SOPs que reducen tareas manuales y aceleran onboarding'),
+              _Dot('Comunicación con clientes internacionales en inglés y español'),
             ],
           ),
         ),
@@ -74,18 +80,18 @@ class HomeScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _H3('🛠️ Skills + Stack'),
+                  _H3('🛠️ Skills'),
                   SizedBox(height: 8),
                   _Chips([
-                    '🐍 Python',
-                    '🗄️ SQL',
-                    '📊 EDA',
-                    '⚛️ React.js',
+                    '🗄️ SQL (CTEs, Window Functions)',
+                    '🐍 Python (Pandas)',
+                    '📊 Power BI (DAX, Power Query)',
+                    '📈 Tableau',
                     '🎨 Django',
-                    '🤖 scikit-learn',
-                    '📈 Dashboards',
-                    '📱 Flutter (UI)',
-                    '🔗 Git',
+                    '📱 Flutter',
+                    '🔗 Git/GitHub',
+                    '🤖 IA Generativa',
+                    '📋 Excel Avanzado',
                   ]),
                 ],
               ),
@@ -94,14 +100,16 @@ class HomeScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _H3('🎓 Educación y cursos'),
+                  _H3('🎓 Educación'),
                   SizedBox(height: 8),
                   _Chips([
-                    '🎓 UADE — Lic. en Negocios Digitales (en curso)',
-                    '🎓 React.js — Educación IT (2024)',
-                    '🎓 Python Avanzado — Educación IT (2024)',
-                    '🎓 Bases de Datos y SQL — Educación IT (2023)',
-                    '🎓 Marketing Digital — CoderHouse (2024)',
+                    '🎓 UP — Ing. en Inteligencia Artificial (inicio 08/2026)',
+                    '🎓 UADE — Lic. en Negocios Digitales (20 materias)',
+                    '📊 Diplomatura Data Science — Coderhouse (11/18)',
+                    '🐍 Python Avanzado — Educación IT (2024)',
+                    '🎨 Desarrollo Web Django — Educación IT (2024)',
+                    '🔗 Git Colaborativo — Educación IT (2024)',
+                    '🗄️ Bases de Datos y SQL — Educación IT (2023)',
                   ]),
                 ],
               ),
@@ -177,24 +185,6 @@ class HomeScreen extends StatelessWidget {
 
                       // Sobre mí + Skills + Educación
                       _buildAboutSection(isMobile),
-                      const SizedBox(height: 24),
-
-                      // CTA grande “Jugar ahora”
-                      _HomeCard(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const _H3('🎮 Jugar ahora'),
-                            const SizedBox(height: 8),
-                            const Text(
-                              'Entrá a “Nido Mozzarella” y atendé pedidos en tiempo real. '
-                              'Cada partida genera datos reales para el análisis y el dashboard.',
-                            ),
-                            const SizedBox(height: 16),
-                            _playButton(context, expanded: true),
-                          ],
-                        ),
-                      ),
                       const SizedBox(height: 24),
 
                       // Sección Jugar (Nido Mozzarella, Inventario)
@@ -286,7 +276,7 @@ class HomeScreen extends StatelessWidget {
                           borderRadius: BorderRadius.circular(10),
                         ),
                         alignment: Alignment.center,
-                        child: const Text('© 2025 María Luján Massironi — Data Science & Fullstack', style: TextStyle(color: onAccent)),
+                        child: const Text('© 2025 María Luján Massironi — Data Analytics & AI', style: TextStyle(color: onAccent)),
                       ),
                     ],
                   ),
@@ -309,13 +299,22 @@ class HomeScreen extends StatelessWidget {
           const Text('👋 Hola, soy María Luján Massironi',
               style: TextStyle(fontSize: 40, fontWeight: FontWeight.w900, color: onAccent)),
           const SizedBox(height: 8),
-          const Text('Data Science + Full stack — convierto datos en decisiones.',
+          const Text('Data Analytics · IA · Desarrollo Full-Stack',
               style: TextStyle(fontSize: 18, color: onAccent)),
           const SizedBox(height: 8),
-          const Text('Descubrí mis habilidades jugando por secciones.',
+          const Text('Explorá mi portfolio interactivo de Data Science.',
               style: TextStyle(color: onAccent)),
           const SizedBox(height: 20),
-          _playButton(context),
+          FilledButton(
+            onPressed: () => Navigator.pushNamed(context, '/level1'),
+            style: FilledButton.styleFrom(
+              backgroundColor: const Color(0xFFFFD76B),
+              foregroundColor: onAccent,
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+            ),
+            child: const Text('Explorar Portfolio', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 18)),
+          ),
         ],
       ),
     );

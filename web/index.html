@@ -3,11 +3,17 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="description" content="Portafolio interactivo de María Luján Massironi: Nido Mozzarella, ciencia de datos y dashboards kawaii." />
+    <meta name="description" content="Portfolio interactivo de Data Science por María Luján Massironi. Juego gamificado, EDA, predicción ML, A/B testing y dashboard ejecutivo." />
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="María Luján Massironi — Data Science Portfolio" />
+    <meta property="og:description" content="Portfolio interactivo que combina gamificación con Data Science: juego de pedidos, EDA, ML en tiempo real y A/B testing." />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://marilu-portfolio.vercel.app" />
+
     <base href="/" />
-    <title>María Luján Massironi — Nido Mozzarella</title>
+    <title>María Luján Massironi — Data Science Portfolio</title>
     <link rel="manifest" href="manifest.json" />
-    <!-- Favicon inline para evitar binarios adicionales -->
     <link
       rel="icon"
       href='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><text y="50%" x="50%" dominant-baseline="middle" text-anchor="middle" font-size="52">🧀</text></svg>'
@@ -18,16 +24,11 @@
       rel="stylesheet"
       href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;700&display=swap"
     />
-    <meta name="theme-color" content="#ffffff" />
-    <script>
-      // Desactivar service worker en dev para evitar caché rota
-      var serviceWorkerVersion = null;
-    </script>
+    <meta name="theme-color" content="#FFF9E8" />
     <script src="flutter.js" defer></script>
   </head>
   <body>
     <script>
-      // Muestra errores en pantalla si algo rompe antes de runApp()
       window.addEventListener('error', e => {
         const pre = document.createElement('pre');
         pre.textContent = 'JS ERROR: ' + e.error;
@@ -36,13 +37,7 @@
       });
 
       window.addEventListener('load', function () {
-        _flutter.loader.loadEntrypoint({
-          onEntrypointLoaded: function (engineInitializer) {
-            engineInitializer.initializeEngine().then(function (appRunner) {
-              appRunner.runApp();
-            });
-          }
-        });
+        _flutter.loader.load();
       });
     </script>
   </body>

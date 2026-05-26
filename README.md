@@ -1,159 +1,102 @@
+# 🧀 Portfolio Interactivo de Data Science
 
-# 🧀 Nido Mozzarella — Portfolio Interactivo de Data Science  
-
-Bienvenid@ a mi **portfolio-app** 🎮✨.  
-Un proyecto creado en **Flutter Web** que combina **gamificación + Data Science** para mostrar mis conocimientos de forma creativa y divertida.  
-
-Cada sección representa una parte del ciclo de análisis de datos: desde atender pedidos en un “restaurante de quesos” hasta comunicar insights en un dashboard final.  
+**Autora:** María Luján Massironi  
+**Carreras:** Ingeniería en Inteligencia Artificial (UP) · Negocios Digitales (UADE)  
+**Demo:** [marilu-portfolio.vercel.app](https://marilu-portfolio.vercel.app/)
 
 ---
 
-## 🌟 Demo online  
-👉 [marilu-portfolio.vercel.app](https://marilu-portfolio.vercel.app/)  
+## Descripción
+
+Portfolio interactivo que combina **gamificación con Data Science**. Usando la temática kawaii de "Nido Mozzarella", la app permite jugar un simulador de pedidos y luego analizar los datos generados con herramientas reales: EDA, inventario, predicción ML y A/B testing.
+
+Cada sección representa una parte del ciclo de análisis de datos: desde la recolección (juego) hasta la comunicación de insights (dashboard).
+
+La IA fue una compañera de trabajo durante el desarrollo — para explorar ideas, entender errores, y pensar mejores implementaciones. Eso también es una habilidad que vale la pena desarrollar.
 
 ---
 
-## 🎮 Secciones del juego  
+## Funcionalidades
 
-### 🐭 Nido Mozzarella (Juego)  
-Atendé ratoncitos kawaii que llegan pidiendo quesos 🧀.  
-Simboliza la **recolección de datos**: cada pedido genera eventos que se usan en el resto de las etapas.  
-
----
-
-### 📊 EDA Interactiva  
-Explorá con gráficos la participación de cada queso y patrones de consumo.  
-Representa mi forma de aplicar **análisis exploratorio de datos (EDA)** para detectar tendencias y anomalías.  
-
----
-
-### 📦 Inventario  
-Gestión de stock con semáforos visuales (🟢 ok, 🟡 bajo, 🔴 crítico).  
-Cada pedido impacta en la disponibilidad. Refleja la **gestión de datos y recursos**.  
+| Sección | Descripción |
+|---------|-------------|
+| 🎮 **Nido Mozzarella** | Juego de 60s: atendé pedidos de quesos, sumá puntos y generá datos para análisis |
+| 📊 **EDA Interactiva** | Gráficos de barras, donuts y rankings generados con fl_chart |
+| 📦 **Inventario** | Control de stock con semáforos visuales (🟢 ok · 🟡 bajo · 🔴 crítico) |
+| 🤖 **Predicción ML** | Regresión logística online con SGD — aprende en vivo de cada pedido |
+| 🧪 **A/B Testing** | Z-test de dos proporciones con intervalos de confianza (90%, 95%, 99%) |
+| 📋 **Dashboard Ejecutivo** | KPIs, cumplimiento de pedidos, insights automáticos |
 
 ---
 
-### 🤖 Predicción ML (online)  
-Un recomendador en tiempo real entrena un modelo de **Machine Learning**.  
-Ajustá variables (racha, hora, stock, tiempo promedio) y obtené sugerencias de qué queso ofrecer, con explicación de la probabilidad calculada.  
+## Tecnologías
+
+| Tecnología | Uso |
+|-----------|-----|
+| Flutter + Dart | Framework principal |
+| fl_chart | Visualizaciones interactivas |
+| Provider | Gestión de estado |
+| Google Fonts | Tipografía |
+| Vercel | Hosting y deploy |
 
 ---
 
-### 🧪 A/B Testing  
-Comparador interactivo entre Control (A) y Tratamiento (B).  
-Calcula **Z-score, p-valor e intervalos de confianza** para evaluar significancia estadística y priorizar decisiones.  
-
----
-
-## 📈 Dashboard ejecutivo  
-
-Un panel que consolida todo:  
-- Quesos más pedidos e inventario.  
-- Evolución de pedidos vs. atendidos.  
-- Tasa global de aciertos.  
-- Resultados de A/B test.  
-
-El ratón “analista” presenta métricas kawaii pensadas para **contar historias con datos a stakeholders**.  
-
----
-
-## 🖼️ Screenshots  
-
-📌 Podés agregar capturas reales en `assets/` y linkearlas acá para que se vean en GitHub.  
-
----
-
-## ⚙️ Tecnologías usadas  
-
-- [Flutter](https://flutter.dev/) + Dart 🐦  
-- `fl_chart` → visualizaciones interactivas 📊  
-- `provider` → manejo de estado  
-- Estética kawaii propia 🎨  
-
----
-
-## 🛠️ Requisitos  
-
-- [Flutter](https://docs.flutter.dev/get-started/install) 3.16+  
-- Navegador moderno (Chrome, Edge, Safari).  
-- (Opcional) [Node.js](https://nodejs.org/) para publicar con la CLI de Vercel.  
-
-Ejecutá `flutter doctor` para validar tu entorno.  
-
----
-
-## 📥 Cómo correrlo en tu máquina  
+## Instalación local
 
 ```bash
-git clone https://github.com/Marilu1707/marilu_portfolio.git
-cd marilu_portfolio
-flutter clean
+# 1. Clonar el repositorio
+git clone https://github.com/Marilu1707/portfolio_interactivo.git
+cd portfolio_interactivo
+
+# 2. Instalar dependencias
 flutter pub get
+
+# 3. Correr en el navegador
 flutter run -d chrome
-````
+```
 
-Para compilar la versión web lista para producción:
+Para compilar la versión de producción:
 
 ```bash
-flutter clean
-flutter pub get
-flutter build web --release
+flutter build web --release --web-renderer html
 ```
 
-El build queda en `build/web`.
+---
+
+## Pantallas
+
+| Ruta | Descripción |
+|------|-------------|
+| `/welcome` | Pantalla de bienvenida |
+| `/level1` | Juego Nido Mozzarella |
+| `/level2` | EDA Interactiva |
+| `/level3` | Inventario |
+| `/level4` | Predicción ML |
+| `/level5` | A/B Testing |
+| `/dashboard` | Dashboard Ejecutivo |
 
 ---
 
-## 🚀 Deploy en Vercel
+## Deploy en Vercel
 
-1. **Generar build estático**
+El proyecto se despliega automáticamente con GitHub Actions al hacer push a `main`.
 
-   ```bash
-   flutter clean
-   flutter pub get
-   flutter build web --release
-   ```
+Para deploy manual:
 
-2. **Configurar proyecto**
-
-   * `vercel.json` ya incluye rewrites necesarios (`/(.*) -> /index.html`).
-   * `.gitignore` permite versionar `build/web` para deploy directo.
-
-3. **Deploy desde GitHub**
-
-   * Importá el repo en Vercel.
-   * `Framework preset`: **Other / Static Files**.
-   * `Output Directory`: `build/web`.
-
-4. **Deploy con CLI**
-
-   ```bash
-   npm install -g vercel
-   flutter build web --release
-   vercel deploy build/web --prod
-   ```
-
----
-
-## 👩‍💻 Sobre mí
-
-Soy estudiante de **Negocios Digitales en UADE**, con formación en **Data Science, marketing y desarrollo web**.
-Me apasiona unir **estrategia + tecnología + creatividad** para generar soluciones simples e innovadoras.
-
----
-
-## 📬 Contacto
-
-* ✉️ [mlujanmassironi@gmail.com](mailto:mlujanmassironi@gmail.com)
-* 💼 [LinkedIn](https://www.linkedin.com/in/maria-lujan-massironi/)
-* 🐙 [GitHub](https://github.com/Marilu1707)
-* 📄 [Descargar CV](https://drive.google.com/uc?export=download&id=1Br8mApkGhV-jDszyj39468rD9ye3G9Qy)
-
----
-
-### ✨ Créditos
-
-Diseño y desarrollo: **María Luján Massironi**
-Estilo kawaii inspirado en Tsuki 🌙 y la idea de un **restaurante de quesos interactivo**.
-
+```bash
+npm i -g vercel
+flutter build web --release --web-renderer html
+vercel deploy build/web --prod
 ```
+
+---
+
+## Contacto
+
+- ✉️ [mlujanmassironi@gmail.com](mailto:mlujanmassironi@gmail.com)
+- 💼 [LinkedIn](https://www.linkedin.com/in/maria-lujan-massironi/)
+- 🐙 [GitHub](https://github.com/Marilu1707)
+
+---
+
+Portfolio Interactivo — hecho con amor, datos y mucho queso. 🧀🐭

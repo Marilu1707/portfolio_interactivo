@@ -18,7 +18,7 @@ jobs:
         run: |
           flutter clean
           flutter pub get
-          flutter build web --release --web-renderer canvaskit
+          flutter build web --release
 
       - uses: actions/setup-node@v4
         with:

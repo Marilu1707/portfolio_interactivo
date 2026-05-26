@@ -76,8 +76,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                     ),
                     const SizedBox(height: 28),
                     const Text(
-                      '\u00a1Bienvenido/a a
-Nido Mozzarella!',
+                      '\u00a1Bienvenido/a a Nido Mozzarella!',
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: 28, fontWeight: FontWeight.w900, color: onAccent, height: 1.2,

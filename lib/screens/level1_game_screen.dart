@@ -33,6 +33,7 @@ class _Level1GameScreenState extends State<Level1GameScreen>
   final _rng = Random();
   List<CheeseStat> stats = [];
   bool loading = true;
+  bool _showTutorial = true;
 
   // Marcadores del juego en curso.
   int score = 0;
@@ -60,8 +61,6 @@ class _Level1GameScreenState extends State<Level1GameScreen>
   @override
   void initState() {
     super.initState();
-    _init();
-    // Cuenta regresiva global del nivel.
     _secondsLeft = _maxSeconds;
     _orderTimer = AnimationController(vsync: this, duration: orderDuration)
       ..addStatusListener((s) {
@@ -69,14 +68,7 @@ class _Level1GameScreenState extends State<Level1GameScreen>
           _onOrderTimeout();
         }
       });
-    // Timer global que controla el tiempo límite del nivel.
-    _levelTimer = Timer.periodic(const Duration(seconds: 1), (t) {
-      if (!mounted) return;
-      setState(() => _secondsLeft--);
-      if (_secondsLeft <= 0) {
-        _finishLevel(reason: 'Tiempo agotado');
-      }
-    });
+    _init();
   }
 
   @override
@@ -88,12 +80,21 @@ class _Level1GameScreenState extends State<Level1GameScreen>
 
   // Carga datos de referencia y arranca la primera orden
   Future<void> _init() async {
-    // Lee métricas históricas y ordena por participación para ponderar pedidos.
     final data = await DataService.loadCheeseStats();
     data.sort((a, b) => b.share.compareTo(a.share));
     setState(() {
       stats = data;
       loading = false;
+    });
+  }
+
+  void _startGame() {
+    _levelTimer = Timer.periodic(const Duration(seconds: 1), (t) {
+      if (!mounted) return;
+      setState(() => _secondsLeft--);
+      if (_secondsLeft <= 0) {
+        _finishLevel(reason: 'Tiempo agotado');
+      }
     });
     _nextOrder();
   }
@@ -374,17 +375,36 @@ class _Level1GameScreenState extends State<Level1GameScreen>
       context: context,
       barrierDismissible: false,
       builder: (_) => AlertDialog(
-        title: const Text('Nivel completado'),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: const Row(
+          children: [
+            Text('\ud83c\udfc6 ', style: TextStyle(fontSize: 28)),
+            Expanded(
+              child: Text('\u00a1Nivel completado!',
+                  style: TextStyle(fontWeight: FontWeight.w900, color: Colors.brown)),
+            ),
+          ],
+        ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(reason),
-            const SizedBox(height: 8),
-            Text('Pedidos: \u2009$_orderCount'),
-            Text('Aciertos: \u2009$_hits'),
-            Text('Errores: \u2009$_miss'),
-            Text('Tasa de acierto: \u2009$acc%'),
+            Text(reason, style: const TextStyle(color: Colors.brown)),
+            const SizedBox(height: 16),
+            _resultRow('\ud83d\udccb Pedidos', '$_orderCount/$_maxOrders'),
+            _resultRow('\u2705 Aciertos', '$_hits'),
+            _resultRow('\u274c Errores', '$_miss'),
+            _resultRow('\ud83c\udfaf Precisi\u00f3n', '$acc%'),
+            _resultRow('\ud83d\udd25 Puntaje', '$score'),
+            const Divider(height: 24),
+            Text(
+              double.parse(acc) >= 80
+                  ? '\u00a1Excelente trabajo! Tus datos est\u00e1n listos para el an\u00e1lisis.'
+                  : double.parse(acc) >= 50
+                      ? 'Buen intento. Pod\u00e9s mejorar o pasar al an\u00e1lisis.'
+                      : 'Necesit\u00e1s m\u00e1s pr\u00e1ctica. \u00a1Intent\u00e1 de nuevo!',
+              textAlign: TextAlign.center,
+              style: const TextStyle(fontStyle: FontStyle.italic, color: Colors.brown),
+            ),
           ],
         ),
         actions: [
@@ -393,15 +413,20 @@ class _Level1GameScreenState extends State<Level1GameScreen>
               Navigator.pop(context);
               _restartLevel();
             },
-            child: const Text('Reintentar'),
+            child: const Text('\ud83d\udd04 Reintentar'),
           ),
           ElevatedButton(
             onPressed: () {
               Navigator.pop(context);
               context.read<AppState>().setLevelCompleted(1);
-              Navigator.pushNamed(context, '/level3');
+              Navigator.pushNamed(context, '/level2');
             },
-            child: const Text('Ir al Inventario'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFFFFD76B),
+              foregroundColor: Colors.brown,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            ),
+            child: const Text('\ud83d\udcca Ir al an\u00e1lisis de tus datos'),
           ),
         ],
       ),
@@ -444,7 +469,7 @@ class _Level1GameScreenState extends State<Level1GameScreen>
       MapEntry('Pedido', '$orderDisplay/$_maxOrders'),
       MapEntry('Tiempo', timeDisplay),
       MapEntry('Puntaje', '$score'),
-      MapEntry('Racha', '$streak'),
+      MapEntry('Racha', '🔥 $streak'),
     ];
     final inventoryValues = appState.inventory.values;
     final allOutOfStock =
@@ -477,7 +502,9 @@ class _Level1GameScreenState extends State<Level1GameScreen>
       body: SafeArea(
         child: loading
             ? const Center(child: CircularProgressIndicator())
-            : Center(
+            : _showTutorial
+                ? _buildTutorial()
+                : Center(
                 child: ConstrainedBox(
                   constraints: const BoxConstraints(maxWidth: 900),
                   child: SingleChildScrollView(
@@ -568,9 +595,17 @@ class _Level1GameScreenState extends State<Level1GameScreen>
                                 if (feedback != null)
                                   Chip(
                                     label: Text(feedback!),
-                                    backgroundColor: const Color(0xFFFFE79A),
-                                    labelStyle: const TextStyle(
-                                        color: KawaiiTheme.onAccent,
+                                    backgroundColor: feedback!.startsWith('¡Bien')
+                                        ? const Color(0xFFC8E6C9)
+                                        : feedback!.startsWith('Tiempo')
+                                            ? const Color(0xFFFFE0B2)
+                                            : const Color(0xFFFFCDD2),
+                                    labelStyle: TextStyle(
+                                        color: feedback!.startsWith('¡Bien')
+                                            ? const Color(0xFF2E7D32)
+                                            : feedback!.startsWith('Tiempo')
+                                                ? const Color(0xFFE65100)
+                                                : const Color(0xFFC62828),
                                         fontWeight: FontWeight.w700),
                                   ),
                               ],
@@ -812,6 +847,108 @@ class _Level1GameScreenState extends State<Level1GameScreen>
           ],
         );
       },
+    );
+  }
+
+  Widget _buildTutorial() {
+    return Center(
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 600),
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(24),
+          child: Card(
+            elevation: 0,
+            color: card,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+            child: Padding(
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Image.asset(
+                    'assets/img/mouse_kawaii.png',
+                    width: 100,
+                    fit: BoxFit.contain,
+                    errorBuilder: (_, __, ___) =>
+                        const Icon(Icons.pets, size: 64, color: Colors.brown),
+                  ),
+                  const SizedBox(height: 16),
+                  const Text(
+                    '¡Bienvenid@ a Nido Mozzarella!',
+                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900, color: Colors.brown),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 16),
+                  const Text(
+                    'Los ratoncitos llegan pidiendo quesos. Tu misión: '
+                    'elegir el queso correcto antes de que se acabe el tiempo.',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(fontSize: 16),
+                  ),
+                  const SizedBox(height: 20),
+                  _tutorialItem(Icons.check_circle_outline, 'Acierto', '+10 puntos base + 2 por racha'),
+                  _tutorialItem(Icons.cancel_outlined, 'Error', '-5 puntos y se pierde la racha'),
+                  _tutorialItem(Icons.timer_outlined, 'Tiempo por pedido', '12 segundos antes de que expire'),
+                  _tutorialItem(Icons.flag_outlined, 'Meta', '20 pedidos en 60 segundos'),
+                  const SizedBox(height: 24),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 52,
+                    child: FilledButton(
+                      onPressed: () {
+                        setState(() => _showTutorial = false);
+                        _startGame();
+                      },
+                      style: FilledButton.styleFrom(
+                        backgroundColor: const Color(0xFFFFD76B),
+                        foregroundColor: Colors.brown,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                      ),
+                      child: const Text('¡Empezar!', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 18)),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _tutorialItem(IconData icon, String label, String desc) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 6),
+      child: Row(
+        children: [
+          Icon(icon, color: Colors.brown, size: 22),
+          const SizedBox(width: 12),
+          Expanded(
+            child: RichText(
+              text: TextSpan(
+                style: const TextStyle(color: Colors.brown, fontSize: 14),
+                children: [
+                  TextSpan(text: '$label: ', style: const TextStyle(fontWeight: FontWeight.w700)),
+                  TextSpan(text: desc),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _resultRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(label, style: const TextStyle(fontSize: 15, color: Colors.brown)),
+          Text(value, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: Colors.brown)),
+        ],
+      ),
     );
   }
 }
