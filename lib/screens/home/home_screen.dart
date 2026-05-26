@@ -53,26 +53,6 @@ class HomeScreen extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 16),
-        const _HomeCard(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _H3('💼 Experiencia'),
-              SizedBox(height: 8),
-              Text(
-                'Asistente Virtual — Tango Management Services',
-                style: TextStyle(fontWeight: FontWeight.w700),
-              ),
-              Text('Dic 2024 – Actualidad'),
-              SizedBox(height: 8),
-              _Dot('Dashboards operativos en Excel (Power Query, Tablas Dinámicas) y Google Sheets'),
-              _Dot('Tracking de 50+ contratos activos: vencimientos, renovaciones y documentación'),
-              _Dot('SOPs que reducen tareas manuales y aceleran onboarding'),
-              _Dot('Comunicación con clientes internacionales en inglés y español'),
-            ],
-          ),
-        ),
-        const SizedBox(height: 16),
         _buildResponsiveCardsRow(
           isMobile: isMobile,
           cards: const [
@@ -247,40 +227,52 @@ class HomeScreen extends StatelessWidget {
                       const SizedBox(height: 24),
 
                       // Contacto
-                      const _H3('📬 Contacto'),
-                      const SizedBox(height: 10),
-                      Wrap(
-                        spacing: 12,
-                        runSpacing: 12,
-                        children: [
-                          _contactBtn(Icons.business_rounded, 'LinkedIn', () => _open(linkedinUrl)),
-                          _contactBtn(Icons.code_rounded, 'GitHub', () => _open(githubUrl)),
-                          _contactBtn(
-                            Icons.picture_as_pdf_rounded,
-                            'Descargar CV',
-                            () async {
-                              final ok = await descargarCV();
-                              if (!context.mounted) return;
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text(ok ? 'Abriendo CV…' : 'No se logró abrir el CV.'),
-                                  behavior: SnackBarBehavior.floating,
+                      _HomeCard(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const _H3('Contacto'),
+                            const SizedBox(height: 12),
+                            Wrap(
+                              spacing: 12,
+                              runSpacing: 12,
+                              children: [
+                                _contactBtn(Icons.business_rounded, 'LinkedIn', () => _open(linkedinUrl)),
+                                _contactBtn(Icons.code_rounded, 'GitHub', () => _open(githubUrl)),
+                                _contactBtn(
+                                  Icons.picture_as_pdf_rounded,
+                                  'Descargar CV',
+                                  () async {
+                                    final ok = await descargarCV();
+                                    if (!context.mounted) return;
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text(ok ? 'Abriendo CV…' : 'No se logró abrir el CV.'),
+                                        behavior: SnackBarBehavior.floating,
+                                      ),
+                                    );
+                                  },
                                 ),
-                              );
-                            },
-                          ),
-                        ],
+                              ],
+                            ),
+                          ],
+                        ),
                       ),
+                      const SizedBox(height: 16),
                       // Footer
                       Container(
-                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 20),
                         decoration: BoxDecoration(
                           color: const Color(0xFFFFE7A6),
-                          borderRadius: BorderRadius.circular(10),
+                          borderRadius: BorderRadius.circular(14),
                         ),
                         alignment: Alignment.center,
-                        child: const Text('© 2025 María Luján Massironi — Data Analytics & AI', style: TextStyle(color: onAccent)),
+                        child: const Text(
+                          '© 2025 María Luján Massironi — Data Analytics & AI',
+                          style: TextStyle(color: onAccent, fontSize: 13),
+                        ),
                       ),
+                      const SizedBox(height: 8),
                     ],
                   ),
                 ),
