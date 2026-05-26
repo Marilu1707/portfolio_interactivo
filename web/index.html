@@ -25,20 +25,8 @@
       href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;700&display=swap"
     />
     <meta name="theme-color" content="#FFF9E8" />
-    <script src="flutter.js" defer></script>
+    <script src="flutter_bootstrap.js" async></script>
   </head>
   <body>
-    <script>
-      window.addEventListener('error', e => {
-        const pre = document.createElement('pre');
-        pre.textContent = 'JS ERROR: ' + e.error;
-        pre.style.cssText = 'white-space:pre-wrap;padding:16px;background:#fee;color:#900';
-        document.body.prepend(pre);
-      });
-
-      window.addEventListener('load', function () {
-        _flutter.loader.load();
-      });
-    </script>
   </body>
 </html>
