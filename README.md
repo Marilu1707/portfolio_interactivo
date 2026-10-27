@@ -29,6 +29,24 @@ La IA fue compañera de trabajo durante el desarrollo — para explorar ideas, e
 
 ---
 
+## Formación y proyectos
+
+La home suma tres secciones con lo que vengo estudiando:
+
+- **Proyectos:** accesos directos a los repositorios principales.
+  - [Nido Mozzarella · ML](https://github.com/Marilu1707/nido-mozzarella-data-science): pronóstico de la producción de quesos con APIs públicas, validación cruzada temporal, ensamble de modelos y SHAP.
+  - [Diplomatura · entregas](https://github.com/Marilu1707/diplomatura-entregas): todas las entregas de la diplomatura, materia por materia.
+- **Diplomatura en Data Science (Coderhouse):** un proyecto por curso, cada uno con link a su entrega.
+  - Análisis y BI: Data Analytics, Excel, SQL, Power BI, Tableau y Looker Studio.
+  - Data Science: Data Science I y II.
+  - IA: IA Generación de Prompts e Inteligencia Artificial.
+  - Gestión y negocio: Metodologías Ágiles y Cultura Digital.
+- **Facultad:** materias de Ingeniería en Inteligencia Artificial (UP) y de programación.
+  - Sistemas Digitales I y Computación Aplicada.
+  - Estructura y Algoritmos.
+
+---
+
 ## Data Science en detalle
 
 | Concepto | Implementación |
