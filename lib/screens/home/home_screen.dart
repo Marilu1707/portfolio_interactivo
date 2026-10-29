@@ -52,6 +52,8 @@ class HomeScreen extends StatelessWidget {
         _entrega('metodologias-agiles')),
     _Curso('Cultura Digital', 'Feria Auto Leads: idea de negocio digital', 'Estrategia digital',
         _entrega('cultura-digital')),
+    _Curso('Oratoria', 'Discurso argumentativo con estructura Minto/SCQR y protocolo de regulación',
+        'Canva · storytelling', 'https://canva.link/klc03cz9of7dmj3'),
   ];
 
   static Future<void> _open(String url) async {

@@ -40,7 +40,7 @@ La home suma tres secciones con lo que vengo estudiando:
   - Análisis y BI: Data Analytics, Excel, SQL, Power BI, Tableau y Looker Studio.
   - Data Science: Data Science I y II.
   - IA: IA Generación de Prompts e Inteligencia Artificial.
-  - Gestión y negocio: Metodologías Ágiles y Cultura Digital.
+  - Gestión y comunicación: Metodologías Ágiles, Cultura Digital y Oratoria.
 - **Facultad:** materias de Ingeniería en Inteligencia Artificial (UP) y de programación.
   - Sistemas Digitales I y Computación Aplicada.
   - Estructura y Algoritmos.
